@@ -1,7 +1,9 @@
 #!/usr/local/bin/perl
 
 # Yasunori Yamamoto / Database Center for Life Science
-# 2013.05.20
+# 2013.11.28 辞書ファイル仕様変更による。
+# 市川さん>宮澤さんの後任が記載するルールを変えたので、正解データとしてngram掛けるのは、第3タブが○になっているもの、だけではなく、「delとRNA以外」としてください。
+# 2013.12.19 前後の"の有無の他に、出典を示す[nite]的な文字の後に"があるものと前に"があるものがあって全てに対応していなかったことに対応。
 
 use warnings;
 use strict;
@@ -9,13 +11,18 @@ use Fatal qw/open/;
 use simstring;
 use Getopt::Std;
 
-my $niteAll = "nite_ALL_130517.txt";
-my $akuz = "AKUZ.anno.tab";
-my $gohsu = "GOHSU_genelist.tab_anno.tab.org";
+my $niteAll = "nite_ALL_1305_99.txt";
+my $akuz   = "AKUZ.anno.tab";
+my $gohsu  = "GOHSU_genelist.tab_anno.tab.org";
+my $gonam  = "GONAM_genelist.tab_anno.tab.org";
+my $gs4    = "GS4_genelist.tab_anno_eco.tab.org";
+my $val01s = "VAL01S_genelist.tab_anno(original).tab";
+my $vez01s = "VEZ01S_genelist.tab_anno(original).tab";
 
 my @sp_words = qw/putative probable possible/;
 
 my $sysroot = '/opt/services2/yayamamo/NITE/';
+my $evaldir = '20131122_dbcls/';
 my $cos_threshold = 0.6; # cosine距離で類似度を測る際に用いる閾値。この値以上類似している場合は変換対象の候補とする。
 my $e_threashold = 30;   # E列での表現から候補を探す場合、辞書中での最大出現頻度がここで指定する数未満の場合のもののみを対象とする。
 my $cs_max = 5;          # 複数表示する候補が在る場合の最大表示数
@@ -47,12 +54,12 @@ open(my $nite_all, $sysroot.$niteAll);
 while(<$nite_all>){
     chomp;
     my (undef, $sno, $chk, undef, $name, $b4name, undef) = split /\t/;
-    next unless $chk eq 'o';
+    next if $chk eq 'RNA' or $chk eq 'del' or $chk eq 'OK';
 
-    $name =~ s/^"//;
-    $name =~ s/"$//;
-    $b4name =~ s/^"//;
-    $b4name =~ s/"$//;
+    $name =~ s/^"\s*//;
+    $name =~ s/\s*"\s*$//;
+    $b4name =~ s/^"\s*//;
+    $b4name =~ s/\s*"\s*$//;
 
     for ( @sp_words ){
 	$name =~ s/^$_\W+//i;
@@ -99,8 +106,7 @@ while(<$AKUZ>){
     chomp;
     my @vals = split /\t/;
     print join("\t", ("AKUZ", @vals[0..6]));
-    my $query = $vals[6];
-    retrieve($query);
+    retrieve($vals[6]);
 }
 close($AKUZ);
 
@@ -110,17 +116,62 @@ while(<$GOHSU>){
     chomp;
     my @vals = split /\t/;
     print join("\t", ("GOHSU", @vals[0..5]));
-    (my $query = $vals[5]) =~ s/ \[\w+\]$//;
-    retrieve($query);
+    retrieve($vals[5]);
 }
 close($GOHSU);
+
+open(my $GONAM, $sysroot.$evaldir.$gonam);
+while(<$GONAM>){
+    next if /^#/;
+    chomp;
+    my @vals = split /\t/;
+    print join("\t", ("GONAM", @vals[0..5]));
+    retrieve($vals[5]);
+}
+close($GONAM);
+
+open(my $GS4, $sysroot.$evaldir.$gs4);
+while(<$GS4>){
+    next if /^#/;
+    next if /^ser#/;
+    chomp;
+    my @vals = split /\t/;
+    print join("\t", ("GS4", @vals[0..5]));
+    retrieve($vals[5]);
+}
+close($GS4);
+
+open(my $VAL01S, $sysroot.$evaldir.$val01s);
+while(<$VAL01S>){
+    next if /^#/;
+    chomp;
+    my @vals = split /\t/;
+    print join("\t", ("VAL01S", @vals[0..5]));
+    retrieve($vals[5]);
+}
+close($VAL01S);
+
+open(my $VEZ01S, $sysroot.$evaldir.$vez01s);
+while(<$VEZ01S>){
+    next if /^#/;
+    chomp;
+    my @vals = split /\t/;
+    print join("\t", ("VEZ01S", @vals[0..5]));
+    retrieve($vals[5]);
+}
+close($VEZ01S);
 
 $niteall_d_cs_db->close;
 $niteall_e_cs_db->close;
 
 sub retrieve {
     my $query = shift;
+    my $oq = $query;
     $query = lc($query);
+    $query =~ s/^"\s*//;
+    $query =~ s/\s*"\s*$//;
+    $query =~ s/\s+\[\w+\]$//;
+    $query =~ s/\s*"$//;
     $query =~ s{[-/,]}{ }g;
     $query =~ s/  +/ /g;
     my $prfx = '';
@@ -132,7 +183,7 @@ sub retrieve {
         }
     }
     if($convtable{$query}){
-	print "\tex\t", $prfx. $convtable{$query};
+	print "\tex\t", $prfx. $convtable{$query}, "\tconvert_from: ", $query;
     }else{
 	my $retr = $niteall_d_cs_db->retrieve($query);
 	my %qtms = map {$_ => 1} grep {s/\W+$//;$histogram{$_}} (split " ", $query);
