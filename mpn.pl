@@ -1,5 +1,8 @@
 #!/usr/local/bin/perl
 
+# Text::TogoAnnotatorを利用したバージョン
+# yayamamo 2014/06/12
+
 use warnings;
 use strict;
 use Fatal qw/open/;
