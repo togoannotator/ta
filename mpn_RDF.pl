@@ -1,5 +1,10 @@
 #!/usr/local/bin/perl
 
+# Text::TogoAnnotatorを利用したバージョン
+# yayamamo 2014/06/12
+# 注意点: 従来プログラムではretrieve内でqueryが空のときは'hypothetical protein'を与えていたが、削除。
+#      : 呼出し側で行うことを想定する。
+
 # Yasunori Yamamoto / Database Center for Life Science
 # 2013.05.20
 # Takatomo Fujisawa / National Institute of Genetics
