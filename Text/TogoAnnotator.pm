@@ -10,6 +10,7 @@ package Text::TogoAnnotator;
 use warnings;
 use strict;
 use Fatal qw/open/;
+use File::Path 'mkpath';
 use simstring;
 
 my ($sysroot, $niteAll);
@@ -119,6 +120,7 @@ sub closeDicts {
 }
 
 sub retrieve {
+    shift;
     my $query = my $oq = shift;
     # $query ||= 'hypothetical protein';
     $query = lc($query);
