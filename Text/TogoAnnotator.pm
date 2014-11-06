@@ -13,17 +13,21 @@ package Text::TogoAnnotator;
 # 「辞書で"del"が付いているものは、人の目で確認することが望ましいという意味です。」とのコメントを受け、出力で明示するようにした。
 # 具体的には、result:$query, match:"del", info:"Human check preferable" が返る。
 # ハイフンの有無だけでなく空白の有無も問題を生じさせうるので、全ての空白を取り除く処理を加えてみた。
+# 2014.11.7
+# Bag::Similarity::Cosineモジュールの利用で実際のcosine距離を取得してみる。
+# なお、simstringには距離を取得する機能はない。
 
 use warnings;
 use strict;
 use Fatal qw/open/;
 use File::Path 'mkpath';
+use Bag::Similarity::Cosine;
 use simstring;
 
 my ($sysroot, $niteAll);
 my ($nitealldb_d_name, $nitealldb_e_name);
 my ($niteall_d_cs_db, $niteall_e_cs_db);
-my ($cos_threshold, $e_threashold, $cs_max, $n_gram);
+my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object);
 
 my (@sp_words, @avoid_cs_terms);
 my (%correct_definitions, %histogram, %convtable, %negative_min_words, %wospconvtableD, %wospconvtableE);
@@ -54,6 +58,8 @@ sub init {
     $e_threashold //= 30;
     $cs_max //= 5;
     $n_gram //= 3;
+
+    $cosine_object = Bag::Similarity::Cosine->new;
 
     readNITEdict();
 }
@@ -200,7 +206,7 @@ sub retrieve {
 	#####
 	my %qtms = map {$_ => 1} grep {s/\W+$//;$histogram{$_}} (split " ", $query);
 	if($retr->[0]){
-	    my ($minfreq, $minword, $ifhit) = getScore($retr, \%qtms, 1);
+	    my ($minfreq, $minword, $ifhit, $cosdist) = getScore($retr, \%qtms, 1, $qwosp);
 	    my %cache;
 	    #全ての空白を取り除く処理をした場合には検索結果の文字列を復元する必要があるため、下記部分をコメントアウトしている。
 	    #my @out = sort {$minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /} grep {$cache{$_}++; $cache{$_} == 1} @$retr;
@@ -211,7 +217,9 @@ sub retrieve {
 		    push @convretr, $_;
 		}
 	    }
-	    my @out = sort {$minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /} grep {$cache{$_}++; $cache{$_} == 1} @convretr;
+	    my @out = sort {
+		$cosdist->{$b} <=> $cosdist->{$a} || $minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /
+	    } grep {$cache{$_}++; $cache{$_} == 1} @convretr;
 	    #####
 	    my $le = (@out > $cs_max)?($cs_max-1):$#out;
 	    # print "\tcs\t", join(" @@ ", (map {$prfx.$correct_definitions{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
@@ -230,11 +238,12 @@ sub retrieve {
 	    my $retr_e = $niteall_e_cs_db->retrieve($qwosp);
 	    #####
 	    if($retr_e->[0]){
-		my ($minfreq, $minword, $ifhit) = getScore($retr_e, \%qtms, 0);
+		my ($minfreq, $minword, $ifhit, $cosdist) = getScore($retr_e, \%qtms, 0, $qwosp);
 		my @hits = keys %$ifhit;
 		my %cache;
-		my @out = sort {$minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /}
-		grep {$cache{$_}++; $cache{$_} == 1 && $minfreq->{$_} < $e_threashold} @hits;
+		my @out = sort {
+		    $cosdist->{$b} <=> $cosdist->{$a} || $minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /
+		} grep {$cache{$_}++; $cache{$_} == 1 && $minfreq->{$_} < $e_threashold} @hits;
 		my $le = (@out > $cs_max)?($cs_max-1):$#out;
 		# print "\tbcs\t", join(" % ", (map {$prfx.$convtable{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
 		if(defined $out[0] && $avoidcsFlag && $minfreq->{$out[0]} == -1 && $negative_min_words{$minword->{$out[0]}}){
@@ -261,7 +270,8 @@ sub getScore {
     my $retr = shift;
     my $qtms = shift;
     my $minf = shift;
-    my (%minfreq, %minword, %ifhit);
+    my $query = shift;
+    my (%minfreq, %minword, %ifhit, %cosdistance);
     # 対象タンパク質のスコアは、当該タンパク質を構成する単語それぞれにつき、検索対象辞書中での当該単語の出現頻度のうち最小値を割り当てる
     # 最小値を持つ語は $minword{$_} に代入する
     # また、検索タンパク質名を構成する単語が、検索対象辞書からヒットした各タンパク質名に含まれている場合は $ifhit{$_} にフラグが立つ
@@ -270,7 +280,9 @@ sub getScore {
     my $wospct = ($minf)? \%wospconvtableD : \%wospconvtableE;
     #####
     for (@$retr){
+	my $wosp = $_;               # <--- 全ての空白を取り除く処理をした場合への対応
 	for (keys %{$wospct->{$_}}){ # <--- 全ての空白を取り除く処理をした場合への対応
+	    $cosdistance{$_} = $cosine_object->similarity($query, $wosp);
 	    my $score = 100000;
 	    my $word = '';
 	    my $hitflg = 0;
@@ -289,7 +301,7 @@ sub getScore {
 	    $minfreq{$_} = $score;
 	    $minword{$_} = $word;
 	    $ifhit{$_}++ if $hitflg;
-	}
+	}                            # <--- 全ての空白を取り除く処理をした場合への対応
     }
     # 検索タンパク質名を構成する単語が、ヒットした各タンパク質名に複数含まれる場合には、その中で検索対象辞書中での出現頻度スコアが最小であるものを採用する
     # そして最小の語のスコアは-1とする。
@@ -306,7 +318,7 @@ sub getScore {
 	    $minfreq{$_} = -1 if $minword{$_} eq $minword{$leastwrd};
 	}
     }
-    return (\%minfreq, \%minword, \%ifhit);
+    return (\%minfreq, \%minword, \%ifhit, \%cosdistance);
 }
 
 1;
