@@ -48,7 +48,7 @@ my $nitealldb_e_name = $sysroot.'cdb_nite_ALL/e';
 my $niteall_d_db = simstring::writer->new($nitealldb_d_name, $n_gram);
 my $niteall_e_db = simstring::writer->new($nitealldb_e_name, $n_gram);
 
-my (%history, %histogram, %convtable);
+my (%correct_definitions, %histogram, %convtable);
 my $total = 0;
 
 open(my $nite_all, $sysroot.$niteAll);
@@ -80,8 +80,8 @@ while(<$nite_all>){
     my $lcname = lc($name);
     $lcname =~ s{[-/,]}{ }g;
     $lcname =~ s/  +/ /g;
-    next if $history{$lcname};
-    $history{$lcname} = $name;
+    next if $correct_definitions{$lcname};
+    $correct_definitions{$lcname} = $name;
     for ( split " ", $lcname ){
 	s/\W+$//;
 	$histogram{$_}++;
@@ -183,7 +183,9 @@ sub retrieve {
 	    last;
         }
     }
-    if($convtable{$query}){
+    if($correct_definitions{$query}){
+	print "\tex\t", $prfx. $correct_definitions{$query}, "\tin_dictionary: ", $query;
+    }elsif($convtable{$query}){
 	print "\tex\t", $prfx. $convtable{$query}, "\tconvert_from: ", $query;
     }else{
 	my $retr = $niteall_d_cs_db->retrieve($query);
@@ -193,7 +195,7 @@ sub retrieve {
 	    my %cache;
 	    my @out = sort {$minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /} grep {$cache{$_}++; $cache{$_} == 1} @$retr;
 	    my $le = (@out > $cs_max)?($cs_max-1):$#out;
-	    print "\tcs\t", join(" @@ ", (map {$prfx.$history{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+	    print "\tcs\t", join(" @@ ", (map {$prfx.$correct_definitions{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
 	}else{
 	    my $retr_e = $niteall_e_cs_db->retrieve($query);
 	    if($retr_e->[0]){

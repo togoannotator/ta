@@ -6,6 +6,13 @@ package Text::TogoAnnotator;
 # 2013.12.19 前後の"の有無の他に、出典を示す[nite]的な文字の後に"があるものと前に"があるものがあって全てに対応していなかったことに対応。
 # 2014.06.12 モジュール化
 # getScore関数内で//オペレーターを使用しているため、Perlバージョンが5.10以降である必要がある。
+# 2014.09.19 14/7/23 リクエストに対応
+# 1. 既に正解辞書に完全一致するエントリーがある場合は、そのままにする。
+# 2. "subunit", "domain protein", "family protein" などがあり、辞書中にエントリーが無い場合は、そのままにする。
+# 2014.11.6
+# 「辞書で"del"が付いているものは、人の目で確認することが望ましいという意味です。」とのコメントを受け、出力で明示するようにした。
+# 具体的には、result:$query, match:"del", info:"Human check preferable" が返る。
+# ハイフンの有無だけでなく空白の有無も問題を生じさせうるので、全ての空白を取り除く処理を加えてみた。
 
 use warnings;
 use strict;
@@ -18,8 +25,8 @@ my ($nitealldb_d_name, $nitealldb_e_name);
 my ($niteall_d_cs_db, $niteall_e_cs_db);
 my ($cos_threshold, $e_threashold, $cs_max, $n_gram);
 
-my @sp_words;
-my (%history, %histogram, %convtable);
+my (@sp_words, @avoid_cs_terms);
+my (%correct_definitions, %histogram, %convtable, %negative_min_words, %wospconvtableD, %wospconvtableE);
 
 sub init {
     my $_this = shift;
@@ -31,6 +38,16 @@ sub init {
     $niteAll       = shift; # NITE辞書名
 
     @sp_words = qw/putative probable possible/;
+    @avoid_cs_terms = (
+	"subunit",
+	"domain protein",
+	"family protein",
+	"-like protein",
+	);
+    for ( @avoid_cs_terms ){
+	s/[^\w\s]//g;
+	do {$negative_min_words{$_} = 1} for split " ";
+    }
 
     # 未定議の場合の初期値
     $cos_threshold //= 0.6;
@@ -65,8 +82,10 @@ sub readNITEdict {
     while(<$nite_all>){
 	chomp;
 	my (undef, $sno, $chk, undef, $name, $b4name, undef) = split /\t/;
-	next if $chk eq 'RNA' or $chk eq 'del' or $chk eq 'OK';
+	next if $chk eq 'RNA' or $chk eq 'OK';
+	# next if $chk eq 'RNA' or $chk eq 'del' or $chk eq 'OK';
 
+	$name //= "";   # $chk が "del" のときは $name が空。
 	$name =~ s/^"\s*//;
 	$name =~ s/\s*"\s*$//;
 	$b4name =~ s/^"\s*//;
@@ -84,20 +103,32 @@ sub readNITEdict {
 		$lcb4name =~ s/^$_\s+//;
 	    }
 	}
-	$convtable{$lcb4name} = $name;
-	$niteall_e_db->insert($lcb4name);
 
-	my $lcname = lc($name);
-	$lcname =~ s{[-/,]}{ }g;
-	$lcname =~ s/  +/ /g;
-	next if $history{$lcname};
-	$history{$lcname} = $name;
-	for ( split " ", $lcname ){
-	    s/\W+$//;
-	    $histogram{$_}++;
-	    $total++;
+	if($chk eq 'del'){
+	    $convtable{$lcb4name} = '__DEL__';
+	}else{
+	    $convtable{$lcb4name} = $name;
+
+	    # $niteall_e_db->insert($lcb4name);
+	    (my $wosplcb4name = $lcb4name) =~ s/ //g;   #### 全ての空白を取り除く
+	    $niteall_e_db->insert($wosplcb4name);
+	    $wospconvtableE{$wosplcb4name}{$lcb4name}++;
+
+	    my $lcname = lc($name);
+	    $lcname =~ s{[-/,]}{ }g;
+	    $lcname =~ s/  +/ /g;
+	    next if $correct_definitions{$lcname};
+	    $correct_definitions{$lcname} = $name;
+	    for ( split " ", $lcname ){
+		s/\W+$//;
+		$histogram{$_}++;
+		$total++;
+	    }
+	    #$niteall_d_db->insert($lcname);
+	    (my $wosplcname = $lcname) =~ s/ //g;   #### 全ての空白を取り除く
+	    $niteall_d_db->insert($wosplcname);
+	    $wospconvtableD{$wosplcname}{$lcname}++;
 	}
-	$niteall_d_db->insert($lcname);
     }
     close($nite_all);
 
@@ -139,40 +170,86 @@ sub retrieve {
 	    last;
         }
     }
-    if($convtable{$query}){
-	# print "\tex\t", $prfx. $convtable{$query}, "\tconvert_from: ", $query;
+    if($correct_definitions{$query}){
+	# print "\tex\t", $prfx. $correct_definitions{$query}, "\tin_dictionary: ", $query;
         $match ='ex';
-        $result = $prfx. $convtable{$query};
-	$info = 'convert_from: '. $query;
+        $result = $prfx. $correct_definitions{$query};
+	$info = 'in_dictionary: '. $query;
+    }elsif($convtable{$query}){
+	# print "\tex\t", $prfx. $convtable{$query}, "\tconvert_from: ", $query;
+	if($convtable{$query} eq '__DEL__'){
+	    $match = 'del';
+	    $result = $query;
+	    $info = 'Human check preferable';
+	}else{
+	    $match = 'ex';
+	    $result = $prfx. $convtable{$query};
+	    $info = 'convert_from: '. $query;
+	}
     }else{
-	my $retr = $niteall_d_cs_db->retrieve($query);
+	my $avoidcsFlag = 0;
+	for ( @avoid_cs_terms ){
+	    $avoidcsFlag = ($query =~ m,\b$_$,);
+	    last if $avoidcsFlag;
+	}
+
+	#全ての空白を取り除く処理をした場合への対応
+	#my $retr = $niteall_d_cs_db->retrieve($query);
+	(my $qwosp = $query) =~ s/ //g;
+	my $retr = $niteall_d_cs_db->retrieve($qwosp);
+	#####
 	my %qtms = map {$_ => 1} grep {s/\W+$//;$histogram{$_}} (split " ", $query);
 	if($retr->[0]){
 	    my ($minfreq, $minword, $ifhit) = getScore($retr, \%qtms, 1);
 	    my %cache;
-	    my @out = sort {$minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /} grep {$cache{$_}++; $cache{$_} == 1} @$retr;
+	    #全ての空白を取り除く処理をした場合には検索結果の文字列を復元する必要があるため、下記部分をコメントアウトしている。
+	    #my @out = sort {$minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /} grep {$cache{$_}++; $cache{$_} == 1} @$retr;
+	    #その代わり以下のコードが必要。
+	    my @convretr;
+	    for ( @$retr ){
+		for ( keys %{$wospconvtableD{$_}} ){
+		    push @convretr, $_;
+		}
+	    }
+	    my @out = sort {$minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /} grep {$cache{$_}++; $cache{$_} == 1} @convretr;
+	    #####
 	    my $le = (@out > $cs_max)?($cs_max-1):$#out;
-	    # print "\tcs\t", join(" @@ ", (map {$prfx.$history{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
-            $match = 'cs';
-            $result = $prfx.$history{$out[0]};
-            $info   = join(" @@ ", (map {$prfx.$history{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+	    # print "\tcs\t", join(" @@ ", (map {$prfx.$correct_definitions{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+	    if($avoidcsFlag && $minfreq->{$out[0]} == -1 && $negative_min_words{$minword->{$out[0]}}){
+		$match ='no_hit';
+		$result = $oq;
+		$info = 'cs_avoidance: '. $query;
+	    }else{
+		$match = 'cs';
+		$result = $prfx.$correct_definitions{$out[0]};
+		$info   = join(" @@ ", (map {$prfx.$correct_definitions{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+	    }
 	}else{
-	    my $retr_e = $niteall_e_cs_db->retrieve($query);
+	    #全ての空白を取り除く処理をした場合への対応
+	    #my $retr_e = $niteall_e_cs_db->retrieve($query);
+	    my $retr_e = $niteall_e_cs_db->retrieve($qwosp);
+	    #####
 	    if($retr_e->[0]){
 		my ($minfreq, $minword, $ifhit) = getScore($retr_e, \%qtms, 0);
 		my @hits = keys %$ifhit;
 		my %cache;
 		my @out = sort {$minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /}
-		          grep {$cache{$_}++; $cache{$_} == 1 && $minfreq->{$_} < $e_threashold} @hits;
+		grep {$cache{$_}++; $cache{$_} == 1 && $minfreq->{$_} < $e_threashold} @hits;
 		my $le = (@out > $cs_max)?($cs_max-1):$#out;
 		# print "\tbcs\t", join(" % ", (map {$prfx.$convtable{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
-                $match = 'bcs';
-                $result = defined $out[0]  ? $prfx.$convtable{$out[0]} : $oq;
-                $info   = join(" % ", (map {$prfx.$convtable{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+		if(defined $out[0] && $avoidcsFlag && $minfreq->{$out[0]} == -1 && $negative_min_words{$minword->{$out[0]}}){
+		    $match ='no_hit';
+		    $result = $oq;
+		    $info = 'bcs_avoidance: '. $query;
+		}else{
+		    $match = 'bcs';
+		    $result = defined $out[0] ? $prfx.$convtable{$out[0]} : $oq;
+		    $info   = join(" % ", (map {$prfx.$convtable{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+		}
 	    } else {
 		# print "\tno_hit\t";
-                $match  = 'no_hit';
-                $result = $oq;
+		$match  = 'no_hit';
+		$result = $oq;
 	    }
 	}
     }
@@ -188,25 +265,31 @@ sub getScore {
     # 対象タンパク質のスコアは、当該タンパク質を構成する単語それぞれにつき、検索対象辞書中での当該単語の出現頻度のうち最小値を割り当てる
     # 最小値を持つ語は $minword{$_} に代入する
     # また、検索タンパク質名を構成する単語が、検索対象辞書からヒットした各タンパク質名に含まれている場合は $ifhit{$_} にフラグが立つ
+
+    #全ての空白を取り除く処理をした場合への対応
+    my $wospct = ($minf)? \%wospconvtableD : \%wospconvtableE;
+    #####
     for (@$retr){
-	my $score = 100000;
-	my $word = '';
-	my $hitflg = 0;
-	for (split){
-	    my $h = $histogram{$_} // 0;
-	    if($qtms->{$_}){
-		$hitflg++;
-	    }else{
-		$h += 10000;
+	for (keys %{$wospct->{$_}}){ # <--- 全ての空白を取り除く処理をした場合への対応
+	    my $score = 100000;
+	    my $word = '';
+	    my $hitflg = 0;
+	    for (split){
+		my $h = $histogram{$_} // 0;
+		if($qtms->{$_}){
+		    $hitflg++;
+		}else{
+		    $h += 10000;
+		}
+		if($score > $h){
+		    $score = $h;
+		    $word = $_;
+		}
 	    }
-	    if($score > $h){
-		$score = $h;
-		$word = $_;
-	    }
+	    $minfreq{$_} = $score;
+	    $minword{$_} = $word;
+	    $ifhit{$_}++ if $hitflg;
 	}
-	$minfreq{$_} = $score;
-	$minword{$_} = $word;
-	$ifhit{$_}++ if $hitflg;
     }
     # 検索タンパク質名を構成する単語が、ヒットした各タンパク質名に複数含まれる場合には、その中で検索対象辞書中での出現頻度スコアが最小であるものを採用する
     # そして最小の語のスコアは-1とする。
