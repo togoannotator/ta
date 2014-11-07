@@ -22,15 +22,26 @@ use strict;
 use Fatal qw/open/;
 use File::Path 'mkpath';
 use Bag::Similarity::Cosine;
+use String::Trim;
 use simstring;
 
 my ($sysroot, $niteAll);
 my ($nitealldb_d_name, $nitealldb_e_name);
 my ($niteall_d_cs_db, $niteall_e_cs_db);
-my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object);
+my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars);
 
-my (@sp_words, @avoid_cs_terms);
-my (%correct_definitions, %histogram, %convtable, %negative_min_words, %wospconvtableD, %wospconvtableE);
+my (
+    @sp_words, # マッチ対象から外すが、マッチ処理後は元に戻して結果に表示させる語群。
+    @avoid_cs_terms # コサイン距離を用いた類似マッチの対象にはしない文字列群。種々の辞書に完全一致しない場合はno_hitとする。
+    );
+my (
+    %correct_definitions, # マッチ用内部辞書には全エントリが小文字化されて入るが、同じく小文字化したクエリが完全一致した場合には辞書に既にあるとして処理する。
+    %histogram,
+    %convtable,           # 書換辞書の書換前後の対応表。小文字化したクエリが、同じく小文字化した書換え前の語に一致した場合は対応する書換後の語を一致させて出力する。
+    %negative_min_words,  # コサイン距離を用いた類似マッチではクエリと辞書中のエントリで文字列としては類似していても、両者の間に共通に出現する語が無い場合がある。
+                          # その場合、共通に出現する語がある辞書中エントリを優先させる処理をしているが、本処理が逆効果となってしまう語がここに含まれる。
+    %wospconvtableD, %wospconvtableE # 全空白文字除去前後の対応表。書換え前と後用それぞれ。
+    );
 
 sub init {
     my $_this = shift;
@@ -47,6 +58,7 @@ sub init {
 	"domain protein",
 	"family protein",
 	"-like protein",
+	"fragment",
 	);
     for ( @avoid_cs_terms ){
 	s/[^\w\s]//g;
@@ -58,6 +70,7 @@ sub init {
     $e_threashold //= 30;
     $cs_max //= 5;
     $n_gram //= 3;
+    $ignore_chars = qr{[-/,:+()]};
 
     $cosine_object = Bag::Similarity::Cosine->new;
 
@@ -102,7 +115,8 @@ sub readNITEdict {
 	}
 
 	my $lcb4name = lc($b4name);
-	$lcb4name =~ s{[-/,]}{ }g;
+	$lcb4name =~ s{$ignore_chars}{ }g;
+	$lcb4name = trim($lcb4name);
 	$lcb4name =~ s/  +/ /g;
 	for ( @sp_words ){
 	    if(index($lcb4name, $_) == 0){
@@ -121,7 +135,8 @@ sub readNITEdict {
 	    $wospconvtableE{$wosplcb4name}{$lcb4name}++;
 
 	    my $lcname = lc($name);
-	    $lcname =~ s{[-/,]}{ }g;
+	    $lcname =~ s{$ignore_chars}{ }g;
+	    $lcname = trim($lcname);
 	    $lcname =~ s/  +/ /g;
 	    next if $correct_definitions{$lcname};
 	    $correct_definitions{$lcname} = $name;
@@ -161,12 +176,14 @@ sub retrieve {
     my $query = my $oq = shift;
     # $query ||= 'hypothetical protein';
     $query = lc($query);
+    $query =~ s{$ignore_chars}{ }g;
     $query =~ s/^"\s*//;
     $query =~ s/\s*"\s*$//;
     $query =~ s/\s+\[\w+\]$//;
     $query =~ s/\s*"$//;
-    $query =~ s{[-/,]}{ }g;
     $query =~ s/  +/ /g;
+    $query = trim($query);
+
     my $prfx = '';
     my ($match, $result, $info) = ('') x 3;
     for ( @sp_words ){
@@ -211,15 +228,9 @@ sub retrieve {
 	    #全ての空白を取り除く処理をした場合には検索結果の文字列を復元する必要があるため、下記部分をコメントアウトしている。
 	    #my @out = sort {$minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /} grep {$cache{$_}++; $cache{$_} == 1} @$retr;
 	    #その代わり以下のコードが必要。
-	    my @convretr;
-	    for ( @$retr ){
-		for ( keys %{$wospconvtableD{$_}} ){
-		    push @convretr, $_;
-		}
-	    }
 	    my @out = sort {
 		$cosdist->{$b} <=> $cosdist->{$a} || $minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /
-	    } grep {$cache{$_}++; $cache{$_} == 1} @convretr;
+	    } grep {$cache{$_}++; $cache{$_} == 1} map { keys %{$wospconvtableD{$_}} } @$retr;
 	    #####
 	    my $le = (@out > $cs_max)?($cs_max-1):$#out;
 	    # print "\tcs\t", join(" @@ ", (map {$prfx.$correct_definitions{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
@@ -282,7 +293,7 @@ sub getScore {
     for (@$retr){
 	my $wosp = $_;               # <--- 全ての空白を取り除く処理をした場合への対応
 	for (keys %{$wospct->{$_}}){ # <--- 全ての空白を取り除く処理をした場合への対応
-	    $cosdistance{$_} = $cosine_object->similarity($query, $wosp);
+	    $cosdistance{$_} = $cosine_object->similarity($query, $wosp, $n_gram);
 	    my $score = 100000;
 	    my $word = '';
 	    my $hitflg = 0;
