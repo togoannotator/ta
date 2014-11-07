@@ -16,6 +16,8 @@ package Text::TogoAnnotator;
 # 2014.11.7
 # Bag::Similarity::Cosineモジュールの利用で実際のcosine距離を取得してみる。
 # なお、simstringには距離を取得する機能はない。
+# n-gramの値はsimstringと同じ値を適用。
+# "fragment"をavoid_cs_termsに追加。
 
 use warnings;
 use strict;
