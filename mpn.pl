@@ -35,18 +35,17 @@ Text::TogoAnnotator->closeDicts;
 
 sub match{
 
-    open(my $VRFY, $sysroot.'/'.$verify);
-    <$VRFY>;
-    while(<$VRFY>){
-	chomp;
-	my @vals = split /\t/;
-	print join("\t", ("SG25", @vals[0..8]));
-	my $r = Text::TogoAnnotator->retrieve($vals[8]);
-	print "\t", join("\t", (@$r{'match','result','info'})), "\n";
-    }
-    close($VRFY);
-
-    return;
+    # open(my $VRFY, $sysroot.'/'.$verify);
+    # <$VRFY>;
+    # while(<$VRFY>){
+    # 	chomp;
+    # 	my @vals = split /\t/;
+    # 	print join("\t", ("SG25", @vals[0..8]));
+    # 	my $r = Text::TogoAnnotator->retrieve($vals[8]);
+    # 	print "\t", join("\t", (@$r{'match','result','info'})), "\n";
+    # }
+    # close($VRFY);
+    # return;
 
     open(my $AKUZ, $sysroot.'/'.$akuz);
     while(<$AKUZ>){
