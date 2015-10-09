@@ -15,8 +15,6 @@ use utf8;
 
 my $uniprot = "uniprot_evaluation/evalutate_uniprot.txt.gz";
 
-my $verify = "SG25アノテーション確認用_After_10_utf8.txt";
-
 my $sysroot = '/opt/services2/togoannot/togoannotator';
 my $evaldir = '20131122_dbcls';
 
@@ -25,24 +23,11 @@ getopt('tm'); # -tm take arg.  Sets $opt_t, $opt_m as a side effect.
 
 print "#th:", $opt_t, ", dm:", $opt_m, "\n";
 Text::TogoAnnotator->init($opt_t, 30, $opt_m, 3, $sysroot, "nite_dictionary_140519mod2_trailSpaceRemoved.txt");
-#Text::TogoAnnotator->init($opt_t, 30, $opt_m, 3, $sysroot, "nite_ALL_1305_99.txt");
 Text::TogoAnnotator->openDicts;
 match();
 Text::TogoAnnotator->closeDicts;
 
 sub match{
-
-    # open(my $VRFY, $sysroot.'/'.$verify);
-    # <$VRFY>;
-    # while(<$VRFY>){
-    # 	chomp;
-    # 	my @vals = split /\t/;
-    # 	print join("\t", ("SG25", @vals[0..8]));
-    # 	my $r = Text::TogoAnnotator->retrieve($vals[8]);
-    # 	print "\t", join("\t", (@$r{'match','result','info'})), "\n";
-    # }
-    # close($VRFY);
-    # return;
 
     open(my $UPT, "<:gzip", $sysroot.'/'.$uniprot);
     while(<$UPT>){
