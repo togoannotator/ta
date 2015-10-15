@@ -18,6 +18,7 @@ binmode STDOUT, ":encoding(utf8)";
 
 my (%nitedicFor, %nitedicRev);
 my (%uniprotFor, %uniprotRev);
+my %uniprotKeywords;
 
 open(my $DICT, $sysroot.'/'.$nitedic);
 while(<$DICT>){
@@ -52,7 +53,7 @@ open(my $UPT, "<:gzip", $sysroot.'/'.$uniprot);
 while(<$UPT>){
   next if /^#/;
   chomp;
-  my (undef, undef, undef, undef, $after, $before) = split /\t/;
+  my (undef, $eid, undef, undef, $after, $before) = split /\t/;
   $after =~ s/^"//;
   $after =~ s/"$//;
   $before =~ s/^"//;
@@ -61,6 +62,7 @@ while(<$UPT>){
   $after = lc($after);
   $uniprotFor{$before}{$after}++;
   $uniprotRev{$after}{$before}++;
+  $uniprotKeywords{$before} = $eid;
 }
 close($UPT);
 
@@ -68,7 +70,7 @@ print join("\t", ("STAT_UniProt", scalar keys %uniprotFor, scalar keys %uniprotR
 
 while(my ($k, $v) = each %uniprotFor){
   if($uniprotRev{$k}){
-    print join("\t", ("UniProt", $k, "|", keys %$v, "|", keys %{$uniprotRev{$k}})), "\n";
+    print join("\t", ("UniProt", $uniprotKeywords{$k}.":".$k, "|", keys %$v, "|", keys %{$uniprotRev{$k}})), "\n";
   }
   for ( keys %$v ){
     next if $k eq $_;
