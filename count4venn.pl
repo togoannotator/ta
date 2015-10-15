@@ -17,10 +17,6 @@ use File::Spec;
 use File::Basename;
 use Text::Levenshtein::Flexible qw/levenshtein_l_all/;
 
-my @x = map { $_->[0] }
-    sort { $a->[1] <=> $b->[1] }
-levenshtein_l_all(2, "bar", "foo", "blah", "baz");
-
 my $uniprot = "uniprot_evaluation/evalutate_uniprot.txt.gz";
 #my $sysroot = '/opt/services2/togoannot/togoannotator';
 my $sysroot = dirname(File::Spec->rel2abs(__FILE__));
