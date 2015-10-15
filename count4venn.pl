@@ -9,9 +9,12 @@ use strict;
 use Fatal qw/open/;
 use PerlIO::gzip;
 use utf8;
+use File::Spec;
+use File::Basename;
 
 my $uniprot = "uniprot_evaluation/evalutate_uniprot.txt.gz";
-my $sysroot = '/opt/services2/togoannot/togoannotator';
+#my $sysroot = '/opt/services2/togoannot/togoannotator';
+my $sysroot = dirname(File::Spec->rel2abs(__FILE__));
 my $nitedic = "nite_dictionary_140519mod2_trailSpaceRemoved.txt";
 
 binmode STDOUT, ":encoding(utf8)";
@@ -19,6 +22,7 @@ binmode STDOUT, ":encoding(utf8)";
 my (%nitedicFor, %nitedicRev);
 my (%uniprotFor, %uniprotRev);
 my %uniprotKeywords;
+my (%sum);
 
 open(my $DICT, $sysroot.'/'.$nitedic);
 while(<$DICT>){
@@ -84,15 +88,29 @@ while(my ($k, $v) = each %uniprotFor){
 }
 
 while(my ($k, $v) = each %nitedicFor){
+  $sum{$k} += 1;
   if($uniprotFor{$k}){
     print join("\t", ("Equal_Before", $k)), "\n";
   }
 }
 
 while(my ($k, $v) = each %nitedicRev){
+  $sum{$k} += 10;
   if($uniprotRev{$k}){
     print join("\t", ("Equal_After", $k)), "\n";
   }
+}
+
+while(my ($k, $v) = each %uniprotFor){
+    $sum{$k} += 100;
+}
+
+while(my ($k, $v) = each %uniprotRev){
+    $sum{$k} += 1000;
+}
+
+while(my ($k, $v) = each %sum){
+    print join("\t", ('SUM_'. sprintf("%04d",$v), $k)) ,"\n";
 }
 
 __END__
