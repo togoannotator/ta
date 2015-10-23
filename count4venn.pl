@@ -32,6 +32,8 @@ my (%uniprotKeywords, %enaid);
 my (%togoannotFor, %togoannotRev, %togoannotMatch);
 my (%sum);
 
+# タブ区切り: "emblid", "keyword_uri", "keyword"
+# 例: "ABK36159.1", "http://purl.uniprot.org/keywords/46", "Antibiotic resistance"
 open(my $KWF, "<:gzip", $sysroot.'/'.$keywords);
 while(<$KWF>){
     next if /^"emblid"/;
@@ -96,6 +98,8 @@ while(<$tga>){
     my (undef, undef, $eid, $type, undef, $after, $before, undef, $tga_matchtype, $tga_after, $tga_comments) = split /\t/;
     $before =~ s/^"//;
     $before =~ s/"$//;
+    $tga_after =~ s/^"//;
+    $tga_after =~ s/"$//;
     $before = lc($before);
     $tga_after = lc($tga_after);
 
@@ -108,14 +112,33 @@ close($tga);
 
 print join("\t", ("STAT_UniProt", scalar keys %uniprotFor, scalar keys %uniprotRev)), "\n";
 
-while(my ($k, $v) = each %uniprotFor){
-    if($togoannotFor{$k}){
+# TogoAnnotatorの変換後のデフィニションとUniProtKBのそれを比較する。
+my %history;
+while(my ($k, $v) = each %uniprotFor){ # UniProt (ena -> UniProtKB)において、$k -> $v
+    if($togoannotFor{$k}){ # TogoAnnotatorにおいて、$k -> 何か
 	my $kws = $uniprotKeywords{$enaid{$k}}? join(" # ", sort @{$uniprotKeywords{$enaid{$k}}}) : "";
 	my @uniprot_after_set = keys %$v;
 	my $hitflag = "";
-	my @mr = map {$hitflag ||= defined($uniprotFor{$k}{$_});
-		      $togoannotMatch{$k,$_}{type}.":".($uniprotFor{$k}{$_}?"o":"x").":".$_} keys %{$togoannotFor{$k}};
+	# TogoAnnotatorにおいて $k で示されるenaのデフィニションに対応する
+	# 変換後の各デフィニション = keys %{$togoannotFor{$k}}
+	#
+	# $hitflagにTogoAnnotatorの変換後のデフィニションがUniProtKBと
+	# 同一であるか否かが入力される。
+	#
+	# 更に、TogoAnnotatorにおけるマッチのタイプ (ex/cs/delなど) と
+	# UniProtKBとの一致の有無 (oかx)、そして変換後のデフィニションが
+	# コロンで結ばれた文字列が @mr に代入される。
+	my @mr = map {
+	    $hitflag ||= defined($uniprotFor{$k}{$_});
+	    unless(defined($history{$_})){
+		$history{$_}++;
+		$sum{$_} += 10000;
+	    };
+	    $togoannotMatch{$k,$_}{type}.":".($uniprotFor{$k}{$_}?"o":"x").":".$_;
+	} keys %{$togoannotFor{$k}};
 	print join("\t", ("TogoAnnot", $kws, $k, "|", @uniprot_after_set, "|", join(" % ", @mr))), "\n";
+	# もしもTogoAnnotatorによる変換後のデフィニションがUniProtKBと
+	# 一致しない場合は、編集距離で2以内で一致するか否かを確認する。
 	if(!$hitflag){
 	    for ( keys %{$togoannotFor{$k}} ){
 		my @distance = map { $_->[0] } sort { $a->[1] <=> $b->[1] } levenshtein_l_all(2, $_ ,keys %$v);
@@ -162,7 +185,7 @@ while(my ($k, $v) = each %uniprotRev){
 }
 
 while(my ($k, $v) = each %sum){
-    print join("\t", ('SUM_'. sprintf("%04d",$v), $k)) ,"\n";
+    print join("\t", ('SUM_'. sprintf("%05d",$v), $k)) ,"\n";
 }
 
 __END__
