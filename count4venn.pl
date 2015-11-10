@@ -113,7 +113,7 @@ close($tga);
 print join("\t", ("STAT_UniProt", scalar keys %uniprotFor, scalar keys %uniprotRev)), "\n";
 
 # TogoAnnotatorの変換後のデフィニションとUniProtKBのそれを比較する。
-my %history;
+my (%history, %typeset);
 while(my ($k, $v) = each %uniprotFor){ # UniProt (ena -> UniProtKB)において、$k -> $v
     if($togoannotFor{$k}){ # TogoAnnotatorにおいて、$k -> 何か
 	my $kws = $uniprotKeywords{$enaid{$k}}? join(" # ", sort @{$uniprotKeywords{$enaid{$k}}}) : "";
@@ -134,6 +134,7 @@ while(my ($k, $v) = each %uniprotFor){ # UniProt (ena -> UniProtKB)において�
 		$history{$_}++;
 		$sum{$_} += 10000;
 	    };
+	    $typeset{$_}{$togoannotMatch{$k,$_}{type}}++;
 	    $togoannotMatch{$k,$_}{type}.":".($uniprotFor{$k}{$_}?"o":"x").":".$_;
 	} keys %{$togoannotFor{$k}};
 	print join("\t", ("TogoAnnot", $kws, $k, "|", @uniprot_after_set, "|", join(" % ", @mr))), "\n";
@@ -185,7 +186,15 @@ while(my ($k, $v) = each %uniprotRev){
 }
 
 while(my ($k, $v) = each %sum){
-    print join("\t", ('SUM_'. sprintf("%05d",$v), $k)) ,"\n";
+    print join("\t", ('SUM_'. sprintf("%05d",$v), $k));
+    if($v >= 10000){
+	print "\t", join(":", keys %{$typeset{$k}});
+    }
+    print "\n";
 }
+
+# for (grep {$sum{$_} == 10001} keys %sum){
+#     print join("\t", ('10001', $_)), "\n";
+# }
 
 __END__
