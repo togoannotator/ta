@@ -16,13 +16,17 @@ use utf8;
 use File::Spec;
 use File::Basename;
 use Text::Levenshtein::Flexible qw/levenshtein_l_all/;
+use String::Trim;
 
 my $uniprot = "uniprot_evaluation/evalutate_uniprot.txt.gz";
 #my $sysroot = '/opt/services2/togoannot/togoannotator';
 my $sysroot = dirname(File::Spec->rel2abs(__FILE__));
 my $nitedic = "nite_dictionary_140519mod2_trailSpaceRemoved.txt";
-my $togoannot = "uniprot_evaluation/eval_result_w_UniProt_20150819.txt.gz";
+my $togoannot = "uniprot_evaluation/eval_result_w_UniProt_20151111.txt.gz";
 my $keywords = "uniprot_evaluation/uniprot2enaWkeywords.txt.gz";
+
+my $ignore_chars = qr{[-/,:+()]};
+my @sp_words, # マッチ対象から外すが、マッチ処理後は元に戻して結果に表示させる語群。
 
 binmode STDOUT, ":encoding(utf8)";
 
@@ -31,6 +35,8 @@ my (%uniprotFor, %uniprotRev);
 my (%uniprotKeywords, %enaid);
 my (%togoannotFor, %togoannotRev, %togoannotMatch);
 my (%sum);
+
+@sp_words = qw/putative probable possible/;
 
 # タブ区切り: "emblid", "keyword_uri", "keyword"
 # 例: "ABK36159.1", "http://purl.uniprot.org/keywords/46", "Antibiotic resistance"
@@ -50,7 +56,27 @@ while(<$DICT>){
     chomp;
     my (undef, $sno, $chk, undef, $after, $before, undef) = split /\t/;
     next if $chk eq 'RNA' or $chk eq 'del' or $chk eq 'OK';
+
+    $after =~ s/^"//;
+    $after =~ s/"$//;
+    $before =~ s/^"//;
+    $before =~ s/"$//;
+    
+    for ( @sp_words ){
+	# $after =~ s/^$_\W+//i;
+	$after =~ s/^$_\s+//i;
+    }
+
     $before = lc($before);
+    $before =~ s{$ignore_chars}{ }g;
+    $before = trim($before);
+    $before =~ s/  +/ /g;
+    for ( @sp_words ){
+	if(index($before, $_) == 0){
+	    $before =~ s/^$_\s+//;
+	}
+    }
+
     $after = lc($after);
     $nitedicFor{$before}{$after}++;
     $nitedicRev{$after}{$before}++;
@@ -85,6 +111,21 @@ while(<$UPT>){
     $before =~ s/"$//;
     $before = lc($before);
     $after = lc($after);
+
+    for ( @sp_words ){
+	# $after =~ s/^$_\W+//i;
+	$after =~ s/^$_\s+//i;
+    }
+
+    $before =~ s{$ignore_chars}{ }g;
+    $before = trim($before);
+    $before =~ s/  +/ /g;
+    for ( @sp_words ){
+	if(index($before, $_) == 0){
+	    $before =~ s/^$_\s+//;
+	}
+    }
+
     $uniprotFor{$before}{$after}++;
     $uniprotRev{$after}{$before}++;
     $enaid{$before} = $eid;
@@ -102,6 +143,20 @@ while(<$tga>){
     $tga_after =~ s/"$//;
     $before = lc($before);
     $tga_after = lc($tga_after);
+
+    for ( @sp_words ){
+	# $tga_after =~ s/^$_\W+//i;
+	$tga_after =~ s/^$_\s+//i;
+    }
+
+    $before =~ s{$ignore_chars}{ }g;
+    $before = trim($before);
+    $before =~ s/  +/ /g;
+    for ( @sp_words ){
+	if(index($before, $_) == 0){
+	    $before =~ s/^$_\s+//;
+	}
+    }
 
     $togoannotFor{$before}{$tga_after}++;
     $togoannotRev{$tga_after}{$before}++;

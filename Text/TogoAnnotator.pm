@@ -115,7 +115,8 @@ sub readNITEdict {
 	$b4name =~ s/\s*"\s*$//;
 
 	for ( @sp_words ){
-	    $name =~ s/^$_\W+//i;
+	    #$name =~ s/^$_\W+//i;
+	    $name =~ s/^$_\s+//i;
 	}
 
 	my $lcb4name = lc($b4name);
