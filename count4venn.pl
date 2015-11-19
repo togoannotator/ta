@@ -192,7 +192,7 @@ while(my ($k, $v) = each %uniprotFor){ # UniProt (ena -> UniProtKB)において�
 	    $typeset{$_}{$togoannotMatch{$k,$_}{type}}++;
 	    $togoannotMatch{$k,$_}{type}.":".($uniprotFor{$k}{$_}?"o":"x").":".$_;
 	} keys %{$togoannotFor{$k}};
-	print join("\t", ("TogoAnnot", $kws, $k, "|", @uniprot_after_set, "|", join(" % ", @mr))), "\n";
+	print join("\t", ("TogoAnnot", ($nitedicFor{$k}?"o":"x"), $kws, $k, "|", join(" @ ", @uniprot_after_set), "|", join(" % ", @mr))), "\n";
 	# もしもTogoAnnotatorによる変換後のデフィニションがUniProtKBと
 	# 一致しない場合は、編集距離で2以内で一致するか否かを確認する。
 	if(!$hitflag){

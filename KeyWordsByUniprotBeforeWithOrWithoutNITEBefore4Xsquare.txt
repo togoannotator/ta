@@ -1,0 +1,845 @@
+o	Reference proteome	1590
+o	Complete proteome	870
+o	Cytoplasm	634
+o	Metal-binding	464
+o	Transmembrane helix	438
+o	ATP-binding	419
+o	Cell inner membrane	339
+o	Oxidoreductase	333
+o	Hydrolase	284
+o	Magnesium	244
+o	3D-structure	217
+o	Cell membrane	207
+o	Direct protein sequencing	185
+o	Signal	178
+o	Lyase	153
+o	DNA-binding	152
+o	NAD	152
+o	Transferase	143
+o	Zinc	116
+o	Repeat	116
+o	Transport	109
+o	NADP	107
+o	Ligase	105
+o	Transcription regulation	101
+o	FAD	86
+o	Kinase	85
+o	Isomerase	82
+o	S-adenosyl-L-methionine	82
+o	Phosphoprotein	78
+o	Acyltransferase	77
+o	Pyridoxal phosphate	75
+o	Methyltransferase	72
+o	Manganese	68
+o	Periplasm	68
+o	tRNA processing	67
+o	Electron transport	66
+o	Chaperone	64
+o	Disulfide bond	64
+o	Protein biosynthesis	63
+o	Plasmid	63
+o	Multifunctional enzyme	60
+o	Glycosidase	53
+o	Iron	53
+o	Cell wall biogenesis/degradation	50
+o	GTP-binding	50
+o	4Fe-4S	50
+o	Aminoacyl-tRNA synthetase	48
+o	Stress response	48
+o	Glycosyltransferase	46
+o	Carbohydrate metabolism	45
+o	Nucleotidyltransferase	44
+o	Heme	43
+o	Secreted	42
+o	Antibiotic resistance	40
+o	FMN	40
+o	Activator	39
+o	Repressor	39
+o	Cell division	39
+o	DNA repair	38
+o	DNA replication	36
+o	Amino-acid transport	35
+o	Aromatic hydrocarbons catabolism	35
+o	Redox-active center	34
+o	Cell outer membrane	34
+o	Sporulation	34
+o	Bacterial flagellum	34
+o	Tricarboxylic acid cycle	33
+o	Sugar transport	30
+o	Hydrogen ion transport	28
+o	Fatty acid biosynthesis	28
+o	DNA recombination	28
+o	RNA-binding	27
+o	Glycolysis	27
+o	Aminotransferase	26
+o	Lipopolysaccharide biosynthesis	26
+o	Palmitate	26
+o	Peptidoglycan synthesis	25
+o	Protein transport	24
+o	Nucleotide-binding	24
+o	Decarboxylase	24
+o	Coiled coil	24
+o	Histidine biosynthesis	24
+o	Virulence	24
+o	Ribosomal protein	23
+o	Metalloprotease	23
+o	Cobalamin biosynthesis	23
+o	Antiport	23
+o	rRNA-binding	22
+o	Porphyrin biosynthesis	22
+o	Chemotaxis	22
+o	Symport	22
+o	Glutamine amidotransferase	22
+o	Cobalt	21
+o	Serine protease	21
+o	Bacterial flagellum biogenesis	21
+o	tRNA-binding	19
+o	Potassium transport	19
+o	Thiamine pyrophosphate	19
+o	Cytochrome c-type biogenesis	19
+o	Arginine biosynthesis	18
+o	2Fe-2S	18
+o	Calcium	18
+o	Photosynthesis	18
+o	Dioxygenase	17
+o	Potassium	17
+o	Isoprene biosynthesis	17
+o	Zinc-finger	17
+o	Fatty acid metabolism	17
+o	Ion transport	16
+o	Schiff base	16
+o	Lysine biosynthesis	16
+o	Monooxygenase	16
+o	Methionine biosynthesis	16
+o	Helicase	16
+o	Peptide transport	16
+o	Two-component regulatory system	16
+o	Copper	15
+o	Tryptophan biosynthesis	15
+o	Menaquinone biosynthesis	15
+o	Aromatic amino acid biosynthesis	15
+o	One-carbon metabolism	15
+o	Branched-chain amino acid biosynthesis	15
+o	Acetylation	15
+o	Allosteric enzyme	14
+o	Lipid A biosynthesis	14
+o	CF(1)	14
+o	SOS response	14
+o	ATP synthesis	13
+o	Transmembrane beta strand	13
+o	DNA integration	13
+o	Iron transport	13
+o	rRNA processing	13
+o	DNA-directed DNA polymerase	13
+o	Exopolysaccharide synthesis	13
+o	Nickel	13
+o	Chromosome partition	13
+o	Translocation	13
+o	Cysteine biosynthesis	12
+o	Purine metabolism	12
+o	Phospholipid biosynthesis	12
+o	Lipid degradation	12
+o	Septation	12
+o	Ubiquinone biosynthesis	12
+o	Aminopeptidase	12
+o	Endonuclease	12
+o	Pentose shunt	11
+o	Bacterial flagellum protein export	11
+o	Zymogen	11
+o	Conjugation	11
+o	Cellulose degradation	11
+o	Exonuclease	11
+o	Heme biosynthesis	10
+o	Alginate biosynthesis	10
+o	Bacteriochlorophyll biosynthesis	10
+o	Carotenoid biosynthesis	10
+o	Spermidine biosynthesis	10
+o	Peroxidase	10
+o	Diaminopimelate biosynthesis	10
+o	Biotin biosynthesis	9
+o	Antibiotic biosynthesis	9
+o	Polyamine biosynthesis	9
+o	Capsule biogenesis/degradation	9
+o	Signal-anchor	9
+o	Toxin	9
+o	Flagellar rotation	8
+o	Ribosome biogenesis	8
+o	Glyoxylate bypass	8
+o	Iron-sulfur	8
+o	Protease	8
+o	Respiratory chain	8
+o	Purine salvage	8
+o	Leader peptide	8
+o	Autocatalytic cleavage	8
+o	Thiamine biosynthesis	8
+o	Chlorophyll biosynthesis	8
+o	Acetoin catabolism	8
+o	Arginine metabolism	8
+o	DNA excision	7
+o	GMP biosynthesis	7
+o	Isopeptide bond	7
+o	Nuclease	7
+o	Gluconate utilization	7
+o	Carboxypeptidase	7
+o	Glycerol metabolism	7
+o	Nucleotide biosynthesis	7
+o	Excision nuclease	7
+o	Ubl conjugation	7
+o	Biotin	7
+o	Cell shape	7
+o	Nitrogen fixation	7
+o	Xylan degradation	7
+o	Sodium transport	7
+o	Methylation	7
+o	Topoisomerase	6
+o	Histidine metabolism	6
+o	Iron storage	6
+o	Pyruvate	6
+o	Porin	6
+o	Folate biosynthesis	6
+o	Transposable element	6
+o	Initiation factor	6
+o	Amino-acid biosynthesis	6
+o	Xylose metabolism	6
+o	Molybdenum	6
+o	Copper transport	6
+o	Serine esterase	6
+o	CBS domain	6
+o	Leucine biosynthesis	6
+o	Antioxidant	6
+o	Translation regulation	6
+o	Oxidation	6
+o	Lipid biosynthesis	6
+o	Cobalamin	6
+o	Serine/threonine-protein kinase	6
+o	Zinc transport	5
+o	Putrescine biosynthesis	5
+o	Fucose metabolism	5
+o	Primosome	5
+o	Polysaccharide transport	5
+o	Elongation factor	5
+o	Oxygen transport	5
+o	Serine biosynthesis	5
+o	Glutathione biosynthesis	5
+o	Coenzyme A biosynthesis	5
+o	Thylakoid	5
+o	3Fe-4S	5
+o	RNA repair	5
+o	Receptor	5
+o	Gluconeogenesis	5
+o	Mercury	5
+o	Threonine biosynthesis	5
+o	Mercuric resistance	5
+o	Glycogen biosynthesis	5
+o	Asparagine biosynthesis	5
+o	Ascorbate biosynthesis	4
+o	Glycogen metabolism	4
+o	Proteasome	4
+o	Rotamase	4
+o	Chloride channel	4
+o	Cell wall	4
+o	Biological rhythms	4
+o	Detoxification	4
+o	Sodium	4
+o	Nucleotide metabolism	4
+o	CF(0)	4
+o	DNA condensation	4
+o	TonB box	4
+o	Arabinose catabolism	4
+o	Nickel insertion	4
+o	Voltage-gated channel	4
+o	Antiviral defense	4
+o	Cobalt transport	3
+o	Lactose metabolism	3
+o	Cadmium	3
+o	Phosphopantetheine	3
+o	Transducer	3
+o	Competence	3
+o	Chitin degradation	3
+o	Arsenical resistance	3
+o	Pyrimidine biosynthesis	3
+o	Hemolysis	3
+o	Quorum sensing	3
+o	Membrane	3
+o	Tryptophan catabolism	3
+o	Threonine protease	3
+o	Pyridine nucleotide biosynthesis	3
+o	Hydrogen peroxide	3
+o	Teichoic acid biosynthesis	3
+o	Glucose metabolism	3
+o	Galactose metabolism	3
+o	Lactose biosynthesis	3
+o	Cytolysis	3
+o	Pyridoxine biosynthesis	3
+o	Lipid-binding	2
+o	Cell adhesion	2
+o	Host cell membrane	2
+o	Formylation	2
+o	Lipid transport	2
+o	PQQ	2
+o	Aspartyl protease	2
+o	Organic radical	2
+o	Vitamin C	2
+o	Cadmium resistance	2
+o	Serine protease inhibitor	2
+o	Cytosine metabolism	2
+o	Tyrosine-protein kinase	2
+o	Lignin degradation	2
+o	Chloride	2
+o	Glycoprotein	2
+o	Glutamate biosynthesis	2
+o	Cellulose biosynthesis	2
+o	TPQ	2
+o	Luminescence	2
+o	Phenylalanine catabolism	2
+o	Purine biosynthesis	2
+o	Autoinducer synthesis	2
+o	Tyrosine catabolism	2
+o	Deoxyribonucleotide synthesis	2
+o	Protein phosphatase	2
+o	Branched-chain amino acid catabolism	2
+o	Peptidoglycan-anchor	2
+o	c-di-GMP	2
+o	cAMP-binding	2
+o	TPR repeat	2
+o	Signal recognition particle	1
+o	Isoleucine biosynthesis	1
+o	Lipid metabolism	1
+o	Heparin-binding	1
+o	Protein splicing	1
+o	Enterobactin biosynthesis	1
+o	Calvin cycle	1
+o	Fimbrium	1
+o	Auxin biosynthesis	1
+o	Restriction system	1
+o	Inositol biosynthesis	1
+o	Transposition	1
+o	Ubiquinone	1
+o	S-nitrosylation	1
+o	Viral genome integration	1
+o	Fimbrium biogenesis	1
+o	Catecholamine metabolism	1
+o	Photoreceptor protein	1
+o	Folate-binding	1
+o	cAMP	1
+o	Carbon dioxide fixation	1
+o	Transcription antitermination	1
+o	Chromate resistance	1
+o	Lipoprotein	1
+o	Acetoin biosynthesis	1
+o	SOS mutagenesis	1
+o	Bile acid catabolism	1
+o	Fibrinolysis	1
+o	Mandelate pathway	1
+o	DNA-directed RNA polymerase	1
+o	Mutator protein	1
+o	Hemagglutinin	1
+o	Mobility protein	1
+o	Lectin	1
+o	Lipoyl	1
+o	Ribosomal frameshifting	1
+o	cAMP biosynthesis	1
+o	Citrate utilization	1
+o	Intron homing	1
+o	DNA synthesis	1
+o	Selenocysteine	1
+o	Prenyltransferase	1
+o	DNA invertase	1
+o	Sulfate transport	1
+o	Chitin-binding	1
+o	Dipeptidase	1
+o	Crown gall tumor	1
+o	DNA replication inhibitor	1
+o	Alternative initiation	1
+o	Ion channel	1
+o	Pyrrolidone carboxylic acid	1
+o	Trimethoprim resistance	1
+o	Streptomycin biosynthesis	1
+o	Gas vesicle	1
+o	Maltose metabolism	1
+o	Phenylpropanoid metabolism	1
+o	Calcium transport	1
+o	Hydroxylation	1
+o	Plasmid partition	1
+o	Sensory transduction	1
+x	Reference proteome	19447
+x	Complete proteome	8889
+x	Cytoplasm	7670
+x	Transmembrane helix	5062
+x	ATP-binding	4963
+x	Metal-binding	4286
+x	Cell inner membrane	3587
+x	Signal	3078
+x	3D-structure	2934
+x	Cell membrane	2905
+x	Hydrolase	2903
+x	Oxidoreductase	2608
+x	DNA-binding	2483
+x	Direct protein sequencing	2291
+x	Magnesium	2200
+x	Transcription regulation	1859
+x	Plasmid	1636
+x	Repeat	1526
+x	Transferase	1401
+x	Lyase	1391
+x	Transport	1340
+x	Chaperone	1265
+x	Zinc	1257
+x	NAD	1133
+x	Phosphoprotein	1103
+x	S-adenosyl-L-methionine	972
+x	Ligase	955
+x	Kinase	903
+x	Multifunctional enzyme	872
+x	Periplasm	871
+x	NADP	862
+x	Stress response	852
+x	Repressor	840
+x	Disulfide bond	837
+x	Methyltransferase	832
+x	Secreted	828
+x	Virulence	801
+x	Isomerase	769
+x	Activator	718
+x	tRNA processing	714
+x	Acyltransferase	710
+x	4Fe-4S	697
+x	GTP-binding	681
+x	Protein biosynthesis	650
+x	Cell outer membrane	636
+x	Palmitate	610
+x	FAD	599
+x	Pyridoxal phosphate	592
+x	Electron transport	585
+x	Manganese	584
+x	Antibiotic resistance	584
+x	Hydrogen ion transport	548
+x	Heme	547
+x	Nucleotidyltransferase	528
+x	Glycosyltransferase	515
+x	Cell wall biogenesis/degradation	505
+x	DNA replication	493
+x	Two-component regulatory system	451
+x	Histidine biosynthesis	440
+x	Iron	438
+x	RNA-binding	420
+x	Aminoacyl-tRNA synthetase	420
+x	Glycosidase	403
+x	Amino-acid transport	386
+x	Sporulation	382
+x	DNA recombination	377
+x	CF(1)	367
+x	DNA repair	366
+x	Carbohydrate metabolism	346
+x	Fatty acid biosynthesis	345
+x	ATP synthesis	342
+x	Coiled coil	340
+x	Isoprene biosynthesis	339
+x	Sugar transport	322
+x	Toxin	305
+x	Cell division	297
+x	Lipopolysaccharide biosynthesis	297
+x	Ribosomal protein	285
+x	Peptidoglycan synthesis	285
+x	Lipid A biosynthesis	283
+x	Transmembrane beta strand	281
+x	Aromatic hydrocarbons catabolism	277
+x	Endonuclease	277
+x	Redox-active center	274
+x	rRNA-binding	273
+x	rRNA processing	271
+x	CF(0)	263
+x	Serine protease	263
+x	Zinc-finger	261
+x	Metalloprotease	258
+x	Aminotransferase	255
+x	Protein transport	244
+x	One-carbon metabolism	244
+x	Arginine biosynthesis	243
+x	SOS response	243
+x	Methionine biosynthesis	234
+x	Transposable element	233
+x	Bacterial flagellum	231
+x	FMN	230
+x	2Fe-2S	223
+x	Porphyrin biosynthesis	220
+x	Glycolysis	219
+x	Antibiotic biosynthesis	218
+x	Chemotaxis	215
+x	Glutamine amidotransferase	200
+x	Monooxygenase	198
+x	Cobalamin biosynthesis	197
+x	Calcium	192
+x	Photosynthesis	190
+x	Nickel	189
+x	Elongation factor	188
+x	Symport	184
+x	Iron transport	179
+x	Septation	178
+x	Acetylation	177
+x	Antiport	176
+x	Translocation	175
+x	Tricarboxylic acid cycle	173
+x	Exonuclease	172
+x	tRNA-binding	170
+x	Potassium	168
+x	Lysine biosynthesis	166
+x	Aromatic amino acid biosynthesis	165
+x	Potassium transport	164
+x	Cobalt	163
+x	Bacterial flagellum biogenesis	162
+x	Schiff base	159
+x	Thiamine pyrophosphate	156
+x	Decarboxylase	155
+x	Dioxygenase	155
+x	Menaquinone biosynthesis	155
+x	Cytochrome c-type biogenesis	154
+x	Allosteric enzyme	149
+x	Fatty acid metabolism	149
+x	DNA-directed DNA polymerase	147
+x	Copper	145
+x	Thiamine biosynthesis	144
+x	Helicase	143
+x	Ribosome biogenesis	142
+x	Zymogen	142
+x	Heme biosynthesis	140
+x	Nucleotide-binding	140
+x	Thylakoid	139
+x	DNA excision	137
+x	Tryptophan biosynthesis	137
+x	Fimbrium	134
+x	Coenzyme A biosynthesis	134
+x	Cell wall	133
+x	Ion transport	132
+x	Biotin biosynthesis	128
+x	Diaminopimelate biosynthesis	127
+x	Excision nuclease	125
+x	Autocatalytic cleavage	122
+x	Exopolysaccharide synthesis	120
+x	Transposition	118
+x	Leucine biosynthesis	113
+x	Lipid degradation	112
+x	Receptor	108
+x	Aminopeptidase	107
+x	Branched-chain amino acid biosynthesis	106
+x	Phospholipid biosynthesis	105
+x	Signal-anchor	103
+x	Restriction system	102
+x	Initiation factor	102
+x	Nitrogen fixation	102
+x	Phosphopantetheine	101
+x	Purine biosynthesis	101
+x	Sodium transport	101
+x	Competence	99
+x	Membrane	98
+x	3Fe-4S	95
+x	Quorum sensing	94
+x	Lipid-binding	92
+x	DNA integration	92
+x	Peptide transport	92
+x	Zinc transport	90
+x	Glycogen biosynthesis	90
+x	Methylation	89
+x	Serine/threonine-protein kinase	89
+x	Cysteine biosynthesis	87
+x	TonB box	87
+x	Chromosome partition	87
+x	Bacteriochlorophyll biosynthesis	85
+x	Ubiquinone biosynthesis	84
+x	Host cell membrane	82
+x	Capsule biogenesis/degradation	82
+x	Peroxidase	82
+x	Protease	80
+x	Peptidoglycan-anchor	79
+x	Porin	78
+x	Sodium	78
+x	Translation regulation	78
+x	Nuclease	77
+x	Respiratory chain	74
+x	Thiol protease	72
+x	Rotamase	71
+x	Bacteriochlorophyll	67
+x	Hemolysis	67
+x	DNA condensation	67
+x	Iron-sulfur	66
+x	Germination	66
+x	Nucleotide metabolism	66
+x	Conjugation	66
+x	Threonine protease	65
+x	Pentose shunt	63
+x	Topoisomerase	62
+x	Ubl conjugation	62
+x	Pyrimidine biosynthesis	61
+x	Nucleotide biosynthesis	61
+x	Purine salvage	61
+x	Cellulose degradation	61
+x	Glycogen metabolism	60
+x	Autoinducer synthesis	60
+x	Glycerol metabolism	59
+x	Hydrogen peroxide	59
+x	Chlorophyll biosynthesis	59
+x	Fimbrium biogenesis	58
+x	Serine esterase	57
+x	Histidine metabolism	56
+x	Iron storage	56
+x	Aspartyl protease	54
+x	Antenna complex	54
+x	Light-harvesting polypeptide	54
+x	TPR repeat	54
+x	GMP biosynthesis	53
+x	Flagellar rotation	53
+x	Protein phosphatase	53
+x	Arginine metabolism	52
+x	Cell shape	50
+x	Gluconeogenesis	50
+x	Nickel insertion	50
+x	Molybdenum	49
+x	Isopeptide bond	48
+x	Bacteriocin	48
+x	Folate biosynthesis	48
+x	Thioether bond	48
+x	Antioxidant	46
+x	Mutator protein	45
+x	Biotin	45
+x	Hypersensitive response elicitation	45
+x	Alginate biosynthesis	44
+x	Crown gall tumor	44
+x	Alternative initiation	43
+x	Xylan degradation	43
+x	Detoxification	42
+x	Spermidine biosynthesis	42
+x	Lipid biosynthesis	42
+x	Cobalamin	42
+x	Polyamine biosynthesis	41
+x	Host cytoplasm	41
+x	Lantibiotic	41
+x	Galactose metabolism	41
+x	Polysaccharide transport	40
+x	Purine metabolism	40
+x	Sulfate transport	40
+x	Glycoprotein	39
+x	RNA repair	39
+x	CBS domain	39
+x	Carotenoid biosynthesis	38
+x	Tryptophan catabolism	37
+x	Lipoyl	37
+x	Cell adhesion	36
+x	Bacterial flagellum protein export	36
+x	Enterotoxin	36
+x	Antiviral defense	36
+x	Glyoxylate bypass	35
+x	Threonine biosynthesis	35
+x	c-di-GMP	34
+x	Oxygen transport	33
+x	Vitamin C	33
+x	Carboxypeptidase	33
+x	Bacteriocin transport	31
+x	Amino-acid biosynthesis	30
+x	Copper transport	30
+x	Primosome	29
+x	Mercuric resistance	29
+x	Bacteriocin immunity	28
+x	Cadmium	28
+x	Transducer	28
+x	Arsenical resistance	28
+x	Phosphotransferase system	28
+x	DNA replication inhibitor	27
+x	Gluconate utilization	26
+x	Pyruvate	26
+x	Phycobilisome	26
+x	Cellulose biosynthesis	26
+x	Leader peptide	26
+x	Mercury	25
+x	Teichoic acid biosynthesis	24
+x	Acetoin catabolism	24
+x	Sigma factor	23
+x	Formylation	23
+x	Enterobactin biosynthesis	23
+x	Viral genome integration	23
+x	Cytadherence	23
+x	Immunoglobulin domain	23
+x	Cytolysis	23
+x	Cobalt transport	22
+x	Lectin	22
+x	Steroid metabolism	22
+x	Fucose metabolism	21
+x	Lactose metabolism	21
+x	Glutathione biosynthesis	21
+x	Nodulation	21
+x	Cadmium resistance	21
+x	Selenocysteine	21
+x	Oxidation	21
+x	Transmembrane	20
+x	Luminescence	20
+x	Polysaccharide degradation	20
+x	Pyrrolidone carboxylic acid	20
+x	Organic radical	19
+x	Gas vesicle	19
+x	Serine protease inhibitor	18
+x	Glucose metabolism	18
+x	Heterocyst	17
+x	Serine biosynthesis	17
+x	Tyrosine-protein kinase	17
+x	Ubl conjugation pathway	17
+x	Biological rhythms	17
+x	Calvin cycle	16
+x	Glutamate biosynthesis	16
+x	Neurotoxin	16
+x	Xylose metabolism	16
+x	Arabinose catabolism	16
+x	Ion channel	16
+x	Isoleucine biosynthesis	15
+x	Chitin degradation	15
+x	Carbon dioxide fixation	15
+x	Whooping cough	15
+x	Host membrane	15
+x	Pyridoxine biosynthesis	15
+x	Host synapse	14
+x	Leucine-rich repeat	14
+x	Bile acid catabolism	14
+x	Pyridine nucleotide biosynthesis	14
+x	Guanine-nucleotide releasing factor	13
+x	ANK repeat	13
+x	PQQ	13
+x	cAMP	13
+x	Galactitol metabolism	13
+x	Hemagglutinin	13
+x	cAMP biosynthesis	13
+x	Methanol utilization	13
+x	Bacteriocin biosynthesis	13
+x	Hydroxylation	13
+x	Host nucleus	12
+x	Signal recognition particle	12
+x	Lipid transport	12
+x	Citrate utilization	12
+x	Chlorosome	12
+x	Cell projection	12
+x	Chloride	11
+x	Plasmid copy control	11
+x	Pharmaceutical	11
+x	GTPase activation	11
+x	Chitin-binding	11
+x	Asparagine biosynthesis	11
+x	Protein splicing	10
+x	Proteasome	10
+x	Pheromone	10
+x	Reaction center	10
+x	Metalloprotease inhibitor	10
+x	Acetoin biosynthesis	10
+x	SOS mutagenesis	10
+x	DNA synthesis	10
+x	cAMP-binding	10
+x	Lipid metabolism	9
+x	Cholesterol metabolism	9
+x	Auxin biosynthesis	9
+x	Chromate resistance	9
+x	Calcium transport	9
+x	Putrescine biosynthesis	8
+x	Bacteriolytic enzyme	8
+x	Photosystem II	8
+x	Superantigen	8
+x	Dental caries	8
+x	Cytokinin biosynthesis	8
+x	Bile pigment	8
+x	IgG-binding protein	8
+x	Ammonia transport	8
+x	Streptomycin biosynthesis	8
+x	Lignin degradation	7
+x	Lipoprotein	7
+x	Phenylalanine catabolism	7
+x	DNA-directed RNA polymerase	7
+x	Tyrosine catabolism	7
+x	D-amino acid	7
+x	Trimethoprim resistance	7
+x	Sulfate respiration	6
+x	Chloride channel	6
+x	Photosystem I	6
+x	Chlorophyll	6
+x	Photoreceptor protein	6
+x	Flavoprotein	6
+x	Antibiotic	6
+x	Intron homing	6
+x	DNA invertase	6
+x	Ubiquinone	5
+x	TTQ	5
+x	Methotrexate resistance	5
+x	Host cell lysis by virus	5
+x	Alkaloid metabolism	5
+x	Ribosomal frameshifting	5
+x	S-layer	5
+x	Photoprotein	5
+x	Calmodulin-binding	5
+x	Branched-chain amino acid catabolism	5
+x	Voltage-gated channel	5
+x	Host-virus interaction	5
+x	Sensory transduction	5
+x	Ascorbate biosynthesis	4
+x	Heparin-binding	4
+x	Thioester bond	4
+x	Host cytoplasmic vesicle	4
+x	Viral attachment to host cell	4
+x	Sterol biosynthesis	4
+x	Phagocytosis	4
+x	TPQ	4
+x	Fibrinolysis	4
+x	Mobility protein	4
+x	Thiol protease inhibitor	4
+x	Deoxyribonucleotide synthesis	4
+x	Phosphate transport	4
+x	Genetically modified food	4
+x	Plasmid partition	4
+x	Differentiation	3
+x	Prenylation	3
+x	Nickel transport	3
+x	Protein synthesis inhibitor	3
+x	RNA-directed DNA polymerase	3
+x	WD repeat	3
+x	Ice nucleation	3
+x	Viral genome packaging	3
+x	Selenium	3
+x	Prenyltransferase	3
+x	Dipeptidase	3
+x	Cleavage on pair of basic residues	3
+x	Herbicide resistance	3
+x	Fruiting body	2
+x	Quinate metabolism	2
+x	Motor protein	2
+x	Cytosine metabolism	2
+x	Protein kinase inhibitor	2
+x	Aspartyl esterase	2
+x	Alternative promoter usage	2
+x	Tungsten	2
+x	Vanadium	2
+x	Actin-binding	2
+x	Growth regulation	2
+x	Ethylene biosynthesis	2
+x	Host cell receptor for virus entry	2
+x	RNA suppression of termination	2
+x	Collagen degradation	2
+x	Plasminogen activation	2
+x	Quinone	2
+x	Prothrombin activator	2
+x	GPI-anchor	1
+x	CTQ	1
+x	Cell cycle	1
+x	Thiamine catabolism	1
+x	Capsule	1
+x	Viral genome excision	1
+x	Queuosine biosynthesis	1
+x	Inositol biosynthesis	1
+x	S-nitrosylation	1
+x	Pigment	1
+x	Carnitine biosynthesis	1
+x	Cytoskeleton	1
+x	Folate-binding	1
+x	Alpha-amylase inhibitor	1
+x	Metal-thiolate cluster	1
+x	Mandelate pathway	1
+x	cGMP	1
+x	Mannose-binding	1
+x	Flavonoid biosynthesis	1
+x	Potassium channel	1
+x	Chromophore	1
+x	Lactose biosynthesis	1
+x	Amidation	1
+x	Maltose metabolism	1

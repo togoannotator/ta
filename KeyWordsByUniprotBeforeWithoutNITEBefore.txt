@@ -1,0 +1,120 @@
+Thiol protease	72
+Bacteriochlorophyll	67
+Germination	66
+Antenna complex	54
+Light-harvesting polypeptide	54
+Bacteriocin	48
+Thioether bond	48
+Hypersensitive response elicitation	45
+Host cytoplasm	41
+Lantibiotic	41
+Enterotoxin	36
+Bacteriocin transport	31
+Bacteriocin immunity	28
+Phosphotransferase system	28
+Phycobilisome	26
+Sigma factor	23
+Cytadherence	23
+Immunoglobulin domain	23
+Steroid metabolism	22
+Nodulation	21
+Transmembrane	20
+Polysaccharide degradation	20
+Heterocyst	17
+Ubl conjugation pathway	17
+Neurotoxin	16
+Whooping cough	15
+Host membrane	15
+Host synapse	14
+Leucine-rich repeat	14
+Guanine-nucleotide releasing factor	13
+ANK repeat	13
+Galactitol metabolism	13
+Methanol utilization	13
+Bacteriocin biosynthesis	13
+Host nucleus	12
+Chlorosome	12
+Cell projection	12
+Plasmid copy control	11
+Pharmaceutical	11
+GTPase activation	11
+Pheromone	10
+Reaction center	10
+Metalloprotease inhibitor	10
+Cholesterol metabolism	9
+Bacteriolytic enzyme	8
+Photosystem II	8
+Superantigen	8
+Dental caries	8
+Cytokinin biosynthesis	8
+Bile pigment	8
+IgG-binding protein	8
+Ammonia transport	8
+D-amino acid	7
+Sulfate respiration	6
+Photosystem I	6
+Chlorophyll	6
+Flavoprotein	6
+Antibiotic	6
+TTQ	5
+Methotrexate resistance	5
+Host cell lysis by virus	5
+Alkaloid metabolism	5
+S-layer	5
+Photoprotein	5
+Calmodulin-binding	5
+Host-virus interaction	5
+Thioester bond	4
+Host cytoplasmic vesicle	4
+Viral attachment to host cell	4
+Sterol biosynthesis	4
+Phagocytosis	4
+Thiol protease inhibitor	4
+Phosphate transport	4
+Genetically modified food	4
+Differentiation	3
+Prenylation	3
+Nickel transport	3
+Protein synthesis inhibitor	3
+RNA-directed DNA polymerase	3
+WD repeat	3
+Ice nucleation	3
+Viral genome packaging	3
+Selenium	3
+Cleavage on pair of basic residues	3
+Herbicide resistance	3
+Fruiting body	2
+Quinate metabolism	2
+Motor protein	2
+Protein kinase inhibitor	2
+Aspartyl esterase	2
+Alternative promoter usage	2
+Tungsten	2
+Vanadium	2
+Actin-binding	2
+Growth regulation	2
+Ethylene biosynthesis	2
+Host cell receptor for virus entry	2
+RNA suppression of termination	2
+Collagen degradation	2
+Plasminogen activation	2
+Quinone	2
+Prothrombin activator	2
+GPI-anchor	1
+CTQ	1
+Cell cycle	1
+Thiamine catabolism	1
+Capsule	1
+Viral genome excision	1
+Queuosine biosynthesis	1
+Pigment	1
+Carnitine biosynthesis	1
+Cytoskeleton	1
+Alpha-amylase inhibitor	1
+Metal-thiolate cluster	1
+cGMP	1
+Mannose-binding	1
+Flavonoid biosynthesis	1
+Potassium channel	1
+Chromophore	1
+Amidation	1

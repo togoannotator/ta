@@ -1,0 +1,361 @@
+tRNA processing	67	714	781
+Signal	178	3078	3256
+DNA excision	7	137	144
+GMP biosynthesis	7	53	60
+Reference proteome	1590	19447	21037
+Topoisomerase	6	62	68
+Cytoplasm	634	7670	8304
+Lipid-binding	2	92	94
+Heme biosynthesis	10	140	150
+ATP synthesis	13	342	355
+Zinc transport	5	90	95
+Signal recognition particle	1	12	13
+Ascorbate biosynthesis	4	4	8
+Isoleucine biosynthesis	1	15	16
+Cell adhesion	2	36	38
+Host cell membrane	2	82	84
+Isopeptide bond	7	48	55
+Glycogen metabolism	4	60	64
+Hydrogen ion transport	28	548	576
+Formylation	2	23	25
+Putrescine biosynthesis	5	8	13
+Transmembrane beta strand	13	281	294
+Glycosidase	53	403	456
+Activator	39	718	757
+Fucose metabolism	5	21	26
+Cobalt transport	3	22	25
+Protein transport	24	244	268
+Lipid metabolism	1	9	10
+Methyltransferase	72	832	904
+Lactose metabolism	3	21	24
+Histidine metabolism	6	56	62
+Iron storage	6	56	62
+DNA integration	13	92	105
+Oxidoreductase	333	2608	2941
+Pyridoxal phosphate	75	592	667
+Nucleotide-binding	24	140	164
+Primosome	5	29	34
+Heparin-binding	1	4	5
+Lipid transport	2	12	14
+PQQ	2	13	15
+tRNA-binding	19	170	189
+Ion transport	16	132	148
+Cadmium	3	28	31
+Nuclease	7	77	84
+Biotin biosynthesis	9	128	137
+Phosphopantetheine	3	101	104
+Gluconate utilization	7	26	33
+rRNA-binding	22	273	295
+Polysaccharide transport	5	40	45
+DNA repair	38	366	404
+Cell wall biogenesis/degradation	50	505	555
+Flagellar rotation	8	53	61
+Schiff base	16	159	175
+Porphyrin biosynthesis	22	220	242
+Iron transport	13	179	192
+Redox-active center	34	274	308
+Tricarboxylic acid cycle	33	173	206
+Magnesium	244	2200	2444
+Protein splicing	1	10	11
+Iron	53	438	491
+Transducer	3	28	31
+Enterobactin biosynthesis	1	23	24
+Proteasome	4	10	14
+Alginate biosynthesis	10	44	54
+Pyruvate	6	26	32
+Zinc	116	1257	1373
+Ribosome biogenesis	8	142	150
+Isomerase	82	769	851
+Ribosomal protein	23	285	308
+Antibiotic biosynthesis	9	218	227
+Calvin cycle	1	16	17
+Porin	6	78	84
+Folate biosynthesis	6	48	54
+DNA-binding	152	2483	2635
+Polyamine biosynthesis	9	41	50
+Competence	3	99	102
+RNA-binding	27	420	447
+Fimbrium	1	134	135
+Pentose shunt	11	63	74
+Elongation factor	5	188	193
+Glyoxylate bypass	8	35	43
+Auxin biosynthesis	1	9	10
+Chitin degradation	3	15	18
+Lysine biosynthesis	16	166	182
+Nucleotidyltransferase	44	528	572
+Heme	43	547	590
+Oxygen transport	5	33	38
+Restriction system	1	102	103
+Serine biosynthesis	5	17	22
+Arsenical resistance	3	28	31
+Aspartyl protease	2	54	56
+Transposable element	6	233	239
+Organic radical	2	19	21
+Cysteine biosynthesis	12	87	99
+Glutathione biosynthesis	5	21	26
+Glycolysis	27	219	246
+Coenzyme A biosynthesis	5	134	139
+Iron-sulfur	8	66	74
+Vitamin C	2	33	35
+Copper	15	145	160
+Pyrimidine biosynthesis	3	61	64
+Ligase	105	955	1060
+Inositol biosynthesis	1	1	2
+Allosteric enzyme	14	149	163
+Transposition	1	118	119
+Rotamase	4	71	75
+Ubiquinone	1	5	6
+Decarboxylase	24	155	179
+S-nitrosylation	1	1	2
+Chloride channel	4	6	10
+Initiation factor	6	102	108
+Cadmium resistance	2	21	23
+Bacterial flagellum protein export	11	36	47
+Hemolysis	3	67	70
+NAD	152	1133	1285
+Viral genome integration	1	23	24
+Carboxypeptidase	7	33	40
+Coiled coil	24	340	364
+Fimbrium biogenesis	1	58	59
+Glycerol metabolism	7	59	66
+3D-structure	217	2934	3151
+Amino-acid transport	35	386	421
+Arginine biosynthesis	18	243	261
+Histidine biosynthesis	24	440	464
+Serine protease inhibitor	2	18	20
+Capsule biogenesis/degradation	9	82	91
+Thylakoid	5	139	144
+Cytosine metabolism	2	2	4
+Tyrosine-protein kinase	2	17	19
+Repressor	39	840	879
+Lignin degradation	2	7	9
+Lyase	153	1391	1544
+Cell wall	4	133	137
+Cobalt	21	163	184
+Chloride	2	11	13
+Chaperone	64	1265	1329
+Lipid A biosynthesis	14	283	297
+Protease	8	80	88
+Photoreceptor protein	1	6	7
+Biological rhythms	4	17	21
+Folate-binding	1	1	2
+2Fe-2S	18	223	241
+Dioxygenase	17	155	172
+rRNA processing	13	271	284
+Quorum sensing	3	94	97
+Respiratory chain	8	74	82
+Membrane	3	98	101
+cAMP	1	13	14
+ATP-binding	419	4963	5382
+Amino-acid biosynthesis	6	30	36
+Aminoacyl-tRNA synthetase	48	420	468
+Direct protein sequencing	185	2291	2476
+DNA-directed DNA polymerase	13	147	160
+Cell membrane	207	2905	3112
+Carbon dioxide fixation	1	15	16
+Glycoprotein	2	39	41
+Purine metabolism	12	40	52
+Phospholipid biosynthesis	12	105	117
+Potassium transport	19	164	183
+Glutamate biosynthesis	2	16	18
+Transcription regulation	101	1859	1960
+Exopolysaccharide synthesis	13	120	133
+Cellulose biosynthesis	2	26	28
+Manganese	68	584	652
+Nucleotide biosynthesis	7	61	68
+Purine salvage	8	61	69
+TPQ	2	4	6
+Luminescence	2	20	22
+Chemotaxis	22	215	237
+Chromate resistance	1	9	10
+Cell outer membrane	34	636	670
+Lipid degradation	12	112	124
+Lipoprotein	1	7	8
+Acetoin biosynthesis	1	10	11
+Fatty acid biosynthesis	28	345	373
+Electron transport	66	585	651
+3Fe-4S	5	95	100
+Detoxification	4	42	46
+Xylose metabolism	6	16	22
+SOS mutagenesis	1	10	11
+Molybdenum	6	49	55
+Aminotransferase	26	255	281
+Copper transport	6	30	36
+Leader peptide	8	26	34
+Tryptophan catabolism	3	37	40
+Bile acid catabolism	1	14	15
+Fibrinolysis	1	4	5
+Mandelate pathway	1	1	2
+Virulence	24	801	825
+Signal-anchor	9	103	112
+Excision nuclease	7	125	132
+Kinase	85	903	988
+Potassium	17	168	185
+Phenylalanine catabolism	2	7	9
+Autocatalytic cleavage	8	122	130
+Calcium	18	192	210
+Toxin	9	305	314
+DNA-directed RNA polymerase	1	7	8
+Bacteriochlorophyll biosynthesis	10	85	95
+Threonine protease	3	65	68
+Mutator protein	1	45	46
+RNA repair	5	39	44
+Hemagglutinin	1	13	14
+Transport	109	1340	1449
+Mobility protein	1	4	5
+Nickel	13	189	202
+Receptor	5	108	113
+Antibiotic resistance	40	584	624
+Lectin	1	22	23
+Lipoyl	1	37	38
+Transmembrane helix	438	5062	5500
+Transferase	143	1401	1544
+Purine biosynthesis	2	101	103
+Serine esterase	6	57	63
+Ribosomal frameshifting	1	5	6
+Sodium	4	78	82
+Ubl conjugation	7	62	69
+Thiamine biosynthesis	8	144	152
+CBS domain	6	39	45
+Thiamine pyrophosphate	19	156	175
+cAMP biosynthesis	1	13	14
+Metal-binding	464	4286	4750
+GTP-binding	50	681	731
+Monooxygenase	16	198	214
+Methionine biosynthesis	16	234	250
+Zymogen	11	142	153
+Leucine biosynthesis	6	113	119
+Symport	22	184	206
+Carotenoid biosynthesis	10	38	48
+Pyridine nucleotide biosynthesis	3	14	17
+Citrate utilization	1	12	13
+Autoinducer synthesis	2	60	62
+Biotin	7	45	52
+Intron homing	1	6	7
+Nucleotide metabolism	4	66	70
+CF(0)	4	263	267
+Antioxidant	6	46	52
+Complete proteome	870	8889	9759
+CF(1)	14	367	381
+Protein biosynthesis	63	650	713
+Cell shape	7	50	57
+Isoprene biosynthesis	17	339	356
+Sugar transport	30	322	352
+DNA replication	36	493	529
+Metalloprotease	23	258	281
+DNA synthesis	1	10	11
+DNA condensation	4	67	71
+Selenocysteine	1	21	22
+Tyrosine catabolism	2	7	9
+Repeat	116	1526	1642
+Prenyltransferase	1	3	4
+DNA invertase	1	6	7
+Sulfate transport	1	40	41
+Chitin-binding	1	11	12
+Gluconeogenesis	5	50	55
+TonB box	4	87	91
+Serine protease	21	263	284
+Mercury	5	25	30
+Tryptophan biosynthesis	15	137	152
+Conjugation	11	66	77
+Menaquinone biosynthesis	15	155	170
+Dipeptidase	1	3	4
+Helicase	16	143	159
+Crown gall tumor	1	44	45
+Cobalamin biosynthesis	23	197	220
+Hydrogen peroxide	3	59	62
+DNA replication inhibitor	1	27	28
+Teichoic acid biosynthesis	3	24	27
+Secreted	42	828	870
+Arabinose catabolism	4	16	20
+Alternative initiation	1	43	44
+Zinc-finger	17	261	278
+Stress response	48	852	900
+Chromosome partition	13	87	100
+Aromatic amino acid biosynthesis	15	165	180
+One-carbon metabolism	15	244	259
+Spermidine biosynthesis	10	42	52
+Nitrogen fixation	7	102	109
+Cell division	39	297	336
+Threonine biosynthesis	5	35	40
+Translation regulation	6	78	84
+Lipopolysaccharide biosynthesis	26	297	323
+Antiport	23	176	199
+Septation	12	178	190
+Deoxyribonucleotide synthesis	2	4	6
+Sporulation	34	382	416
+Glucose metabolism	3	18	21
+Branched-chain amino acid biosynthesis	15	106	121
+S-adenosyl-L-methionine	82	972	1054
+Disulfide bond	64	837	901
+Multifunctional enzyme	60	872	932
+Oxidation	6	21	27
+Galactose metabolism	3	41	44
+Protein phosphatase	2	53	55
+Glutamine amidotransferase	22	200	222
+Aromatic hydrocarbons catabolism	35	277	312
+Branched-chain amino acid catabolism	2	5	7
+DNA recombination	28	377	405
+Cellulose degradation	11	61	72
+Ion channel	1	16	17
+Hydrolase	284	2903	3187
+FMN	40	230	270
+Palmitate	26	610	636
+4Fe-4S	50	697	747
+Peptidoglycan synthesis	25	285	310
+Fatty acid metabolism	17	149	166
+Peptide transport	16	92	108
+Acyltransferase	77	710	787
+Xylan degradation	7	43	50
+NADP	107	862	969
+Lactose biosynthesis	3	1	4
+Chlorophyll biosynthesis	8	59	67
+Photosynthesis	18	190	208
+Acetoin catabolism	8	24	32
+Nickel insertion	4	50	54
+Pyrrolidone carboxylic acid	1	20	21
+Mercuric resistance	5	29	34
+Ubiquinone biosynthesis	12	84	96
+Aminopeptidase	12	107	119
+Peroxidase	10	82	92
+Trimethoprim resistance	1	7	8
+Translocation	13	175	188
+Periplasm	68	871	939
+Bacterial flagellum biogenesis	21	162	183
+Streptomycin biosynthesis	1	8	9
+Peptidoglycan-anchor	2	79	81
+c-di-GMP	2	34	36
+Bacterial flagellum	34	231	265
+Gas vesicle	1	19	20
+Plasmid	63	1636	1699
+Glycogen biosynthesis	5	90	95
+Maltose metabolism	1	1	2
+SOS response	14	243	257
+Carbohydrate metabolism	45	346	391
+Sodium transport	7	101	108
+Arginine metabolism	8	52	60
+Calcium transport	1	9	10
+Voltage-gated channel	4	5	9
+cAMP-binding	2	10	12
+Cytolysis	3	23	26
+Hydroxylation	1	13	14
+Methylation	7	89	96
+Diaminopimelate biosynthesis	10	127	137
+Plasmid partition	1	4	5
+Glycosyltransferase	46	515	561
+Asparagine biosynthesis	5	11	16
+Two-component regulatory system	16	451	467
+Pyridoxine biosynthesis	3	15	18
+Lipid biosynthesis	6	42	48
+TPR repeat	2	54	56
+FAD	86	599	685
+Endonuclease	12	277	289
+Cytochrome c-type biogenesis	19	154	173
+Cell inner membrane	339	3587	3926
+Phosphoprotein	78	1103	1181
+Antiviral defense	4	36	40
+Cobalamin	6	42	48
+Serine/threonine-protein kinase	6	89	95
+Exonuclease	11	172	183
+Sensory transduction	1	5	6
+Acetylation	15	177	192
