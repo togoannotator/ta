@@ -61,23 +61,22 @@ while(<$DICT>){
     $after =~ s/"$//;
     $before =~ s/^"//;
     $before =~ s/"$//;
-    
-    for ( @sp_words ){
-	# $after =~ s/^$_\W+//i;
-	$after =~ s/^$_\s+//i;
-    }
 
     $before = lc($before);
+    $after = lc($after);
+    for ( @sp_words ){
+	$after =~ s/^$_\s+//i;
+	$before =~ s/^$_\s+//i;
+    }
+
     $before =~ s{$ignore_chars}{ }g;
     $before = trim($before);
     $before =~ s/  +/ /g;
-    for ( @sp_words ){
-	if(index($before, $_) == 0){
-	    $before =~ s/^$_\s+//;
-	}
-    }
 
-    $after = lc($after);
+    $after =~ s{$ignore_chars}{ }g;
+    $after = trim($after);
+    $after =~ s/  +/ /g;
+
     $nitedicFor{$before}{$after}++;
     $nitedicRev{$after}{$before}++;
 }
@@ -113,18 +112,16 @@ while(<$UPT>){
     $after = lc($after);
 
     for ( @sp_words ){
-	# $after =~ s/^$_\W+//i;
 	$after =~ s/^$_\s+//i;
+	$before =~ s/^$_\s+//i;
     }
 
     $before =~ s{$ignore_chars}{ }g;
     $before = trim($before);
     $before =~ s/  +/ /g;
-    for ( @sp_words ){
-	if(index($before, $_) == 0){
-	    $before =~ s/^$_\s+//;
-	}
-    }
+    $after =~ s{$ignore_chars}{ }g;
+    $after = trim($after);
+    $after =~ s/  +/ /g;
 
     $uniprotFor{$before}{$after}++;
     $uniprotRev{$after}{$before}++;
@@ -147,16 +144,15 @@ while(<$tga>){
     for ( @sp_words ){
 	# $tga_after =~ s/^$_\W+//i;
 	$tga_after =~ s/^$_\s+//i;
+	$before =~ s/^$_\s+//i;
     }
 
     $before =~ s{$ignore_chars}{ }g;
     $before = trim($before);
     $before =~ s/  +/ /g;
-    for ( @sp_words ){
-	if(index($before, $_) == 0){
-	    $before =~ s/^$_\s+//;
-	}
-    }
+    $tga_after =~ s{$ignore_chars}{ }g;
+    $tga_after = trim($tga_after);
+    $tga_after =~ s/  +/ /g;
 
     $togoannotFor{$before}{$tga_after}++;
     $togoannotRev{$tga_after}{$before}++;
