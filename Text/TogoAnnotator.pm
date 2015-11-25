@@ -271,7 +271,11 @@ sub retrieve {
 		}else{
 		    $match = 'bcs';
 		    $result = defined $out[0] ? $prfx.$convtable{$out[0]} : $oq;
-		    $info   = join(" % ", (map {$prfx.$convtable{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+		    if(defined $out[0]){
+			$info   = join(" % ", (map {$prfx.$convtable{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+		    }else{
+			$info   = "Cosine_Sim_To:".join(" % ", @$retr_e);
+		    } 
 		}
 	    } else {
 		# print "\tno_hit\t";
