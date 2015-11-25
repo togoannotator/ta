@@ -111,11 +111,6 @@ while(<$UPT>){
     $before = lc($before);
     $after = lc($after);
 
-    my $tmpflag;
-    if($before eq 'protoporphyrin oxidase protein'){
-	$tmpflag++;
-    }
-
     for ( @sp_words ){
 	$after =~ s/^$_\s+//i;
 	$before =~ s/^$_\s+//i;
@@ -131,10 +126,6 @@ while(<$UPT>){
     $uniprotFor{$before}{$after}++;
     $uniprotRev{$after}{$before}++;
     $enaid{$before} = $eid;
-
-    if($tmpflag){
-	print ">>>", $before, "<<>>", $after, "<<<\n";
-    }
 }
 close($UPT);
 
@@ -149,11 +140,6 @@ while(<$tga>){
     $tga_after =~ s/"$//;
     $before = lc($before);
     $tga_after = lc($tga_after);
-
-    my $tmpflag;
-    if($before eq 'protoporphyrin oxidase protein'){
-	$tmpflag++;
-    }
 
     for ( @sp_words ){
 	# $tga_after =~ s/^$_\W+//i;
@@ -172,10 +158,6 @@ while(<$tga>){
     $togoannotRev{$tga_after}{$before}++;
     $togoannotMatch{$before,$tga_after}{type} = $tga_matchtype;
     $togoannotMatch{$before,$tga_after}{comments} = $tga_comments;
-
-    if($tmpflag){
-	print ">>>", $before, "<<>>", $tga_after, "<<<\n";
-    }
 }
 close($tga);
 
