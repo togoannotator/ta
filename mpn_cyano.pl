@@ -48,7 +48,8 @@ sub match{
   #print join("\t", ("CYANO", @vals[0..6]));
   my $r = Text::TogoAnnotator->retrieve($vals[6]);
   next if @$r{'match'} eq 'ex';
-  print join("\t",('','','','',@$r{'result'},$vals[6], @$r{'match','info'})),"\n";
+  #print join("\t",('','','','',@$r{'result'},$vals[6], @$r{'match','info'})),"\n";
+  print join("\t",('',$vals[1],'','',@$r{'result'},$vals[6], @$r{'match','info'})),"\n";
   #print "\t", join("\t", (@$r{'match','result','info'})), "\n";
     }
     close($CYANO);
