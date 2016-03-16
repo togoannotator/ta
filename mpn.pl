@@ -55,6 +55,7 @@ sub match{
 	print join("\t", ("AKUZ", @vals[0..6]));
 	my $r = Text::TogoAnnotator->retrieve($vals[6]);
 	print "\t", join("\t", (@$r{'match','result','info'})), "\n";
+	print ">>>", join(" | ", @{$r->{'result_array'}}), "\n";
     }
     close($AKUZ);
 

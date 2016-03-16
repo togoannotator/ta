@@ -1,25 +1,28 @@
 package Text::TogoAnnotator;
 
 # Yasunori Yamamoto / Database Center for Life Science
-# 2013.11.28 辞書ファイル仕様変更による。
+# -- 変更履歴 --
+# * 2013.11.28 辞書ファイル仕様変更による。
 # 市川さん>宮澤さんの後任が記載するルールを変えたので、正解データとしてngram掛けるのは、第3タブが○になっているもの、だけではなく、「delとRNA以外」としてください。
-# 2013.12.19 前後の"の有無の他に、出典を示す[nite]的な文字の後に"があるものと前に"があるものがあって全てに対応していなかったことに対応。
-# 2014.06.12 モジュール化
+# * 2013.12.19 前後の"の有無の他に、出典を示す[nite]的な文字の後に"があるものと前に"があるものがあって全てに対応していなかったことに対応。
+# * 2014.06.12 モジュール化
 # getScore関数内で//オペレーターを使用しているため、Perlバージョンが5.10以降である必要がある。
-# 2014.09.19 14/7/23 リクエストに対応
+# * 2014.09.19 14/7/23 リクエストに対応
 # 1. 既に正解辞書に完全一致するエントリーがある場合は、そのままにする。
 # 2. "subunit", "domain protein", "family protein" などがあり、辞書中にエントリーが無い場合は、そのままにする。
-# 2014.11.6
+# * 2014.11.6
 # 「辞書で"del"が付いているものは、人の目で確認することが望ましいという意味です。」とのコメントを受け、出力で明示するようにした。
 # 具体的には、result:$query, match:"del", info:"Human check preferable" が返る。
 # ハイフンの有無だけでなく空白の有無も問題を生じさせうるので、全ての空白を取り除く処理を加えてみた。
-# 2014.11.7
+# * 2014.11.7
 # Bag::Similarity::Cosineモジュールの利用で実際のcosine距離を取得してみる。
 # なお、simstringには距離を取得する機能はない。
 # n-gramの値はsimstringと同じ値を適用。
 # "fragment"をavoid_cs_termsに追加。
-# 2014.11.21
+# * 2014.11.21
 # スコアの並び替えについては、クエリ中の語が含まれる候補を優先し、続いてcosine距離を考慮する方針に変更。
+# * 2016.3.16
+# exもしくはcsの際の結果のみを配列に含むresult_arrayを追加。
 
 use warnings;
 use strict;
@@ -191,6 +194,7 @@ sub retrieve {
 
     my $prfx = '';
     my ($match, $result, $info) = ('') x 3;
+    my @results;
     for ( @sp_words ){
         if(index($query, $_) == 0){
             $query =~ s/^$_\s+//;
@@ -203,6 +207,7 @@ sub retrieve {
         $match ='ex';
         $result = $prfx. $correct_definitions{$query};
 	$info = 'in_dictionary: '. $query;
+	$results[0] = $result;
     }elsif($convtable{$query}){
 	# print "\tex\t", $prfx. $convtable{$query}, "\tconvert_from: ", $query;
 	if($convtable{$query} eq '__DEL__'){
@@ -213,6 +218,7 @@ sub retrieve {
 	    $match = 'ex';
 	    $result = $prfx. $convtable{$query};
 	    $info = 'convert_from: '. $query;
+	    $results[0] = $result;
 	}
     }else{
 	my $avoidcsFlag = 0;
@@ -248,6 +254,7 @@ sub retrieve {
 		$match = 'cs';
 		$result = $prfx.$correct_definitions{$out[0]};
 		$info   = join(" @@ ", (map {$prfx.$correct_definitions{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+		@results = map { $prfx.$correct_definitions{$_} } @out[0..$le];
 	    }
 	}else{
 	    #全ての空白を取り除く処理をした場合への対応
@@ -285,7 +292,7 @@ sub retrieve {
 	}
     }
     # print "\n";
-    return({'query'=> $oq, 'result' => $result, 'match' => $match, 'info' => $info});
+    return({'query'=> $oq, 'result' => $result, 'match' => $match, 'info' => $info, 'result_array' => \@results});
 }
 
 sub getScore {

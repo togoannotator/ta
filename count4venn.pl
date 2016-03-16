@@ -199,6 +199,8 @@ while(my ($k, $v) = each %uniprotFor){ # UniProt (ena -> UniProtKB)において�
 		}
 	    }
 	}
+    }else{
+	print "Not-In-TogoAnnotFor:", $k, "\n";
     }
     if($uniprotRev{$k}){
 	print join("\t", ("UniProt", $k, "|", keys %$v, "|", keys %{$uniprotRev{$k}})), "\n";
