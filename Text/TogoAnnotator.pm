@@ -23,6 +23,8 @@ package Text::TogoAnnotator;
 # スコアの並び替えについては、クエリ中の語が含まれる候補を優先し、続いてcosine距離を考慮する方針に変更。
 # * 2016.3.16
 # exもしくはcsの際の結果のみを配列に含むresult_arrayを追加。
+# * 2016.5.10
+# 辞書にg列（curated）とh列（note）があることを想定した修正。
 
 use warnings;
 use strict;
@@ -31,8 +33,9 @@ use File::Path 'mkpath';
 use Bag::Similarity::Cosine;
 use String::Trim;
 use simstring;
+use DB_File;
 
-my ($sysroot, $niteAll);
+my ($sysroot, $niteAll, $curatedDict);
 my ($nitealldb_d_name, $nitealldb_e_name);
 my ($niteall_d_cs_db, $niteall_e_cs_db);
 my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars);
@@ -57,7 +60,8 @@ sub init {
     $cs_max        = shift; # 複数表示する候補が在る場合の最大表示数
     $n_gram        = shift; # N-gram
     $sysroot       = shift; # 辞書や作業用ファイルを生成するディレクトリ
-    $niteAll       = shift; # NITE辞書名
+    $niteAll       = shift; # 辞書名
+    $curatedDict   = shift; # curated辞書名（形式は同一）
 
     @sp_words = qw/putative probable possible/;
     @avoid_cs_terms = (
@@ -81,11 +85,11 @@ sub init {
 
     $cosine_object = Bag::Similarity::Cosine->new;
 
-    readNITEdict();
+    readDict();
 }
 
-# NITE辞書の取込み
-sub readNITEdict {
+# 辞書の取込み
+sub readDict {
     my $dictdir = 'dictionary/cdb_nite_ALL';
 
     if (!-d  $sysroot.'/'.$dictdir){
@@ -102,6 +106,25 @@ sub readNITEdict {
     my $niteall_d_db = simstring::writer->new($nitealldb_d_name, $n_gram);
     my $niteall_e_db = simstring::writer->new($nitealldb_e_name, $n_gram);
 
+    my %curatedHash;
+    if($curatedDict){
+	open(my $curated_dict, $sysroot.'/'.$curatedDict);
+	while(<$curated_dict>){
+	    chomp;
+	    my (undef, undef, undef, undef, $name, undef, $curated, $note) = split /\t/;
+	    $name //= "";
+	    $name =~ s/^"\s*//;
+	    $name =~ s/\s*"\s*$//;
+	    $curated =~ s/^"\s*//;
+	    $curated =~ s/\s*"\s*$//;
+
+	    if($curated){
+		$curatedHash{$name} = $curated;
+	    }
+	}
+	close($curated_dict);
+    }
+
     my $total = 0;
 
     open(my $nite_all, $sysroot.'/'.$niteAll);
@@ -116,6 +139,10 @@ sub readNITEdict {
 	$name =~ s/\s*"\s*$//;
 	$b4name =~ s/^"\s*//;
 	$b4name =~ s/\s*"\s*$//;
+
+	if($curatedHash{$name}){
+	    $name = $curatedHash{$name};
+	}
 
 	for ( @sp_words ){
 	    #$name =~ s/^$_\W+//i;
