@@ -25,6 +25,7 @@ package Text::TogoAnnotator;
 # exもしくはcsの際の結果のみを配列に含むresult_arrayを追加。
 # * 2016.5.10
 # 辞書にg列（curated）とh列（note）があることを想定した修正。
+# 辞書ファイルの名前が.gzで終る場合は、gzip圧縮されたファイルとして扱い、展開する仕様に変更。
 
 use warnings;
 use strict;
@@ -34,6 +35,7 @@ use Bag::Similarity::Cosine;
 use String::Trim;
 use simstring;
 use DB_File;
+use PerlIO::gzip;
 
 my ($sysroot, $niteAll, $curatedDict);
 my ($nitealldb_d_name, $nitealldb_e_name);
@@ -126,8 +128,12 @@ sub readDict {
     }
 
     my $total = 0;
-
-    open(my $nite_all, $sysroot.'/'.$niteAll);
+    my $nite_all;
+    if($niteAll =~ /\.gz$/){
+	open($nite_all, "<:gzip", $sysroot.'/'.$niteAll);
+    }else{
+	open($nite_all, $sysroot.'/'.$niteAll);
+    }
     while(<$nite_all>){
 	chomp;
 	my (undef, $sno, $chk, undef, $name, $b4name, undef) = split /\t/;
