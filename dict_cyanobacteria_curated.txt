@@ -1,0 +1,5 @@
+null	No.	OK	change	protein name	old	curated	note
+				hypothetical protein YCF53		hypothetical protein	
+				hypothetical protein YCF59		hypothetical protein	
+				Transcriptional regulator		transcriptional regulator	$
+				unknown protein		hypothetical protein	$
