@@ -55,9 +55,10 @@ my (
     %histogram,
     %convtable,           # 書換辞書の書換前後の対応表。小文字化したクエリが、同じく小文字化した書換え前の語に一致した場合は対応する書換後の語を一致させて出力する。
     %negative_min_words,  # コサイン距離を用いた類似マッチではクエリと辞書中のエントリで文字列としては類似していても、両者の間に共通に出現する語が無い場合がある。
-                          # その場合、共通に出現する語がある辞書中エントリを優先させる処理をしているが、本処理が逆効果となってしまう語がここに含まれる。
+    # その場合、共通に出現する語がある辞書中エントリを優先させる処理をしているが、本処理が逆効果となってしまう語がここに含まれる。
     %wospconvtableD, %wospconvtableE, # 全空白文字除去前後の対応表。書換え前と後用それぞれ。
-    %name_provenance      # 変換後デフィニションの由来。
+    %name_provenance,     # 変換後デフィニションの由来。
+    %curatedHash          # curated辞書のエントリ（キーは小文字化する）
     );
 
 sub init {
@@ -113,7 +114,6 @@ sub readDict {
     my $niteall_d_db = simstring::writer->new($nitealldb_d_name, $n_gram);
     my $niteall_e_db = simstring::writer->new($nitealldb_e_name, $n_gram);
 
-    my %curatedHash;
     if($curatedDict){
 	open(my $curated_dict, $sysroot.'/'.$curatedDict);
 	while(<$curated_dict>){
@@ -155,20 +155,16 @@ sub readDict {
 	$b4name =~ s/^"\s*//;
 	$b4name =~ s/\s*"$//;
 
-	$name_provenance{$name} = "From dictionary";
-	if($curatedHash{lc($b4name)}){
-	    $name = $curatedHash{lc($b4name)};
-	    $name_provenance{$name} = "From Curated/before";
-	    print "#Curated / before: ", lc($b4name), "->", $name, "\n";
-	}elsif($curatedHash{lc($name)}){
+	$name_provenance{$name} = "dictionary";
+	if($curatedHash{lc($name)}){
 	    my $_name = lc($name);
 	    $name = $curatedHash{$_name};
-	    $name_provenance{$name} = "From Curated/after";
-	    print "#Curated / after: ", $_name, "->", $name, "\n";
-	}
-
-	for ( @sp_words ){
-	    $name =~ s/^$_\s+//i;
+	    $name_provenance{$name} = "curated (after)";
+	    # print "#Curated (after): ", $_name, "->", $name, "\n";
+	}else{
+	    for ( @sp_words ){
+		$name =~ s/^$_\s+//i;
+	    }
 	}
 
 	my $lcb4name = lc($b4name);
@@ -232,7 +228,7 @@ sub retrieve {
     shift;
     my $query = my $oq = shift;
     # $query ||= 'hypothetical protein';
-    $query = lc($query);
+    my $lc_query = $query = lc($query);
     $query =~ s{$ignore_chars}{ }g;
     $query =~ s/^"\s*//;
     $query =~ s/\s*"\s*$//;
@@ -251,12 +247,16 @@ sub retrieve {
 	    last;
         }
     }
-    if($correct_definitions{$query}){
+    if( $curatedHash{$lc_query} ){
+        $match ='ex';
+        $result = $curatedHash{$lc_query};
+	$info = 'in_curated_dictionary (before): '. $query;
+	$results[0] = $result;
+    }elsif($correct_definitions{$query}){
 	# print "\tex\t", $prfx. $correct_definitions{$query}, "\tin_dictionary: ", $query;
-	
         $match ='ex';
         $result = $prfx. $correct_definitions{$query};
-	$info = 'in_dictionary ('. $name_provenance{$correct_definitions{$query}}. ', prefix='. $prfx. '): '. $query;
+	$info = 'in_dictionary '. ($prfx?"(prefix=${prfx})":""). ': '. $query;
 	$results[0] = $result;
     }elsif($convtable{$query}){
 	# print "\tex\t", $prfx. $convtable{$query}, "\tconvert_from: ", $query;
@@ -267,7 +267,7 @@ sub retrieve {
 	}else{
 	    $match = 'ex';
 	    $result = $prfx. $convtable{$query};
-	    $info = 'convert_from ('. ($name_provenance{$convtable{$query}}//'') .', prefix='. $prfx. '): '. $query;
+	    $info = 'convert_from ('. ($name_provenance{$convtable{$query}}//''). ', prefix='. $prfx. '): '. $query;
 	    $results[0] = $result;
 	}
     }else{
@@ -291,7 +291,7 @@ sub retrieve {
 	    #その代わり以下のコードが必要。
 	    my @out = sort {
 		$minfreq->{$a} <=> $minfreq->{$b} || $cosdist->{$b} <=> $cosdist->{$a} || $a =~ y/ / / <=> $b =~ y/ / /
-		# $cosdist->{$b} <=> $cosdist->{$a} || $minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /
+		    # $cosdist->{$b} <=> $cosdist->{$a} || $minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /
 	    } grep {$cache{$_}++; $cache{$_} == 1} map { keys %{$wospconvtableD{$_}} } @$retr;
 	    #####
 	    my $le = (@out > $cs_max)?($cs_max-1):$#out;
@@ -317,7 +317,7 @@ sub retrieve {
 		my %cache;
 		my @out = sort {
 		    $minfreq->{$a} <=> $minfreq->{$b} || $cosdist->{$b} <=> $cosdist->{$a} || $a =~ y/ / / <=> $b =~ y/ / /
-		    # $cosdist->{$b} <=> $cosdist->{$a} || $minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /
+			# $cosdist->{$b} <=> $cosdist->{$a} || $minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /
 		} grep {$cache{$_}++; $cache{$_} == 1 && $minfreq->{$_} < $e_threashold} @hits;
 		my $le = (@out > $cs_max)?($cs_max-1):$#out;
 		# print "\tbcs\t", join(" % ", (map {$prfx.$convtable{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
