@@ -56,7 +56,8 @@ my (
     %convtable,           # 書換辞書の書換前後の対応表。小文字化したクエリが、同じく小文字化した書換え前の語に一致した場合は対応する書換後の語を一致させて出力する。
     %negative_min_words,  # コサイン距離を用いた類似マッチではクエリと辞書中のエントリで文字列としては類似していても、両者の間に共通に出現する語が無い場合がある。
                           # その場合、共通に出現する語がある辞書中エントリを優先させる処理をしているが、本処理が逆効果となってしまう語がここに含まれる。
-    %wospconvtableD, %wospconvtableE # 全空白文字除去前後の対応表。書換え前と後用それぞれ。
+    %wospconvtableD, %wospconvtableE, # 全空白文字除去前後の対応表。書換え前と後用それぞれ。
+    %name_provenance      # 変換後デフィニションの由来。
     );
 
 sub init {
@@ -154,10 +155,13 @@ sub readDict {
 	$b4name =~ s/^"\s*//;
 	$b4name =~ s/\s*"$//;
 
+	$name_provenance{$name} = "From dictionary";
 	if($curatedHash{lc($b4name)}){
 	    $name = $curatedHash{lc($b4name)};
+	    $name_provenance{$name} = "From Curated/before";
 	}elsif($curatedHash{lc($name)}){
 	    $name = $curatedHash{lc($name)};
+	    $name_provenance{$name} = "From Curated/after";
 	}
 
 	for ( @sp_words ){
@@ -247,9 +251,10 @@ sub retrieve {
     }
     if($correct_definitions{$query}){
 	# print "\tex\t", $prfx. $correct_definitions{$query}, "\tin_dictionary: ", $query;
+	
         $match ='ex';
         $result = $prfx. $correct_definitions{$query};
-	$info = 'in_dictionary: '. $query;
+	$info = 'in_dictionary ('. $name_provenance{$correct_definitions{$query}}. ', prefix='. $prfx. '): '. $query;
 	$results[0] = $result;
     }elsif($convtable{$query}){
 	# print "\tex\t", $prfx. $convtable{$query}, "\tconvert_from: ", $query;
@@ -260,7 +265,7 @@ sub retrieve {
 	}else{
 	    $match = 'ex';
 	    $result = $prfx. $convtable{$query};
-	    $info = 'convert_from: '. $query;
+	    $info = 'convert_from ('. ($name_provenance{$convtable{$query}}//'') .', prefix='. $prfx. '): '. $query;
 	    $results[0] = $result;
 	}
     }else{
