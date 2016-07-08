@@ -29,6 +29,7 @@ package Text::TogoAnnotator;
 # * 2016.7.8
 # Before -> After、After -> Curated ではなく、Curated辞書の書き換え前エントリをTogoAnnotator辞書のBeforeに含めて、それを優先されるようにする（完全一致のみ）。
 # https://bitbucket.org/yayamamo/togoannotator/issues/3/curated
+# なお、マッチさせるときには大文字小文字の違いを無視する。
 
 use warnings;
 use strict;
@@ -118,13 +119,15 @@ sub readDict {
 	    chomp;
 	    my (undef, undef, undef, undef, $name, undef, $curated, $note) = split /\t/;
 	    $name //= "";
+	    trim( $name );
+	    trim( $curated );
 	    $name =~ s/^"\s*//;
-	    $name =~ s/\s*"\s*$//;
+	    $name =~ s/\s*"$//;
 	    $curated =~ s/^"\s*//;
-	    $curated =~ s/\s*"\s*$//;
+	    $curated =~ s/\s*"$//;
 
 	    if($curated){
-		$curatedHash{$name} = $curated;
+		$curatedHash{lc($name)} = $curated;
 	    }
 	}
 	close($curated_dict);
@@ -144,15 +147,17 @@ sub readDict {
 	# next if $chk eq 'RNA' or $chk eq 'del' or $chk eq 'OK';
 
 	$name //= "";   # $chk が "del" のときは $name が空。
+	trim( $name );
+	trim( $b4name );
 	$name =~ s/^"\s*//;
-	$name =~ s/\s*"\s*$//;
+	$name =~ s/\s*"$//;
 	$b4name =~ s/^"\s*//;
-	$b4name =~ s/\s*"\s*$//;
+	$b4name =~ s/\s*"$//;
 
-	if($curatedHash{$b4name}){
-	    $name = $curatedHash{$b4name};
-	}elsif($curatedHash{$name}){
-	    $name = $curatedHash{$name};
+	if($curatedHash{lc($b4name)}){
+	    $name = $curatedHash{lc($b4name)};
+	}elsif($curatedHash{lc($name)}){
+	    $name = $curatedHash{lc($name)};
 	}
 
 	for ( @sp_words ){
