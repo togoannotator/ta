@@ -26,6 +26,9 @@ package Text::TogoAnnotator;
 # * 2016.5.10
 # 辞書にg列（curated）とh列（note）があることを想定した修正。
 # 辞書ファイルの名前が.gzで終る場合は、gzip圧縮されたファイルとして扱い、展開する仕様に変更。
+# * 2016.7.8
+# Before -> After、After -> Curated ではなく、Curated辞書の書き換え前エントリをTogoAnnotator辞書のBeforeに含めて、それを優先されるようにする（完全一致のみ）。
+# https://bitbucket.org/yayamamo/togoannotator/issues/3/curated
 
 use warnings;
 use strict;
@@ -146,7 +149,9 @@ sub readDict {
 	$b4name =~ s/^"\s*//;
 	$b4name =~ s/\s*"\s*$//;
 
-	if($curatedHash{$name}){
+	if($curatedHash{$b4name}){
+	    $name = $curatedHash{$b4name};
+	}elsif($curatedHash{$name}){
 	    $name = $curatedHash{$name};
 	}
 
