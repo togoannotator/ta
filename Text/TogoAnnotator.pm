@@ -159,13 +159,14 @@ sub readDict {
 	if($curatedHash{lc($b4name)}){
 	    $name = $curatedHash{lc($b4name)};
 	    $name_provenance{$name} = "From Curated/before";
+	    print "#Curated / before: ", lc($b4name), "->", $curatedHash{lc($b4name)}, "\n";
 	}elsif($curatedHash{lc($name)}){
 	    $name = $curatedHash{lc($name)};
 	    $name_provenance{$name} = "From Curated/after";
+	    print "#Curated / after: ", lc($name), "->", $curatedHash{lc($name)}, "\n";
 	}
 
 	for ( @sp_words ){
-	    #$name =~ s/^$_\W+//i;
 	    $name =~ s/^$_\s+//i;
 	}
 
