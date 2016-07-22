@@ -40,6 +40,10 @@ while(<$locustag>){
     $lct =~ s/^"//;
     $lct =~ s/"$//;
     push @{ $eid2lct{$eid} }, $lct;
+    if(index($lct, "_") > -1){
+	$lct =~ s/_//g;
+	push @{ $eid2lct{$eid} }, $lct;
+    }
 }
 close($locustag);
 
@@ -72,12 +76,20 @@ while(<$tgd>){
     next if $afters{$af};
     $afters{$af}++;
     my %hash;
+    my @levelseq;
     for (split / /, $af) {
-	$hash{2}++ if $matcher->exact_match($_);
-	$hash{$levels{$_}}++ if defined($levels{$_});
+	if($matcher->exact_match($_)){
+	    $hash{2}++;
+	    push @levelseq, 2;
+	}elsif(defined($levels{$_})){
+	    $hash{$levels{$_}}++;
+	    push @levelseq, $levels{$_};
+	}else{
+	    push @levelseq, '-';
+	}
     }
     my $result = join("", (sort {$a <=> $b} keys %hash));
-    print join("\t", ($af, $result, "[". join(":", @lct). "]", $origin, $bf)), "\n";
+    print join("\t", ($af, $result, "[". join(":", @lct). "]", $origin, $bf, join("", @levelseq))), "\n";
 }
 close($tgd);
 
