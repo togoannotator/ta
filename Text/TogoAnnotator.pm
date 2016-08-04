@@ -60,6 +60,7 @@ my (
     %name_provenance,     # 変換後デフィニションの由来。
     %curatedHash          # curated辞書のエントリ（キーは小文字化する）
     );
+my ($minfreq, $minword, $ifhit, $cosdist);
 
 sub init {
     my $_this = shift;
@@ -242,6 +243,7 @@ sub closeDicts {
 
 sub retrieve {
     shift;
+    ($minfreq, $minword, $ifhit, $cosdist) = undef;
     my $query = my $oq = shift;
     # $query ||= 'hypothetical protein';
     my $lc_query = $query = lc($query);
@@ -301,15 +303,12 @@ sub retrieve {
 	#####
 	my %qtms = map {$_ => 1} grep {s/\W+$//;$histogram{$_}} (split " ", $query);
 	if($retr->[0]){
-	    my ($minfreq, $minword, $ifhit, $cosdist) = getScore($retr, \%qtms, 1, $qwosp);
+	    ($minfreq, $minword, $ifhit, $cosdist) = getScore($retr, \%qtms, 1, $qwosp);
 	    my %cache;
 	    #全ての空白を取り除く処理をした場合には検索結果の文字列を復元する必要があるため、下記部分をコメントアウトしている。
 	    #my @out = sort {$minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /} grep {$cache{$_}++; $cache{$_} == 1} @$retr;
 	    #その代わり以下のコードが必要。
-	    my @out = sort {
-		$minfreq->{$a} <=> $minfreq->{$b} || $cosdist->{$b} <=> $cosdist->{$a} || $a =~ y/ / / <=> $b =~ y/ / /
-		    # $cosdist->{$b} <=> $cosdist->{$a} || $minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /
-	    } grep {$cache{$_}++; $cache{$_} == 1} map { keys %{$wospconvtableD{$_}} } @$retr;
+	    my @out = sort by_priority grep {$cache{$_}++; $cache{$_} == 1} map { keys %{$wospconvtableD{$_}} } @$retr;
 	    #####
 	    my $le = (@out > $cs_max)?($cs_max-1):$#out;
 	    # print "\tcs\t", join(" @@ ", (map {$prfx.$correct_definitions{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
@@ -329,13 +328,10 @@ sub retrieve {
 	    my $retr_e = $niteall_e_cs_db->retrieve($qwosp);
 	    #####
 	    if($retr_e->[0]){
-		my ($minfreq, $minword, $ifhit, $cosdist) = getScore($retr_e, \%qtms, 0, $qwosp);
+		($minfreq, $minword, $ifhit, $cosdist) = getScore($retr_e, \%qtms, 0, $qwosp);
 		my @hits = keys %$ifhit;
 		my %cache;
-		my @out = sort {
-		    $minfreq->{$a} <=> $minfreq->{$b} || $cosdist->{$b} <=> $cosdist->{$a} || $a =~ y/ / / <=> $b =~ y/ / /
-			# $cosdist->{$b} <=> $cosdist->{$a} || $minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /
-		} grep {$cache{$_}++; $cache{$_} == 1 && $minfreq->{$_} < $e_threashold} @hits;
+		my @out = sort by_priority grep {$cache{$_}++; $cache{$_} == 1 && $minfreq->{$_} < $e_threashold} @hits;
 		my $le = (@out > $cs_max)?($cs_max-1):$#out;
 		# print "\tbcs\t", join(" % ", (map {$prfx.$convtable{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
 		if(defined $out[0] && $avoidcsFlag && $minfreq->{$out[0]} == -1 && $negative_min_words{$minword->{$out[0]}}){
@@ -361,6 +357,57 @@ sub retrieve {
     # print "\n";
     return({'query'=> $oq, 'result' => $result, 'match' => $match, 'info' => $info, 'result_array' => \@results});
 }
+
+sub by_priority {
+      my $minfreq = shift;
+      my $cosdist = shift;
+      
+      use Data::Dumper;
+      print Dumper $minfreq;
+      #  $minfreq->{$a} <=> $minfreq->{$b} || $cosdist->{$b} <=> $cosdist->{$a} || $a =~ y/ / / <=> $b =~ y/ / /
+      ## $cosdist->{$b} <=> $cosdist->{$a} || $minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /
+        guideline_penalty($a) <=> guideline_penalty($b)
+         or 
+        $minfreq->{$a} <=> $minfreq->{$b}
+         or 
+        $cosdist->{$b} <=> $cosdist->{$a}
+         or 
+        $a =~ y/ / / <=> $b =~ y/ / /
+}
+
+sub guideline_penalty {
+ my $result = shift; 
+ my $idx = 0;
+
+#2. 記述や句ではなく簡潔な名前を用いる。
+ $idx++ if $result =~/ (of|or|and) /;
+#5. タンパク質名が不明な場合は、 産物名として、"unknown” または "hypothetical protein”を用いる。今回の再アノテーションでは、"hypothetical protein”の使用を推奨する。
+ $idx++ if $result =~/(unknown protein|uncharacterized protein)/;
+#7. タンパク質名に分子量の使用は避ける。例えば、"unicornase 52 kDa subunit”は避け、"unicornase subunit A” 等と表記する。
+ $idx++ if $result =~/\d+\s*kDa/;
+#8. 名前に“homolog”を使わない。
+ $idx++ if $result =~/homolog/;
+#9. 可能なかぎり、コンマを用いない。
+ $idx++ if $result =~/\,/;
+#12. 可能な限りローマ数字は避け、アラビア数字を用いる。
+ $idx++ if $result =~/[I-X]/;
+
+#16. ギリシャ文字は、小文字でスペルアウトする（例：alpha）。ただし、ステロイドや脂肪酸代謝での「デルタ」は例外として語頭を大文字にする（Delta）。さらに、番号が続いている場合、ダッシュ" -“の後に続ける（例：unicornase alpha-1）。
+#1. すでに適切な名前があればそれを用いる。
+#3. 理想的には命名する遺伝子名（タンパク質名）はユニークであり、すべてのオルソログに同じ名前がついているとよい。
+#4. タンパク質名に、タンパク質の特定の特徴を入れない。 例えば、タンパク質の機能、細胞内局在、ドメイン構造、分子量やその起源の種名はノートに記述する。
+#6. タンパク質名は、対応する遺伝子と同じ表記を用いる。ただし，語頭を大文字にする。
+#10. 語頭は基本的に小文字を用いる。（例外：DNA、ATPなど）
+#11. スペルはアメリカ表記を用いる。
+#13. 略記に分子量を組み込まない。
+#14. 多重遺伝子ファミリーに属するタンパク質では、ファミリーの各メンバーを指定する番号を使用することを推奨する。
+#15. 相同性または共通の機能に基づくファミリーに分類されるタンパク質に名前を付ける場合、"-"に後にアラビア数字を入れて標記する。（例："desmoglein-1", "desmoglein-2"など）
+#17. アクセント、ウムラウトなどの発音区別記号を使用しない。多くのコンピュータシステムは、ASCII文字しか判別できない。
+#18. 複数形を使用しない。"ankyrin repeats-containing protein 8" は間違い。
+#19 機能未知タンパク質のうち既知のドメインまたはモチーフを含む場合、ドメイン名を付して名前を付けてもよい。例えば "PAS domain-containing protein 5" など。
+ return $idx;
+}
+
 
 sub getScore {
     my $retr = shift;
