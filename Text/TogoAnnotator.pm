@@ -96,8 +96,22 @@ sub init {
     readDict();
 }
 
-# 辞書の取込み
+=head
+類似度計算用辞書およびマッチ（完全一致）用辞書の構築
+  類似度計算は simstring
+    類似度計算用辞書の見出し語は全て空白文字を除去し、小文字化したもの
+    書換前後の語群それぞれを独立した辞書にしている
+  完全一致はハッシュ
+    ハッシュは書換用辞書とキュレーテッド
+    更に書換用辞書についてはconvtableとcorrect_definition
+    convtableのキーは書換前の語に対して特殊文字を除去し、小文字化したもの
+    convtableの値は書換後の語
+    correct_definitionのキーは書換後の語に対して特殊文字を除去し、小文字化したもの
+    correct_definitionの値は書換後の語
+=cut
+
 sub readDict {
+    # 類似度計算用辞書構築の準備
     my $dictdir = 'dictionary/cdb_nite_ALL';
 
     if (!-d  $sysroot.'/'.$dictdir){
@@ -108,12 +122,13 @@ sub readDict {
 	unlink $f;
     }
 
-    $nitealldb_d_name = $sysroot.'/'.$dictdir.'/d';
-    $nitealldb_e_name = $sysroot.'/'.$dictdir.'/e';
+    $nitealldb_d_name = $sysroot.'/'.$dictdir.'/d'; # After
+    $nitealldb_e_name = $sysroot.'/'.$dictdir.'/e'; # Before
 
     my $niteall_d_db = simstring::writer->new($nitealldb_d_name, $n_gram);
     my $niteall_e_db = simstring::writer->new($nitealldb_e_name, $n_gram);
 
+    # キュレーテッド辞書の構築
     if($curatedDict){
 	open(my $curated_dict, $sysroot.'/'.$curatedDict);
 	while(<$curated_dict>){
@@ -134,6 +149,7 @@ sub readDict {
 	close($curated_dict);
     }
 
+    # 類似度計算用および変換用辞書の構築
     my $total = 0;
     my $nite_all;
     if($niteAll =~ /\.gz$/){
@@ -178,9 +194,9 @@ sub readDict {
 	}
 
 	if($chk eq 'del'){
-	    $convtable{$lcb4name} = '__DEL__';
+	    $convtable{$lcb4name}{'__DEL__'}++;
 	}else{
-	    $convtable{$lcb4name} = $name;
+	    $convtable{$lcb4name}{$name}++;
 
 	    # $niteall_e_db->insert($lcb4name);
 	    (my $wosplcb4name = $lcb4name) =~ s/ //g;   #### 全ての空白を取り除く
@@ -252,7 +268,7 @@ sub retrieve {
         $result = $curatedHash{$lc_query};
 	$info = 'in_curated_dictionary (before): '. $query;
 	$results[0] = $result;
-    }elsif($correct_definitions{$query}){
+    }elsif( $correct_definitions{$query} ){
 	# print "\tex\t", $prfx. $correct_definitions{$query}, "\tin_dictionary: ", $query;
         $match ='ex';
         $result = $prfx. $correct_definitions{$query};
@@ -260,14 +276,15 @@ sub retrieve {
 	$results[0] = $result;
     }elsif($convtable{$query}){
 	# print "\tex\t", $prfx. $convtable{$query}, "\tconvert_from: ", $query;
-	if($convtable{$query} eq '__DEL__'){
+	if($convtable{$query}{'__DEL__'}){
+	    my @others = grep {$_ ne '__DEL__'} keys %{$convtable{$query}};
 	    $match = 'del';
 	    $result = $query;
-	    $info = 'Human check preferable';
+	    $info = 'Human check preferable (other entries with the same "before" entry: '.join(" @@ ", @others).')';
 	}else{
 	    $match = 'ex';
-	    $result = $prfx. $convtable{$query};
-	    $info = 'convert_from ('. ($name_provenance{$convtable{$query}}//''). ', prefix='. $prfx. '): '. $query;
+	    $result = join(" @@ ", map {$prfx. $_} keys %{$convtable{$query}});
+	    $info = 'convert_from dictionary ( prefix='. $prfx. '): '. $query;
 	    $results[0] = $result;
 	}
     }else{
@@ -327,9 +344,9 @@ sub retrieve {
 		    $info = 'bcs_avoidance: '. $query;
 		}else{
 		    $match = 'bcs';
-		    $result = defined $out[0] ? $prfx.$convtable{$out[0]} : $oq;
+		    $result = defined $out[0] ? join(" @@ ", map {$prfx. $_} keys %{$convtable{$out[0]}}) : $oq;
 		    if(defined $out[0]){
-			$info   = join(" % ", (map {$prfx.$convtable{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+			$info   = join(" % ", (map {join(" @@ ", map {$prfx. $_} keys %{$convtable{$_}}).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
 		    }else{
 			$info   = "Cosine_Sim_To:".join(" % ", @$retr_e);
 		    } 
