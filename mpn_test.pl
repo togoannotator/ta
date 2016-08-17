@@ -7,7 +7,10 @@ use warnings;
 use strict;
 use Fatal qw/open/;
 use Getopt::Std;
-use lib qw(/home/tga/togoannotator /home/tga/simstring-1.0/swig/perl);
+#use lib qw(/home/tga/togoannotator /home/tga/simstring-1.0/swig/perl);
+use FindBin qw($Bin);
+use lib "$Bin";
+
 use Text::TogoAnnotator;
 use utf8;
 use Data::Dumper;

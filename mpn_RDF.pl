@@ -32,7 +32,9 @@ use JSON;
 use DateTime;
 use File::Path 'mkpath';
 
-use lib qw(/opt/services2/togoannot/togoannotator);
+#use lib qw(/opt/services2/togoannot/togoannotator);
+use FindBin qw($Bin);
+use lib "$Bin";
 use Text::TogoAnnotator;
 
 ###  setting for genome refine #################

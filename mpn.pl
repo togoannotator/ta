@@ -8,7 +8,11 @@ use warnings;
 use strict;
 use Fatal qw/open/;
 use Getopt::Std;
-use lib qw(/opt/services2/togoannot/togoannotator);
+#use lib qw(/opt/services2/togoannot/togoannotator);
+#use lib qw(/home/tga/togoannotator /home/tga/simstring-1.0/swig/perl);
+use FindBin qw($Bin);
+use lib "$Bin";
+
 use Text::TogoAnnotator;
 use utf8;
 
@@ -20,7 +24,9 @@ my $val01s = "VAL01S_genelist.tab_anno(original).tab";
 my $vez01s = "VEZ01S_genelist.tab_anno(original).tab";
 my $verify = "SG25アノテーション確認用_After_10_utf8.txt";
 
-my $sysroot = '/opt/services2/togoannot/togoannotator';
+#my $sysroot = '/opt/services2/togoannot/togoannotator';
+#my $sysroot = '/home/tga/togoannotator';
+my $sysroot = "$Bin";
 my $evaldir = '20131122_dbcls';
 
 our ($opt_t, $opt_m) = (0.6, 5);
