@@ -15,7 +15,8 @@ use Text::TogoAnnotator;
 use utf8;
 use Data::Dumper;
 
-my $sysroot = '/home/tga/togoannotator';
+#my $sysroot = '/home/tga/togoannotator';
+my $sysroot = "$Bin";
 
 our ($opt_t, $opt_m) = (0.6, 5);
 getopt('tm'); # -tm take arg.  Sets $opt_t, $opt_m as a side effect.

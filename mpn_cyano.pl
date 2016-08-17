@@ -24,7 +24,9 @@ my $vez01s = "VEZ01S_genelist.tab_anno(original).tab";
 my $verify = "SG25アノテーション確認用_After_10_utf8.txt";
 
 #my $sysroot = '/opt/services2/togoannot/togoannotator';
-my $sysroot = '/home/tga/togoannotator';
+#my $sysroot = '/home/tga/togoannotator';
+my $sysroot = "$Bin";
+
 my $evaldir = '20131122_dbcls';
 
 our ($opt_t, $opt_m) = (0.6, 5);
