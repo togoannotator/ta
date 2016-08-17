@@ -359,8 +359,8 @@ sub retrieve {
 }
 
 sub by_priority {
-      my $minfreq = shift;
-      my $cosdist = shift;
+  #my $minfreq = shift;
+  #    my $cosdist = shift;
       
       #  $minfreq->{$a} <=> $minfreq->{$b} || $cosdist->{$b} <=> $cosdist->{$a} || $a =~ y/ / / <=> $b =~ y/ / /
       ## $cosdist->{$b} <=> $cosdist->{$a} || $minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /
