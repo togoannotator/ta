@@ -362,8 +362,6 @@ sub by_priority {
       my $minfreq = shift;
       my $cosdist = shift;
       
-      use Data::Dumper;
-      print Dumper $minfreq;
       #  $minfreq->{$a} <=> $minfreq->{$b} || $cosdist->{$b} <=> $cosdist->{$a} || $a =~ y/ / / <=> $b =~ y/ / /
       ## $cosdist->{$b} <=> $cosdist->{$a} || $minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /
         guideline_penalty($a) <=> guideline_penalty($b)
