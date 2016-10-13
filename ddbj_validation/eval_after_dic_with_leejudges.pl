@@ -7,6 +7,7 @@ ENAをBefore、対応するUniProt ReviewedをAfterとする書換辞書（バ�
 李さんの辞書に含まれないものを李さんにチェックして頂いた結果を $leejudge でオープン。
 EMBLデータに含まれているローカスタグを抽出したものを $locustag でオープン。
 上記のUniProt ReviewedとENAの対応を取得した結果を $tgd でオープン。
+酵素名辞書を $enzyme でオープン。[真島さんの指摘を受けて追加、2016/10/13]
 =cut
 
 use warnings;
@@ -15,6 +16,7 @@ use Fatal qw/open/;
 use PerlIO::gzip;
 use Text::Trim;
 use Text::Match::FastAlternatives;
+use Text::Scan;
 
 my @dictionary;
 open(my $dic, "20151118_words.txt");
@@ -56,6 +58,20 @@ while(<$locustag>){
 }
 close($locustag);
 
+my $ez_dict = new Text::Scan;
+
+my %enzymeHash;
+open(my $enzyme, "../enzyme/enzyme_names.txt");
+while(<$enzyme>){
+    chomp;
+    trim( $_ );
+    $enzymeHash{lc($_)} = $_;
+    $ez_dict->insert(lc($_), $_);
+}
+close($enzyme);
+
+my $ez_matcher = Text::Match::FastAlternatives->new( keys %enzymeHash );
+
 open(my $tgd, "<:gzip", "../uniprot_evaluation/matched.txt.gz");
 while(<$tgd>){
     chomp;
@@ -86,6 +102,14 @@ while(<$tgd>){
 	}
     }
     next if $afters{$af};
+
+    my $eh = $enzymeHash{lc($af)} // "";
+    $eh = "Ex:".$eh if $eh;
+    if($eh eq "" && $ez_matcher->match(lc($af))){
+	my %ez_sub_found = $ez_dict->scan(lc($af));
+	$eh = "*".join(", ", values %ez_sub_found)."*";
+    }
+
     $afters{$af}++;
     # 書換後のデフィニションについてワード単位で李さん辞書に基くレベルを付与
     # 0: 辞書から除外(locus_tag 類の混入)
@@ -105,7 +129,7 @@ while(<$tgd>){
 	}
     }
     my $result = join("", (sort {$a <=> $b} keys %hash));
-    print join("\t", ($af, $result, "[". join(":", @lct). "]", $origin, $bf, join("", @levelseq))), "\n";
+    print join("\t", ($af, $result, "[". join(":", @lct). "]", $origin, $bf, join("", @levelseq), "[".$eh."]")), "\n";
 }
 close($tgd);
 

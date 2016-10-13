@@ -30,6 +30,9 @@ package Text::TogoAnnotator;
 # Before -> After、After -> Curated ではなく、Curated辞書の書き換え前エントリをTogoAnnotator辞書のBeforeに含めて、それを優先されるようにする（完全一致のみ）。
 # https://bitbucket.org/yayamamo/togoannotator/issues/3/curated
 # なお、マッチさせるときには大文字小文字の違いを無視する。
+# * 2016.10.13
+# 酵素名辞書とマッチするデフィニションは優先順位を高めるようにした。
+# 英語表記を米語表記に変換するようにした。
 
 use warnings;
 use strict;
@@ -40,8 +43,9 @@ use String::Trim;
 use simstring;
 use DB_File;
 use PerlIO::gzip;
+use Lingua::EN::ABC qw/b2a/;
 
-my ($sysroot, $niteAll, $curatedDict);
+my ($sysroot, $niteAll, $curatedDict, $enzymeDict);
 my ($nitealldb_d_name, $nitealldb_e_name);
 my ($niteall_d_cs_db, $niteall_e_cs_db);
 my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars);
@@ -58,7 +62,8 @@ my (
     # その場合、共通に出現する語がある辞書中エントリを優先させる処理をしているが、本処理が逆効果となってしまう語がここに含まれる。
     %wospconvtableD, %wospconvtableE, # 全空白文字除去前後の対応表。書換え前と後用それぞれ。
     %name_provenance,     # 変換後デフィニションの由来。
-    %curatedHash          # curated辞書のエントリ（キーは小文字化する）
+    %curatedHash,         # curated辞書のエントリ（キーは小文字化する）
+    %enzymeHash           # 酵素辞書のエントリ（小文字化する）
     );
 my ($minfreq, $minword, $ifhit, $cosdist);
 
@@ -71,6 +76,8 @@ sub init {
     $sysroot       = shift; # 辞書や作業用ファイルを生成するディレクトリ
     $niteAll       = shift; # 辞書名
     $curatedDict   = shift; # curated辞書名（形式は同一）
+
+    $enzymeDict = "enzyme/enzyme_names.txt";
 
     @sp_words = qw/putative probable possible/;
     @avoid_cs_terms = (
@@ -149,6 +156,15 @@ sub readDict {
 	}
 	close($curated_dict);
     }
+
+    # 酵素辞書の構築
+    open(my $enzyme_dict, $sysroot.'/'.$enzymeDict);
+    while(<$enzyme_dict>){
+    	chomp;
+    	trim( $_ );
+    	$enzymeHash{lc($_)} = $_;
+    }
+    close($enzyme_dict);
 
     # 類似度計算用および変換用辞書の構築
     my $total = 0;
@@ -355,6 +371,10 @@ sub retrieve {
 	}
     }
     # print "\n";
+    if($enzymeHash{lc($result)}){
+	$info .= " [Enzyme name]";
+    }
+    $result = b2a($result);
     return({'query'=> $oq, 'result' => $result, 'match' => $match, 'info' => $info, 'result_array' => \@results});
 }
 
@@ -377,6 +397,9 @@ sub guideline_penalty {
  my $result = shift; 
  my $idx = 0;
 
+#1. (酵素名辞書に含まれている場合)
+ $idx-- if $enzymeHash{lc($result)};
+
 #2. 記述や句ではなく簡潔な名前を用いる。
  $idx++ if $result =~/ (of|or|and) /;
 #5. タンパク質名が不明な場合は、 産物名として、"unknown” または "hypothetical protein”を用いる。今回の再アノテーションでは、"hypothetical protein”の使用を推奨する。
@@ -390,13 +413,14 @@ sub guideline_penalty {
 #12. 可能な限りローマ数字は避け、アラビア数字を用いる。
  $idx++ if $result =~/[I-X]/;
 
+
 #16. ギリシャ文字は、小文字でスペルアウトする（例：alpha）。ただし、ステロイドや脂肪酸代謝での「デルタ」は例外として語頭を大文字にする（Delta）。さらに、番号が続いている場合、ダッシュ" -“の後に続ける（例：unicornase alpha-1）。
 #1. すでに適切な名前があればそれを用いる。
 #3. 理想的には命名する遺伝子名（タンパク質名）はユニークであり、すべてのオルソログに同じ名前がついているとよい。
 #4. タンパク質名に、タンパク質の特定の特徴を入れない。 例えば、タンパク質の機能、細胞内局在、ドメイン構造、分子量やその起源の種名はノートに記述する。
 #6. タンパク質名は、対応する遺伝子と同じ表記を用いる。ただし，語頭を大文字にする。
 #10. 語頭は基本的に小文字を用いる。（例外：DNA、ATPなど）
-#11. スペルはアメリカ表記を用いる。
+#11. スペルはアメリカ表記を用いる。→ 実装済み（b2a関数の適用）
 #13. 略記に分子量を組み込まない。
 #14. 多重遺伝子ファミリーに属するタンパク質では、ファミリーの各メンバーを指定する番号を使用することを推奨する。
 #15. 相同性または共通の機能に基づくファミリーに分類されるタンパク質に名前を付ける場合、"-"に後にアラビア数字を入れて標記する。（例："desmoglein-1", "desmoglein-2"など）
