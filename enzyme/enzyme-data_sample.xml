@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<mysqldump xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<database name="enzymed">
+        <table_structure name="cite">
+                <field Field="cite_key" Type="varchar(48)" Null="NO" Key="" Default="" Extra="" />
+                <field Field="ec_num" Type="varchar(12)" Null="NO" Key="" Default="" Extra="" />
+                <field Field="ref_num" Type="int(11)" Null="YES" Key="" Extra="" />
+                <field Field="acc_no" Type="int(11)" Null="NO" Key="PRI" Extra="auto_increment" />
+                <field Field="last_change" Type="timestamp" Null="NO" Key="" Default="CURRENT_TIMESTAMP" Extra="" />
+                <key Table="cite" Non_unique="0" Key_name="PRIMARY" Seq_in_index="1" Column_name="acc_no" Collation="A" Cardinality="16322" Null="" Index_type="BTREE" Comment="" />
+                <options Name="cite" Engine="MyISAM" Version="10" Row_format="Dynamic" Rows="16322" Avg_row_length="46" Data_length="765340" Max_data_length="281474976710655" Index_length="201728" Data_free="0" Auto_increment="48781" Create_time="2016-09-22 04:02:43" Update_time="2016-09-22 04:02:44" Collation="latin1_swedish_ci" Create_options="" Comment="" />
+        </table_structure>
+        <table_data name="cite">
+        <row>
+                <field name="cite_key">pigeon-d-1987-6155</field>
+                <field name="ec_num">2.7.11.6</field>
+                <field name="ref_num">2</field>
+                <field name="acc_no">16839</field>
+                <field name="last_change">2006-06-02 10:35:12</field>
+        </row>
+      </table_data>
+      <table_structure name="class">
+              <field Field="id" Type="int(11)" Null="NO" Key="PRI" Extra="auto_increment" />
+              <field Field="class" Type="int(11)" Null="NO" Key="" Default="0" Extra="" />
+              <field Field="subclass" Type="int(11)" Null="YES" Key="" Extra="" />
+              <field Field="subsubclass" Type="int(11)" Null="YES" Key="" Extra="" />
+              <field Field="heading" Type="varchar(255)" Null="YES" Key="" Extra="" />
+              <field Field="note" Type="text" Null="YES" Key="" Extra="" />
+              <field Field="last_change" Type="timestamp" Null="NO" Key="" Default="CURRENT_TIMESTAMP" Extra="" />
+              <key Table="class" Non_unique="0" Key_name="PRIMARY" Seq_in_index="1" Column_name="id" Collation="A" Cardinality="362" Null="" Index_type="BTREE" Comment="" />
+              <options Name="class" Engine="MyISAM" Version="10" Row_format="Dynamic" Rows="362" Avg_row_length="153" Data_length="55708" Max_data_length="281474976710655" Index_length="7168" Data_free="0" Auto_increment="631" Create_time="2016-09-22 04:02:44" Update_time="2016-09-22 04:02:44" Collation="latin1_swedish_ci" Create_options="" Comment="" />
+      </table_structure>
+      <table_data name="class">
+      <row>
+              <field name="id">1</field>
+              <field name="class">1</field>
+              <field name="subclass">1</field>
+              <field name="subsubclass">0</field>
+              <field name="heading">Acting on the CH-OH group of donors</field>
+              <field name="note">This subclass contains dehydrogenases that act on primary alcohols, secondary alcohols and hemi-acetals. Sub-subclasses are based on the acceptor: NAD&lt;small&gt;&lt;sup&gt;+&lt;/sup&gt;&lt;/small&gt; or NADP&lt;small&gt;&lt;sup&gt;+&lt;/sup&gt;&lt;/small&gt; (EC 1.1.1), a cytochrome (EC 1.1.2), oxygen (EC 1.1.3), a disulfide (EC 1.1.4), a quinone or similar compound (EC 1.1.5), or some other acceptor (EC 1.1.99).</field>
+              <field name="last_change">2006-05-18 10:47:54</field>
+      </row>
+    </table_data>
+<table_structure name="entry">
+      <field Field="ec_num" Type="varchar(12)" Null="NO" Key="UNI" Default="" Extra="" />
+      <field Field="accepted_name" Type="varchar(300)" Null="YES" Key="" Extra="" />
+      <field Field="reaction" Type="text" Null="YES" Key="" Extra="" />
+      <field Field="other_names" Type="text" Null="YES" Key="" Extra="" />
+      <field Field="sys_name" Type="text" Null="YES" Key="" Extra="" />
+      <field Field="comments" Type="text" Null="YES" Key="" Extra="" />
+      <field Field="links" Type="text" Null="YES" Key="" Extra="" />
+      <field Field="class" Type="int(1)" Null="YES" Key="" Extra="" />
+      <field Field="subclass" Type="int(1)" Null="YES" Key="" Extra="" />
+      <field Field="subsubclass" Type="int(1)" Null="YES" Key="" Extra="" />
+      <field Field="serial" Type="int(1)" Null="YES" Key="" Extra="" />
+      <field Field="status" Type="char(3)" Null="YES" Key="" Extra="" />
+      <field Field="diagram" Type="text" Null="YES" Key="" Extra="" />
+      <field Field="cas_num" Type="varchar(100)" Null="YES" Key="" Extra="" />
+      <field Field="glossary" Type="text" Null="YES" Key="" Extra="" />
+      <field Field="last_change" Type="timestamp" Null="NO" Key="" Default="CURRENT_TIMESTAMP" Extra="" />
+      <field Field="id" Type="int(11)" Null="NO" Key="PRI" Extra="auto_increment" />
+      <key Table="entry" Non_unique="0" Key_name="id" Seq_in_index="1" Column_name="id" Collation="A" Cardinality="6791" Null="" Index_type="BTREE" Comment="" />
+      <key Table="entry" Non_unique="0" Key_name="ec_num" Seq_in_index="1" Column_name="ec_num" Collation="A" Cardinality="6791" Null="" Index_type="BTREE" Comment="" />
+      <key Table="entry" Non_unique="1" Key_name="ec_num_2" Seq_in_index="1" Column_name="ec_num" Cardinality="1" Null="" Index_type="FULLTEXT" Comment="" />
+      <key Table="entry" Non_unique="1" Key_name="ec_num_2" Seq_in_index="2" Column_name="accepted_name" Cardinality="1" Null="YES" Index_type="FULLTEXT" Comment="" />
+      <key Table="entry" Non_unique="1" Key_name="ec_num_2" Seq_in_index="3" Column_name="reaction" Cardinality="1" Null="YES" Index_type="FULLTEXT" Comment="" />
+      <key Table="entry" Non_unique="1" Key_name="ec_num_2" Seq_in_index="4" Column_name="other_names" Cardinality="1" Null="YES" Index_type="FULLTEXT" Comment="" />
+      <key Table="entry" Non_unique="1" Key_name="ec_num_2" Seq_in_index="5" Column_name="sys_name" Cardinality="1" Null="YES" Index_type="FULLTEXT" Comment="" />
+      <key Table="entry" Non_unique="1" Key_name="ec_num_2" Seq_in_index="6" Column_name="comments" Cardinality="1" Null="YES" Index_type="FULLTEXT" Comment="" />
+      <key Table="entry" Non_unique="1" Key_name="ec_num_2" Seq_in_index="7" Column_name="links" Cardinality="1" Null="YES" Index_type="FULLTEXT" Comment="" />
+      <key Table="entry" Non_unique="1" Key_name="ec_num_2" Seq_in_index="8" Column_name="diagram" Cardinality="1" Null="YES" Index_type="FULLTEXT" Comment="" />
+      <key Table="entry" Non_unique="1" Key_name="ec_num_2" Seq_in_index="9" Column_name="cas_num" Cardinality="1" Null="YES" Index_type="FULLTEXT" Comment="" />
+      <key Table="entry" Non_unique="1" Key_name="ec_num_2" Seq_in_index="10" Column_name="glossary" Cardinality="1" Null="YES" Index_type="FULLTEXT" Comment="" />
+      <options Name="entry" Engine="MyISAM" Version="10" Row_format="Dynamic" Rows="6791" Avg_row_length="598" Data_length="4063840" Max_data_length="281474976710655" Index_length="2865152" Data_free="0" Auto_increment="6802" Create_time="2016-09-22 04:02:44" Update_time="2016-09-22 04:02:44" Check_time="2016-09-22 04:02:45" Collation="latin1_swedish_ci" Create_options="" Comment="" />
+</table_structure>
+<table_data name="entry">
+<row>
+      <field name="ec_num">1.1.1.1</field>
+      <field name="accepted_name">alcohol dehydrogenase</field>
+      <field name="reaction">(1) a primary alcohol + NAD+ = an aldehyde + NADH + H+;;(2) a secondary alcohol + NAD+ = a ketone + NADH + H+</field>
+      <field name="other_names">aldehyde reductase; ADH; alcohol dehydrogenase (NAD); aliphatic alcohol dehydrogenase; ethanol dehydrogenase; NAD-dependent alcohol dehydrogenase; NAD-specific aromatic alcohol dehydrogenase; NADH-alcohol dehydrogenase; NADH-aldehyde dehydrogenase; primary alcohol dehydrogenase; yeast alcohol dehydrogenase</field>
+      <field name="sys_name">alcohol:NAD+ oxidoreductase</field>
+      <field name="comments">A zinc protein. Acts on primary or secondary alcohols or hemi-acetals with very broad specificity; however the enzyme oxidizes methanol much more poorly than ethanol. The animal, but not the yeast, enzyme acts also on cyclic secondary alcohols.</field>
+      <field name="links">BRENDA, EXPASY, GTD, IUBMB, KEGG, PDB, UM-BBD</field>
+      <field name="class">1</field>
+      <field name="subclass">1</field>
+      <field name="subsubclass">1</field>
+      <field name="serial">1</field>
+      <field name="status"></field>
+      <field name="diagram"></field>
+      <field name="cas_num">9031-72-5</field>
+      <field name="glossary"></field>
+      <field name="last_change">2012-02-17 13:19:04</field>
+      <field name="id">1</field>
+</row>
+</table_data>
+</database>
+</mysqldump>
