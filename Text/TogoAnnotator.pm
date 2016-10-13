@@ -44,6 +44,7 @@ use simstring;
 use DB_File;
 use PerlIO::gzip;
 use Lingua::EN::ABC qw/b2a/;
+use utf8;
 
 my ($sysroot, $niteAll, $curatedDict, $enzymeDict);
 my ($nitealldb_d_name, $nitealldb_e_name);
