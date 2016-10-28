@@ -33,6 +33,8 @@ package Text::TogoAnnotator;
 # * 2016.10.13
 # 酵素名辞書とマッチするデフィニションは優先順位を高めるようにした。
 # 英語表記を米語表記に変換するようにした。
+# * 2016.10.28
+# Locus tagのプレフィックスか、EMBLから取得したLocus tagにマッチする場合には、その旨infoに記述する仕様に変更。
 
 use warnings;
 use strict;
@@ -44,12 +46,13 @@ use simstring;
 use DB_File;
 use PerlIO::gzip;
 use Lingua::EN::ABC qw/b2a/;
+use Text::Match::FastAlternatives;
 use utf8;
 
-my ($sysroot, $niteAll, $curatedDict, $enzymeDict);
+my ($sysroot, $niteAll, $curatedDict, $enzymeDict, $locustag_prefix_name, $embl_locustag_name);
 my ($nitealldb_after_name, $nitealldb_before_name);
 my ($niteall_after_cs_db, $niteall_before_cs_db);
-my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars);
+my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars, $locustag_prefix_matcher, $embl_locustag_matcher);
 
 my (
     @sp_words, # マッチ対象から外すが、マッチ処理後は元に戻して結果に表示させる語群。
@@ -79,6 +82,8 @@ sub init {
     $curatedDict   = shift; # curated辞書名（形式は同一）
 
     $enzymeDict = "enzyme/enzyme_names.txt";
+    $locustag_prefix_name = "locus_tag_prefix.txt";
+    $embl_locustag_name = "uniprot_evaluation/Embl2LocusTag.txt";
 
     @sp_words = qw/putative probable possible/;
     @avoid_cs_terms = (
@@ -169,6 +174,33 @@ sub readDict {
     	$enzymeHash{lc($_)} = $_;
     }
     close($enzyme_dict);
+
+    # Locus tagのprefixリストを取得し、辞書を構築
+    my @prefix_array;
+    open(my $locustag_prefix, $sysroot.'/'.$locustag_prefix_name);
+    while(<$locustag_prefix>){
+	chomp;
+	s/^"//;
+	s/"$//;
+	trim( $_ );
+	push @prefix_array, lc($_."_");
+    }
+    close($locustag_prefix);
+    $locustag_prefix_matcher = Text::Match::FastAlternatives->new( @prefix_array );
+    # EMBLから取得したLocus tagリストの辞書構築
+    my @locustag_array;
+    open(my $embl_locustag, $sysroot.'/'.$embl_locustag_name);
+    while(<$embl_locustag>){
+	chomp;
+	my ($eid, $lct) = split /\t/;
+	next if $eid eq '"emblid"';
+	$lct =~ s/^"//;
+	$lct =~ s/"$//;
+	trim( $_ );
+	push @locustag_array, lc($_);
+    }
+    close($embl_locustag);
+    $embl_locustag_matcher = Text::Match::FastAlternatives->new( @locustag_array );
 
     # 類似度計算用および変換用辞書の構築
     my $total = 0;
@@ -377,6 +409,13 @@ sub retrieve {
     # print "\n";
     if($enzymeHash{lc($result)}){
 	$info .= " [Enzyme name]";
+    }
+    for (split " ", lc($result)){
+	if($embl_locustag_matcher->exact_match($_)){
+	    $info .= " [locus_tag]";
+	}elsif($locustag_prefix_matcher->match_at($_, 0)){
+	    $info .= " [locus_prefix]";
+	}
     }
     $result = b2a($result);
     return({'query'=> $oq, 'result' => $result, 'match' => $match, 'info' => $info, 'result_array' => \@results});
