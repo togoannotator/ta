@@ -47,8 +47,8 @@ use Lingua::EN::ABC qw/b2a/;
 use utf8;
 
 my ($sysroot, $niteAll, $curatedDict, $enzymeDict);
-my ($nitealldb_d_name, $nitealldb_e_name);
-my ($niteall_d_cs_db, $niteall_e_cs_db);
+my ($nitealldb_after_name, $nitealldb_before_name);
+my ($niteall_after_cs_db, $niteall_before_cs_db);
 my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars);
 
 my (
@@ -127,15 +127,18 @@ sub readDict {
 	mkpath($sysroot.'/'.$dictdir);
     }
 
-    for my $f ( <${sysroot}/${dictdir}/[de]*> ){
+    for my $f ( <${sysroot}/${dictdir}/after*> ){
+	unlink $f;
+    }
+    for my $f ( <${sysroot}/${dictdir}/before*> ){
 	unlink $f;
     }
 
-    $nitealldb_d_name = $sysroot.'/'.$dictdir.'/d'; # After
-    $nitealldb_e_name = $sysroot.'/'.$dictdir.'/e'; # Before
+    $nitealldb_after_name = $sysroot.'/'.$dictdir.'/after';   # After
+    $nitealldb_before_name = $sysroot.'/'.$dictdir.'/before'; # Before
 
-    my $niteall_d_db = simstring::writer->new($nitealldb_d_name, $n_gram);
-    my $niteall_e_db = simstring::writer->new($nitealldb_e_name, $n_gram);
+    my $niteall_after_db = simstring::writer->new($nitealldb_after_name, $n_gram);
+    my $niteall_before_db = simstring::writer->new($nitealldb_before_name, $n_gram);
 
     # キュレーテッド辞書の構築
     if($curatedDict){
@@ -216,9 +219,9 @@ sub readDict {
 	}else{
 	    $convtable{$lcb4name}{$name}++;
 
-	    # $niteall_e_db->insert($lcb4name);
+	    # $niteall_before_db->insert($lcb4name);
 	    (my $wosplcb4name = $lcb4name) =~ s/ //g;   #### 全ての空白を取り除く
-	    $niteall_e_db->insert($wosplcb4name);
+	    $niteall_before_db->insert($wosplcb4name);
 	    $wospconvtableE{$wosplcb4name}{$lcb4name}++;
 
 	    my $lcname = lc($name);
@@ -232,30 +235,30 @@ sub readDict {
 		$histogram{$_}++;
 		$total++;
 	    }
-	    #$niteall_d_db->insert($lcname);
+	    #$niteall_after_db->insert($lcname);
 	    (my $wosplcname = $lcname) =~ s/ //g;   #### 全ての空白を取り除く
-	    $niteall_d_db->insert($wosplcname);
+	    $niteall_after_db->insert($wosplcname);
 	    $wospconvtableD{$wosplcname}{$lcname}++;
 	}
     }
     close($nite_all);
 
-    $niteall_d_db->close;
-    $niteall_e_db->close;
+    $niteall_after_db->close;
+    $niteall_before_db->close;
 }
 
 sub openDicts {
-    $niteall_d_cs_db = simstring::reader->new($nitealldb_d_name);
-    $niteall_d_cs_db->swig_measure_set($simstring::cosine);
-    $niteall_d_cs_db->swig_threshold_set($cos_threshold);
-    $niteall_e_cs_db = simstring::reader->new($nitealldb_e_name);
-    $niteall_e_cs_db->swig_measure_set($simstring::cosine);
-    $niteall_e_cs_db->swig_threshold_set($cos_threshold);
+    $niteall_after_cs_db = simstring::reader->new($nitealldb_after_name);
+    $niteall_after_cs_db->swig_measure_set($simstring::cosine);
+    $niteall_after_cs_db->swig_threshold_set($cos_threshold);
+    $niteall_before_cs_db = simstring::reader->new($nitealldb_before_name);
+    $niteall_before_cs_db->swig_measure_set($simstring::cosine);
+    $niteall_before_cs_db->swig_threshold_set($cos_threshold);
 }
 
 sub closeDicts {
-    $niteall_d_cs_db->close;
-    $niteall_e_cs_db->close;
+    $niteall_after_cs_db->close;
+    $niteall_before_cs_db->close;
 }
 
 sub retrieve {
@@ -282,18 +285,18 @@ sub retrieve {
 	    last;
         }
     }
-    if( $curatedHash{$lc_query} ){
+    if( $curatedHash{$lc_query} ){ # 最初にcurateにマッチするか
         $match ='ex';
         $result = $curatedHash{$lc_query};
 	$info = 'in_curated_dictionary (before): '. $query;
 	$results[0] = $result;
-    }elsif( $correct_definitions{$query} ){
+    }elsif( $correct_definitions{$query} ){ # 続いてafterに完全マッチするか
 	# print "\tex\t", $prfx. $correct_definitions{$query}, "\tin_dictionary: ", $query;
         $match ='ex';
         $result = $prfx. $correct_definitions{$query};
 	$info = 'in_dictionary '. ($prfx?"(prefix=${prfx})":""). ': '. $query;
 	$results[0] = $result;
-    }elsif($convtable{$query}){
+    }elsif( $convtable{$query} ){ # そしてbeforeに完全マッチするか
 	# print "\tex\t", $prfx. $convtable{$query}, "\tconvert_from: ", $query;
 	if($convtable{$query}{'__DEL__'}){
 	    my @others = grep {$_ ne '__DEL__'} keys %{$convtable{$query}};
@@ -306,7 +309,7 @@ sub retrieve {
 	    $info = 'convert_from dictionary ( prefix='. $prfx. '): '. $query;
 	    $results[0] = $result;
 	}
-    }else{
+    }else{ # そして類似マッチへ
 	my $avoidcsFlag = 0;
 	for ( @avoid_cs_terms ){
 	    $avoidcsFlag = ($query =~ m,\b$_$,);
@@ -314,9 +317,9 @@ sub retrieve {
 	}
 
 	#全ての空白を取り除く処理をした場合への対応
-	#my $retr = $niteall_d_cs_db->retrieve($query);
+	#my $retr = $niteall_after_cs_db->retrieve($query);
 	(my $qwosp = $query) =~ s/ //g;
-	my $retr = $niteall_d_cs_db->retrieve($qwosp);
+	my $retr = $niteall_after_cs_db->retrieve($qwosp);
 	#####
 	my %qtms = map {$_ => 1} grep {s/\W+$//;$histogram{$_}} (split " ", $query);
 	if($retr->[0]){
@@ -341,8 +344,8 @@ sub retrieve {
 	    }
 	}else{
 	    #全ての空白を取り除く処理をした場合への対応
-	    #my $retr_e = $niteall_e_cs_db->retrieve($query);
-	    my $retr_e = $niteall_e_cs_db->retrieve($qwosp);
+	    #my $retr_e = $niteall_before_cs_db->retrieve($query);
+	    my $retr_e = $niteall_before_cs_db->retrieve($qwosp);
 	    #####
 	    if($retr_e->[0]){
 		($minfreq, $minword, $ifhit, $cosdist) = getScore($retr_e, \%qtms, 0, $qwosp);
