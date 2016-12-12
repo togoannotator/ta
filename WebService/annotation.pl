@@ -6,6 +6,10 @@ use FindBin qw($Bin);
 use lib "$Bin/..";
 use Text::TogoAnnotator;
 
+app->config(hypnotoad => {listen => ['http://*:5000']});
+
+plugin 'CORS';
+
 my $sysroot = "$Bin/..";
 print "sysroot:", $sysroot, "\n";
 our ($opt_t, $opt_m) = (0.6, 5);
@@ -54,7 +58,6 @@ sub ddbjfile2queries {
 }
 =cut
 sub file2queries {
-
     my @queries = ();
 
     return unless $_[0];
@@ -62,7 +65,7 @@ sub file2queries {
 	next if /^#/;
 	push @queries, $_;
     }
-    return @queries;
+    return \@queries;
 }
 
 sub ddbjfile2queries {
@@ -76,14 +79,14 @@ sub ddbjfile2queries {
 	}
     }
     # print join("\n", @queries), "\n";
-    return @queries;
+    return \@queries;
 }
 
 get '/' => sub {
     shift->render(title => 'Search page');
 } => 'index';
 
-get '/annotate/gene/:definition' => sub {
+get '/annotate/gene/*definition' => sub {
     my $self = shift;
 
     my $defs = $self->param('definition');
@@ -103,12 +106,14 @@ post '/annotate/genes' => sub {
 	my $file_type = $upload->headers->content_type;
 	#my %valid_types = map {$_ => 1} qw(image/gif image/jpeg image/png);
 
-	my @queries = file2queries($upload->slurp);
+	Text::TogoAnnotator->openDicts;
+	my $queries = file2queries($upload->slurp);
 	my @out = ();
-	foreach my $q (@queries){
+	foreach my $q (@$queries){
 	    my $r = Text::TogoAnnotator->retrieve($q);
 	    push @out, $r;
 	}
+	Text::TogoAnnotator->closeDicts;
 	return $self->render(json => \@out);
 
     }else{
@@ -125,13 +130,15 @@ post '/annotate/ddbj' => sub {
 	my $file_type = $upload->headers->content_type;
 	#my %valid_types = map {$_ => 1} qw(image/gif image/jpeg image/png);
 
-	my @queries = ddbjfile2queries($upload->slurp);
+	Text::TogoAnnotator->openDicts;
+	my $queries = ddbjfile2queries($upload->slurp);
 	my @out = ();
-	foreach my $q (@queries){
+	foreach my $q (@$queries){
 	    my $r = Text::TogoAnnotator->retrieve($q);
 	    push @out, $r;
 	}
-	return $self->render(json => @out);
+	Text::TogoAnnotator->closeDicts;
+	return $self->render(json => \@out);
 
     }else{
 	$self->redirect_to('index');

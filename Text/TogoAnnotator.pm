@@ -351,7 +351,10 @@ sub retrieve {
 	#全ての空白を取り除く処理をした場合への対応
 	#my $retr = $niteall_after_cs_db->retrieve($query);
 	(my $qwosp = $query) =~ s/ //g;
-	my $retr = $niteall_after_cs_db->retrieve($qwosp);
+	my $retr = [ "" ];
+	if(defined($qwosp)){
+	    $retr = $niteall_after_cs_db->retrieve($qwosp);
+	}
 	#####
 	my %qtms = map {$_ => 1} grep {s/\W+$//;$histogram{$_}} (split " ", $query);
 	if($retr->[0]){
@@ -377,7 +380,10 @@ sub retrieve {
 	}else{
 	    #全ての空白を取り除く処理をした場合への対応
 	    #my $retr_e = $niteall_before_cs_db->retrieve($query);
-	    my $retr_e = $niteall_before_cs_db->retrieve($qwosp);
+	    my $retr_e = [ "" ];
+	    if(defined($qwosp)){
+		$retr_e = $niteall_before_cs_db->retrieve($qwosp);
+	    }
 	    #####
 	    if($retr_e->[0]){
 		($minfreq, $minword, $ifhit, $cosdist) = getScore($retr_e, \%qtms, 0, $qwosp);
