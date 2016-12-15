@@ -1,4 +1,4 @@
-#!/opt/services/togoannot/local/perl-5.10.1/bin/perl
+#!/usr/bin/env perl
 
 use warnings;
 use strict;
@@ -11,6 +11,7 @@ use PerlIO::gzip;
 binmode STDOUT, ":utf8";
 
 open(my $fh, "<:gzip", "enzyme-data.xml.gz");
+binmode $fh, ":utf8";
 my $xp = XML::XPath->new(ioref => $fh);
 # my $xp = XML::XPath->new(filename => 'enzyme-data.xml');
 
@@ -41,4 +42,5 @@ foreach my $node ($nodeset->get_nodelist) {
 }
 
 close($fh);
+
 __END__

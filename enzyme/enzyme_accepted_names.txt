@@ -507,7 +507,7 @@ Delta24-sterol reductase
 2-alkenal reductase [NAD(P)+]
 3,8-divinyl protochlorophyllide a 8-vinyl-reductase (NADPH)
 precorrin-2 dehydrogenase
-anthocyanidin reductase
+anthocyanidin reductase [(2R,3R)-flavan-3-ol-forming]
 arogenate dehydrogenase (NADP+)
 arogenate dehydrogenase [NAD(P)+]
 L-galactonolactone dehydrogenase
@@ -1911,7 +1911,7 @@ NAD+ kinase
 dephospho-CoA kinase
 adenylyl-sulfate kinase
 riboflavin kinase
-erythritol kinase
+erythritol kinase (D-erythritol 4-phosphate-forming)
 triokinase
 glycerone kinase
 glycerol kinase
@@ -1972,7 +1972,7 @@ streptomycin 3''-kinase
 dihydrostreptomycin-6-phosphate 3'alpha-kinase
 thiamine kinase
 diphosphate---fructose-6-phosphate 1-phosphotransferase
-sphinganine kinase
+sphingosine kinase
 5-dehydro-2-deoxygluconokinase
 alkylglycerol kinase
 acylglycerol kinase
@@ -2062,7 +2062,7 @@ phosphomevalonate kinase
 adenylate kinase
 nucleoside-phosphate kinase
 nucleoside-diphosphate kinase
-phosphomethylpyrimidine kinase
+phosphooxymethylpyrimidine kinase
 guanylate kinase
 dTMP kinase
 nucleoside-triphosphate---adenylate kinase
@@ -2119,7 +2119,7 @@ aldose-1-phosphate nucleotidyltransferase
 glycerol-3-phosphate cytidylyltransferase
 D-ribitol-5-phosphate cytidylyltransferase
 phosphatidate cytidylyltransferase
-[glutamate---ammonia-ligase] adenylyltransferase
+[glutamine synthetase] adenylyltransferase
 N-acylneuraminate cytidylyltransferase
 glucuronate-1-phosphate uridylyltransferase
 guanosine-triphosphate guanylyltransferase
@@ -2144,7 +2144,7 @@ ethanolaminephosphotransferase
 diacylglycerol cholinephosphotransferase
 ceramide cholinephosphotransferase
 serine-phosphoethanolamine synthase
-CDP-diacylglycerol---glycerol-3-phosphate 3-phosphatidyltransferase
+CDP-diacylglycerol---glycerol-3-phosphate 1-phosphatidyltransferase
 undecaprenyl-phosphate galactose phosphotransferase
 holo-[acyl-carrier-protein] synthase
 CDP-diacylglycerol---serine O-phosphatidyltransferase
@@ -3628,7 +3628,7 @@ cytidylate cyclase
 phosphatidylinositol diacylglycerol-lyase
 glycosylphosphatidylinositol diacylglycerol-lyase
 FAD-AMP lyase (cyclizing)
-ferrochelatase
+protoporphyrin ferrochelatase
 alkylmercury lyase
 sirohydrochlorin cobaltochelatase
 sirohydrochlorin ferrochelatase
@@ -3835,7 +3835,7 @@ arachidonate---CoA ligase
 acetoacetate---CoA ligase
 propionate---CoA ligase
 citrate---CoA ligase
-long-chain-fatty-acid---luciferin-component ligase
+long-chain-fatty-acid---protein ligase
 long-chain-fatty-acid---[acyl-carrier-protein] ligase
 [citrate (pro-3S)-lyase] ligase
 dicarboxylate---CoA ligase
@@ -3851,7 +3851,7 @@ anthranilate---CoA ligase
 4-chlorobenzoate---CoA ligase
 trans-feruloyl-CoA synthase
 aspartate---ammonia ligase
-glutamate---ammonia ligase
+glutamine synthetase
 aspartate---ammonia ligase (ADP-forming)
 NAD+ synthase
 glutamate---ethylamine ligase
@@ -3877,6 +3877,7 @@ cobyrinate a,c-diamide synthase
 enterobactin synthase
 D-alanine---alanyl-poly(glycerolphosphate) ligase
 tetrahydrofolate synthase
+(R)-mandelonitrile oxidase
 gamma-glutamylhistamine synthase
 ubiquitin---protein ligase
 indoleacetate---lysine synthetase
@@ -5837,7 +5838,7 @@ L-allo-isoleucyltransferase
 autoinducer-2 kinase
 lipid A phosphoethanolamine transferase
 GDP polyribonucleotidyltransferase
-[glutamate---ammonia ligase]-adenylyl-L-tyrosine phosphorylase
+[glutamine synthetase]-adenylyl-L-tyrosine phosphorylase
 Kdo2-lipid A phosphoethanolamine 7''-transferase
 tRNA-uridine 2-sulfurtransferase
 tRNA-5-taurinomethyluridine 2-sulfurtransferase
@@ -6047,3 +6048,47 @@ L-erythrulose 4-phosphate epimerase
 L-erythrulose 1-phosphate isomerase
 D-erythrulose 4-phosphate isomerase
 2-hydroxyisobutanoyl-CoA mutase
+anthocyanidin reductase [(2S)-flavan-3-ol-forming]
+mRNA N1-methyladenine demethylase
+aurachin C monooxygenase/isomerase
+3-hydroxy-4-methylanthranilyl-[aryl-carrier protein] 5-monooxygenase
+violacein synthase
+F-actin monooxygenase
+acetone monooxygenase (methyl acetate-forming)
+propane 2-monooxygenase
+isobutylamine N-monooxygenase
+ipsdienol synthase
+17alpha-hydroxyprogesterone deacetylase
+(S)-nandinine synthase
+hydroxysqualene dehydroxylase
+phenazine-1-carboxylate N-methyltransferase
+N-demethylindolmycin N-methyltransferase
+bacteriochlorophyll a synthase
+cystathionine beta-synthase (O-acetyl-L-serine)
+protein-Npi-phosphohistidine---sucrose phosphotransferase
+alpha-D-ribose-1-phosphate 5-kinase (ADP)
+cytidine kinase
+C7-cyclitol 7-kinase
+erythritol kinase (D-erythritol 1-phosphate-forming)
+valienol-1-phosphate guanylyltransferase
+3-deoxy-D-glycero-D-galacto-nononate cytidylyltransferase
+phosphonoformate cytidylyltransferase
+4-hydroxyphenylalkanoate adenylyltransferase
+bile acid CoA-transferase
+chlorophyllide a hydrolase
+poly(ethylene terephthalate) hydrolase
+mono(ethylene terephthalate) hydrolase
+2-aminobenzoylacetyl-CoA thioesterase
+3-deoxy-D-glycero-D-galacto-nononate 9-phosphatase
+5-amino-6-(5-phospho-D-ribitylamino)uracil phosphatase
+beta-1,2-mannosidase
+alpha-mannan endo-1,2-alpha-mannanase
+sulfoquinovosidase
+hydroxydechloroatrazine ethylaminohydrolase
+gamma-resorcylate decarboxylase
+GTP 3',8-cyclase
+GDP-4-dehydro-6-deoxy-alpha-D-mannose 3-dehydratase
+hydroxysqualene synthase
+isoprene-epoxide---glutathione S-transferase
+cyclic pyranopterin monophosphate synthase
+medium-chain-fatty-acid---[acyl-carrier-protein] ligase
