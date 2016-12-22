@@ -5,9 +5,13 @@ use Encode qw/encode decode/;
 use FindBin qw($Bin);
 use lib "$Bin/..";
 use Text::TogoAnnotator;
+use Data::Dumper;
 
 app->config(hypnotoad => {listen => ['http://*:5000']});
+app->mode('production');
+#app->mode('development');
 
+#plugin 'PODRenderer';
 plugin 'CORS';
 
 my $sysroot = "$Bin/..";
@@ -83,8 +87,21 @@ sub ddbjfile2queries {
 }
 
 get '/' => sub {
-    shift->render(title => 'Search page');
-} => 'index';
+   my $self = shift;
+   #$self->stash(name => qq{TogoAnnotator});
+   $self->render(template => 'index');
+}; 
+
+get '/apidocs';
+
+#post '/annotate' => sub {
+#    my $self = shift;
+#    my $o = $self->openapi->valid_input or return;
+#    my $data = { body => $o->validation->param("body")};
+#    my $html = $o->render(openapi => $data);
+#    $self->stash( apidoc=> $html);
+#    #$self->render(template => 'apidoc');
+#};
 
 get '/annotate/gene/*definition' => sub {
     my $self = shift;
@@ -145,6 +162,8 @@ post '/annotate/ddbj' => sub {
     }
 };
 
+#plugin OpenAPI => {url => app->home->rel_file("public/swagger.json")};
+app->log->level('debug');
 app->start;
 
 __DATA__
@@ -179,8 +198,17 @@ __DATA__
       <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+
+    <script src="/mojo/jquery/jquery.js"></script>
+    <script src="/mojo/prettify/run_prettify.js"></script>
+    <link href="/mojo/prettify/prettify-mojo-dark.css" rel="stylesheet">
   </head>
   <body>
+    <div class="jumbotron text-center">
+      <img style="width: 600px; height: 240 px;" src="images/horizontal.png" alt="TogoAnnotator" title="TogoAnnotator">
+      <!--//<h1>TogoAnnotator</h1>-->
+      <p>A tool for genome reannotation</p>
+    </div>
     <%= content %>
 
     <!-- Bootstrap core JavaScript
@@ -191,9 +219,128 @@ __DATA__
     <script src="/js/bootstrap.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="/js/ie10-viewport-bug-workaround.js"></script>
+    <div class="jumbotron text-center">
+
+    <p>
+     <a rel="license" href="http://creativecommons.org/licenses/by/2.1/jp/">
+     <img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by/2.1/jp/88x31.png" /></a>
+       <a xmlns:dc="http://purl.org/dc/elements/1.1/" href="http://purl.org/dc/dcmitype/Text" rel="dc:type" style="text-decoration:none;color:black">TogoAnnotator</a> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://dbcls.rois.ac.jp/" rel="cc:attributionURL">Database Center for Life Science (DBCLS)</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/2.1/jp/">Creative Commons &#34920;&#31034; 2.1 &#26085;&#26412; License</a>. This software includes the work that is distributed in the Apache License 2.0.
+    </p>
+    <!--//<p> &copy; Copyright 2016-2017 <a href="http://dbcls.rois.ac.jp/">DBCLS</a></p>-->
+    </div>
   </body>
 </html>
 
 @@ index.html.ep
 % layout 'default';
- <h1>TogoAnnotator</h1>
+%= content;
+
+@@ apidocs.html.ep
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Swagger UI</title>
+  <link rel="icon" type="image/png" href="images/favicon-32x32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="images/favicon-16x16.png" sizes="16x16" />
+  <link href='css/typography.css' media='screen' rel='stylesheet' type='text/css'/>
+  <link href='css/reset.css' media='screen' rel='stylesheet' type='text/css'/>
+  <link href='css/screen.css' media='screen' rel='stylesheet' type='text/css'/>
+  <link href='css/reset.css' media='print' rel='stylesheet' type='text/css'/>
+  <link href='css/print.css' media='print' rel='stylesheet' type='text/css'/>
+
+  <script src='lib/object-assign-pollyfill.js' type='text/javascript'></script>
+  <script src='lib/jquery-1.8.0.min.js' type='text/javascript'></script>
+  <script src='lib/jquery.slideto.min.js' type='text/javascript'></script>
+  <script src='lib/jquery.wiggle.min.js' type='text/javascript'></script>
+  <script src='lib/jquery.ba-bbq.min.js' type='text/javascript'></script>
+  <script src='lib/handlebars-4.0.5.js' type='text/javascript'></script>
+  <script src='lib/lodash.min.js' type='text/javascript'></script>
+  <script src='lib/backbone-min.js' type='text/javascript'></script>
+  <script src='swagger-ui.js' type='text/javascript'></script>
+  <script src='lib/highlight.9.1.0.pack.js' type='text/javascript'></script>
+  <script src='lib/highlight.9.1.0.pack_extended.js' type='text/javascript'></script>
+  <script src='lib/jsoneditor.min.js' type='text/javascript'></script>
+  <script src='lib/marked.js' type='text/javascript'></script>
+  <script src='lib/swagger-oauth.js' type='text/javascript'></script>
+
+  <!-- Some basic translations -->
+  <!-- <script src='lang/translator.js' type='text/javascript'></script> -->
+  <!-- <script src='lang/ru.js' type='text/javascript'></script> -->
+  <!-- <script src='lang/en.js' type='text/javascript'></script> -->
+
+  <script type="text/javascript">
+    $(function () {
+      var url = window.location.search.match(/url=([^&]+)/);
+      if (url && url.length > 1) {
+        url = decodeURIComponent(url[1]);
+      } else {
+        //url = "http://petstore.swagger.io/v2/swagger.json";
+        url = "http://togo.genes.nig.ac.jp:3000/swagger.json";
+      }
+
+      hljs.configure({
+        highlightSizeThreshold: 5000
+      });
+
+      // Pre load translate...
+      if(window.SwaggerTranslator) {
+        window.SwaggerTranslator.translate();
+      }
+      window.swaggerUi = new SwaggerUi({
+        url: url,
+        dom_id: "swagger-ui-container",
+        supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
+        onComplete: function(swaggerApi, swaggerUi){
+          if(typeof initOAuth == "function") {
+            initOAuth({
+              clientId: "your-client-id",
+              clientSecret: "your-client-secret-if-required",
+              realm: "your-realms",
+              appName: "your-app-name",
+              scopeSeparator: " ",
+              additionalQueryStringParams: {}
+            });
+          }
+
+          if(window.SwaggerTranslator) {
+            window.SwaggerTranslator.translate();
+          }
+        },
+        onFailure: function(data) {
+          log("Unable to Load SwaggerUI");
+        },
+        docExpansion: "none",
+        jsonEditor: false,
+        defaultModelRendering: 'schema',
+        showRequestHeaders: false
+      });
+
+      window.swaggerUi.load();
+
+      function log() {
+        if ('console' in window) {
+          console.log.apply(console, arguments);
+        }
+      }
+  });
+  </script>
+</head>
+
+<body class="swagger-section">
+<div id='header'>
+  <div class="swagger-ui-wrap">
+    <a id="logo" href="http://swagger.io"><img class="logo__img" alt="swagger" height="30" width="30" src="images/logo_small.png" /><span class="logo__title">swagger</span></a>
+    <form id='api_selector'>
+      <div class='input'><input placeholder="http://example.com/api" id="input_baseUrl" name="baseUrl" type="text"/></div>
+      <div id='auth_container'></div>
+      <div class='input'><a id="explore" class="header__btn" href="#" data-sw-translate>Explore</a></div>
+    </form>
+  </div>
+</div>
+
+<div id="message-bar" class="swagger-ui-wrap" data-sw-translate>&nbsp;</div>
+<div id="swagger-ui-container" class="swagger-ui-wrap"></div>
+</body>
+</html>
+
