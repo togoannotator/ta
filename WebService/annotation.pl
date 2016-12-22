@@ -6,13 +6,14 @@ use FindBin qw($Bin);
 use lib "$Bin/..";
 use Text::TogoAnnotator;
 
-app->config(hypnotoad => {listen => ['http://*:5000']});
+app->config(hypnotoad => {listen => ['http://*:5000'], heartbeat_timeout => 1800});
 
 plugin 'CORS';
 
 my $sysroot = "$Bin/..";
 print "sysroot:", $sysroot, "\n";
 our ($opt_t, $opt_m) = (0.6, 5);
+#Text::TogoAnnotator->init($opt_t, 30, $opt_m, 3, $sysroot, "ena_uniprot_dictionary_20161215.txt.gz","dummy_curated.txt");
 Text::TogoAnnotator->init($opt_t, 30, $opt_m, 3, $sysroot, "dict_cyanobacteria_20151120_with_cyanobase.txt.gz","dict_cyanobacteria_curated.txt");
 print "Server ready.\n";
 
@@ -74,6 +75,7 @@ sub ddbjfile2queries {
     return unless $_[0];
     for (split /[\r\n]/, $_[0]){
 	my @a = split "\t";
+	$a[3] //= "";
 	if($a[3] eq 'product'){
 	    push @queries, $a[4];
 	}

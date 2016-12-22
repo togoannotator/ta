@@ -35,6 +35,9 @@ package Text::TogoAnnotator;
 # 英語表記を米語表記に変換するようにした。
 # * 2016.10.28
 # Locus tagのプレフィックスか、EMBLから取得したLocus tagにマッチする場合には、その旨infoに記述する仕様に変更。
+# * 2016.12.22
+# UniProtのReviewed=trueであるタンパク質エントリのencodedByで結ばれる遺伝子のprefLabelを利用し、それに入力された文字がマッチした場合にはその旨infoに記述する仕様に変更。
+# Pfamのファミリーネームに入力された文字列がマッチした場合にはその旨infoに記述する仕様に変更。
 
 use warnings;
 use strict;
@@ -49,10 +52,10 @@ use Lingua::EN::ABC qw/b2a/;
 use Text::Match::FastAlternatives;
 use utf8;
 
-my ($sysroot, $niteAll, $curatedDict, $enzymeDict, $locustag_prefix_name, $embl_locustag_name);
+my ($sysroot, $niteAll, $curatedDict, $enzymeDict, $locustag_prefix_name, $embl_locustag_name, $gene_symbol_name, $family_name);
 my ($nitealldb_after_name, $nitealldb_before_name);
 my ($niteall_after_cs_db, $niteall_before_cs_db);
-my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars, $locustag_prefix_matcher, $embl_locustag_matcher);
+my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars, $locustag_prefix_matcher, $embl_locustag_matcher, $gene_symbol_matcher, $family_name_matcher);
 
 my (
     @sp_words, # マッチ対象から外すが、マッチ処理後は元に戻して結果に表示させる語群。
@@ -81,9 +84,11 @@ sub init {
     $niteAll       = shift; # 辞書名
     $curatedDict   = shift; # curated辞書名（形式は同一）
 
-    $enzymeDict = "enzyme/enzyme_names.txt";
+    $enzymeDict = "enzyme/enzyme_accepted_names.txt";
     $locustag_prefix_name = "locus_tag_prefix.txt";
     $embl_locustag_name = "uniprot_evaluation/Embl2LocusTag.txt";
+    $gene_symbol_name = "UniProtPrefGeneSymbols.txt";
+    $family_name = "pfam-ac.txt";
 
     @sp_words = qw/putative probable possible/;
     @avoid_cs_terms = (
@@ -202,6 +207,28 @@ sub readDict {
     close($embl_locustag);
     $embl_locustag_matcher = Text::Match::FastAlternatives->new( @locustag_array );
 
+    # UniProtのReviewed=Trueなエントリについて、それをコードする遺伝子名のprefLabelにあるシンボル
+    my @gene_symbol_array;
+    open(my $gene_symbol, $sysroot.'/'.$gene_symbol_name);
+    while(<$gene_symbol>){
+	chomp;
+	trim( $_ );
+	push @gene_symbol_array, lc($_);
+    }
+    close($gene_symbol);
+    $gene_symbol_matcher = Text::Match::FastAlternatives->new( @gene_symbol_array );
+
+    # Pfamデータベースにあるファミリー名
+    my @pfam_family_array;
+    open(my $pfam_family, $sysroot.'/'.$family_name);
+    while(<$pfam_family>){
+	chomp;
+	trim( $_ );
+	push @pfam_family_array, lc($_);
+    }
+    close($pfam_family);
+    $family_name_matcher = Text::Match::FastAlternatives->new( @pfam_family_array );
+
     # 類似度計算用および変換用辞書の構築
     my $total = 0;
     my $nite_all;
@@ -299,6 +326,9 @@ sub retrieve {
     my $query = my $oq = shift;
     # $query ||= 'hypothetical protein';
     my $lc_query = $query = lc($query);
+    $lc_query =~ s/^"\s*//;
+    $lc_query =~ s/\s*"\s*$//;
+
     $query =~ s{$ignore_chars}{ }g;
     $query =~ s/^"\s*//;
     $query =~ s/\s*"\s*$//;
@@ -422,6 +452,12 @@ sub retrieve {
 	}elsif($locustag_prefix_matcher->match_at($_, 0)){
 	    $info .= " [locus_prefix]";
 	}
+    }
+    if($gene_symbol_matcher->exact_match($lc_query)){
+	$info .= " [gene_symbol]";
+    }
+    if($family_name_matcher->exact_match($lc_query)){
+	$info .= " [family_name]";
     }
     $result = b2a($result);
     return({'query'=> $oq, 'result' => $result, 'match' => $match, 'info' => $info, 'result_array' => \@results});
