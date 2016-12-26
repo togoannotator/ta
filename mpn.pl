@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/bin/env perl
 
 # Text::TogoAnnotatorを利用したバージョン
 # Emacsが適切に本ファイルの文字コード(UTF8)を判断できるようにして書き込みしておく。
