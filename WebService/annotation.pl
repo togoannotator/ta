@@ -111,7 +111,13 @@ get '/annotate/gene/*definition' => sub {
     my $r = Text::TogoAnnotator->retrieve($defs);
     Text::TogoAnnotator->closeDicts;
 
-    return $self->render(json => $r);
+   #return $self->render(json => $r);
+   $self->respond_to(
+     json => {json => $r},
+     html => sub {$self->render(json => $r)},
+     #html => {template => 'gene', message => 'world'},
+     any  => {text => 'Invalid format. Available formats are json or html.', status => 204}
+   );
 };
 
 post '/annotate/genes' => sub {
@@ -134,7 +140,7 @@ post '/annotate/genes' => sub {
 	return $self->render(json => \@out);
 
     }else{
-	$self->redirect_to('index');
+      $self->redirect_to('index');
     }
 };
 
@@ -167,6 +173,7 @@ app->log->level('debug');
 app->start;
 
 __DATA__
+
 @@ layouts/default.html.ep
 <html lang="en">
   <head>
@@ -216,6 +223,7 @@ __DATA__
       } else {
         //url = "http://petstore.swagger.io/v2/swagger.json";
         url = "/swagger.json";
+        //url = "http://togo.genes.nig.ac.jp:3000//swagger.json";
       }
 
       hljs.configure({

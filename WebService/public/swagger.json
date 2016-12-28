@@ -2,8 +2,8 @@
     "swagger": "2.0",
     "info": {
         "title": "TogoAnnotator API",
-        "description": "TogoAnnotator API",
-        "version": "1.0.0"
+        "description": "TogoAnnotator has APIs available in several method focused on genome annotation.",
+        "version": "1.0"
     },
     "host": "togoannotator.dbcls.jp",
     "schemes": [
@@ -20,14 +20,14 @@
                 "tags": [
                     "GET"
                 ],
-                "summary": "Get user by user name",
-                "description": "",
-                "operationId": "getGene",
+                "summary": "Get TogoAnnotator result using GET method:",
+                "description": "Return a result for TogoAnnotator content matching the provided query",
+                "operationId": "gene",
                 "parameters": [
                     {
                         "in": "path",
                         "name": "product",
-                        "description": "The name that needs to be fetched. Use user1 for testing.",
+                        "description": "Input gene product or gene description.",
                         "required": true,
                         "type": "string",
                         "default": "PsbA"
@@ -60,9 +60,9 @@
                 "tags": [
                     "POST"
                 ],
-                "summary": "Updated user",
-                "description": "This can only be done by the logged in user.",
-                "operationId": "updateUser",
+                "summary": "Upload a file and Get TogoAnnotator result",
+                "description": "Upload a line-delimited text file contains gene definition.",
+                "operationId": "genes",
                 "produces": [
                     "application/json"
                 ],
@@ -72,7 +72,7 @@
                 ],
                 "parameters": [
                     {
-                        "name": "file",
+                        "name": "upload",
                         "in": "formData",
                         "description": "The uploaded file data",
                         "required": true,
@@ -120,7 +120,7 @@
                 ],
                 "parameters": [
                     {
-                        "name": "file",
+                        "name": "upload",
                         "in": "formData",
                         "description": "The uploaded file data",
                         "required": true,
