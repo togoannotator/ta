@@ -215,7 +215,7 @@ __DATA__
         url = decodeURIComponent(url[1]);
       } else {
         //url = "http://petstore.swagger.io/v2/swagger.json";
-        url = "http://togo.genes.nig.ac.jp:3000/swagger.json";
+        url = "/swagger.json";
       }
 
       hljs.configure({
@@ -383,7 +383,7 @@ __DATA__
         url = decodeURIComponent(url[1]);
       } else {
         //url = "http://petstore.swagger.io/v2/swagger.json";
-        url = "http://togo.genes.nig.ac.jp:3000/swagger.json";
+        url = "/swagger.json";
       }
 
       hljs.configure({
