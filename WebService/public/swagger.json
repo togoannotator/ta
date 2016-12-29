@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "title": "TogoAnnotator API",
-        "description": "TogoAnnotator has APIs available in several method focused on genome annotation.",
+        "description": "TogoAnnotator has APIs available in several methods focused on refinement of gene annotation. When you input a query string or a file describing the gene product/description, you can retrieve the JSON representation of output by TogoAnnotator.",
         "version": "1.0"
     },
     "host": "togoannotator.dbcls.jp",
@@ -18,16 +18,15 @@
         "/gene/{product}": {
             "get": {
                 "tags": [
-                    "GET"
+                    "Gene Annotation"
                 ],
-                "summary": "Get TogoAnnotator result using GET method:",
-                "description": "Return a result for TogoAnnotator content matching the provided query",
+                "description": "Input gene product/description and Return a result output by TogoAnnotator.",
                 "operationId": "gene",
                 "parameters": [
                     {
                         "in": "path",
                         "name": "product",
-                        "description": "Input gene product or gene description.",
+                        "description": "Input gene product/description.",
                         "required": true,
                         "type": "string",
                         "default": "PsbA"
@@ -35,19 +34,13 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "successful operation",
+                        "description": "Successful operation",
                         "schema": {
                             "$ref": "#/definitions/Result"
                         }
                     },
                     "400": {
-                        "description": "Invalid username supplied",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "404": {
-                        "description": "User not found",
+                        "description": "Bad request. Invalid input query.",
                         "schema": {
                             "$ref": "#/definitions/Error"
                         }
@@ -58,10 +51,9 @@
         "/genes/": {
             "post": {
                 "tags": [
-                    "POST"
+                    "Gene Annotation"
                 ],
-                "summary": "Upload a file and Get TogoAnnotator result",
-                "description": "Upload a line-delimited text file contains gene definition.",
+                "description": "Upload a line-delimited text file contains gene product/description and Return all results output by TogoAnnotator.",
                 "operationId": "genes",
                 "produces": [
                     "application/json"
@@ -81,7 +73,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "successful operation",
+                        "description": "Successful Operation",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -90,13 +82,7 @@
                         }
                     },
                     "400": {
-                        "description": "Invalid username supplied",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "404": {
-                        "description": "User not found",
+                        "description": "Bad Request. Invalid input file supplied.",
                         "schema": {
                             "$ref": "#/definitions/Error"
                         }
@@ -107,10 +93,9 @@
         "/ddbj/": {
             "post": {
                 "tags": [
-                    "POST"
+                    "Gene Annotation"
                 ],
-                "summary": "Updated user",
-                "description": "This can only be done by the logged in user.",
+                "description": "Upload a DDBJ submission file and Return all results corresponding to product qualifier value soutput by TogoAnnotator.",
                 "operationId": "ddbj",
                 "produces": [
                     "application/json"
@@ -129,7 +114,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "successful operation",
+                        "description": "Successful operation",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -138,13 +123,7 @@
                         }
                     },
                     "400": {
-                        "description": "Invalid username supplied",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "404": {
-                        "description": "User not found",
+                        "description": "Bad request. Invalid input file supplied.",
                         "schema": {
                             "$ref": "#/definitions/Error"
                         }
@@ -159,27 +138,27 @@
             "properties": {
                 "info": {
                     "type": "string",
-                    "description": "TogoAnnotator result info.."
+                    "description": "additional information."
                 },
                 "match": {
                     "type": "string",
-                    "description": "TogoAnnotator match type."
+                    "description": "a match type. (ex, cs, bsc, no_hit)."
                 },
                 "query": {
                     "type": "string",
-                    "description": "Input quary."
+                    "description": "a provided query."
                 },
                 "result": {
                     "type": "string",
-                    "description": "Capacity of product. For example, 4 people."
+                    "description": "a recommended annotation."
                 },
                 "result_array": {
                     "type": "array",
                     "items": {
                         "type": "string",
-                        "description": "gene_product"
+                        "description": "result"
                     },
-                    "description": "Image URL representing the product."
+                    "description": "recommended annotation candidates."
                 }
             }
         },
