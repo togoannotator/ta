@@ -368,7 +368,7 @@ sub retrieve {
 	}else{
 	    $match = 'ex';
 	    $result = join(" @@ ", map {$prfx. $_} keys %{$convtable{$query}});
-	    $info = 'convert_from dictionary ( prefix='. $prfx. '): '. $query;
+	    $info = 'convert_from dictionary '. ($prfx?"(prefix=${prfx})":""). ': '. $query;
 	    $results[0] = $result;
 	}
     }else{ # そして類似マッチへ
