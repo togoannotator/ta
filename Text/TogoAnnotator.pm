@@ -457,7 +457,7 @@ sub retrieve {
 	$info .= " [Gene symbol]";
     }
     if($family_name_matcher->exact_match($lc_query)){
-	$info .= " [family name]";
+	$info .= " [Family name]";
     }
     $result = b2a($result);
     return({'query'=> $oq, 'result' => $result, 'match' => $match, 'info' => $info, 'result_array' => \@results});
