@@ -322,6 +322,31 @@ __DATA__
 <div id="swagger-ui-container" class="swagger-ui-wrap"></div>
 <!--//swagger UI end -->
 
+<div id="swagger-ui-container" class="swagger-ui-wrap">
+<div class="info" id="api_sample">
+  <div class="info_title">API request examples</div>
+<h2>1. Input "DnaA" query</h2>
+<pre class="prettyprint">
+#!sh
+$ curl -s 'http://togoannotator.dbcls.jp/annotate/gene/DnaA' | jq
+</pre>
+
+<h2>2. Input <a href="/annotation_list.txt">annotation_list.txt</a></h2>
+<pre class="prettyprint">
+#!sh
+$ curl -s -F 'upload=@/opt/services2/togoannot/togoannotator/misc/annotation_list.txt' 'http://togoannotator.dbcls.jp/annotate/genes' | jq
+
+</pre>
+
+<h2>3. Input <a href="/ddbj_submission.txt">ddbj_submission.txt</a></h2>
+<pre class="prettyprint">
+#!sh
+$ curl -s -F 'upload=@/opt/services2/togoannot/togoannotator/misc/NIES39_v17.ddbj' 'http://togoannotator.dbcls.jp/annotate/ddbj' | jq
+
+</pre>
+</div>
+</div>
+
     <%= content %>
 
     <!-- Bootstrap core JavaScript
