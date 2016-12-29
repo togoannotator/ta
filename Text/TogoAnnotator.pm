@@ -448,16 +448,16 @@ sub retrieve {
     }
     for (split " ", lc($result)){
 	if($embl_locustag_matcher->exact_match($_)){
-	    $info .= " [locus_tag]";
+	    $info .= " [Locus tag]";
 	}elsif($locustag_prefix_matcher->match_at($_, 0)){
-	    $info .= " [locus_prefix]";
+	    $info .= " [Locus prefix]";
 	}
     }
     if($gene_symbol_matcher->exact_match($lc_query)){
-	$info .= " [gene_symbol]";
+	$info .= " [Gene symbol]";
     }
     if($family_name_matcher->exact_match($lc_query)){
-	$info .= " [family_name]";
+	$info .= " [family name]";
     }
     $result = b2a($result);
     return({'query'=> $oq, 'result' => $result, 'match' => $match, 'info' => $info, 'result_array' => \@results});
