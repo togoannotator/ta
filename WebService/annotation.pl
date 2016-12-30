@@ -256,7 +256,7 @@ __DATA__
         onFailure: function(data) {
           log("Unable to Load SwaggerUI");
         },
-        docExpansion: "none",
+        docExpansion: "full",
         jsonEditor: false,
         defaultModelRendering: 'schema',
         showRequestHeaders: false
