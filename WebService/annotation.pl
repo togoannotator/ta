@@ -300,11 +300,34 @@ __DATA__
   <body>
 <!--// swagger UI begin -->
 <body class="swagger-section">
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">TogoAnnotator</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="/help.html">Help</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
    <div class="jumbotron text-center">
+     <div class="container">
       <img style="width: 600px; height: 240 px;" src="images/horizontal.png" alt="TogoAnnotator" title="TogoAnnotator">
       <!--//<h1>TogoAnnotator</h1>-->
       <p>A tool for genome reannotation</p>
+     </div>
    </div> 
+   <div class="container">
 <!--//   
 <div id='header'>
   <div class="swagger-ui-wrap">
@@ -347,6 +370,7 @@ $ curl -s -F 'upload=@/opt/services2/togoannot/togoannotator/misc/NIES39_v17.ddb
 </div>
 </div>
 
+</div>
     <%= content %>
 
     <!-- Bootstrap core JavaScript
