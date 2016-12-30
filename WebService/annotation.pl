@@ -357,14 +357,14 @@ $ curl -s 'http://togoannotator.dbcls.jp/annotate/gene/DnaA' | jq
 <h2>2. Input <a href="/annotation_list.txt">annotation_list.txt</a></h2>
 <pre class="prettyprint">
 #!sh
-$ curl -s -F 'upload=@/opt/services2/togoannot/togoannotator/misc/annotation_list.txt' 'http://togoannotator.dbcls.jp/annotate/genes' | jq
+$ curl -s http://togoannotator.dbcls.jp/annotation_list.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/genes' | jq
 
 </pre>
 
 <h2>3. Input <a href="/ddbj_submission.txt">ddbj_submission.txt</a></h2>
 <pre class="prettyprint">
 #!sh
-$ curl -s -F 'upload=@/opt/services2/togoannot/togoannotator/misc/NIES39_v17.ddbj' 'http://togoannotator.dbcls.jp/annotate/ddbj' | jq
+$ curl -s http://togoannotator.dbcls.jp/ddbj_submission.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/genes' | jq
 
 </pre>
 </div>
