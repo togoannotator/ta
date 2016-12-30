@@ -136,14 +136,6 @@
         "Result": {
             "type": "object",
             "properties": {
-                "info": {
-                    "type": "string",
-                    "description": "additional information."
-                },
-                "match": {
-                    "type": "string",
-                    "description": "a match type. (ex, cs, bsc, no_hit)."
-                },
                 "query": {
                     "type": "string",
                     "description": "a provided query."
@@ -151,6 +143,14 @@
                 "result": {
                     "type": "string",
                     "description": "a recommended annotation."
+                },
+                "match": {
+                    "type": "string",
+                    "description": "a match type. (ex, cs, bsc, no_hit)."
+                },
+                "info": {
+                    "type": "string",
+                    "description": "additional information."
                 },
                 "result_array": {
                     "type": "array",
