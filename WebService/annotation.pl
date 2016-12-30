@@ -258,7 +258,8 @@ __DATA__
         },
         docExpansion: "full",
         jsonEditor: false,
-        defaultModelRendering: 'schema',
+        //defaultModelRendering: 'schema',
+        defaultModelRendering: 'model',
         showRequestHeaders: false
       });
 

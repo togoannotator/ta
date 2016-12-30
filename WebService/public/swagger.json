@@ -160,6 +160,19 @@
                     },
                     "description": "recommended annotation candidates."
                 }
+            },
+            "example": {
+              "query": "Ammonium transport",
+              "result": "Ammonium transporter",
+              "match": "cs",
+              "info": "Ammonium transporter [-1:ammonium] @@ ammonium transporter AmtB [-1:ammonium] @@ ammonium transport protein [-1:ammonium] @@ Ammonium transporter family [-1:ammonium] @@ ammonium transporter sll1017 [-1:ammonium]",
+              "result_array": [
+               "Ammonium transporter",
+               "ammonium transporter AmtB",
+               "ammonium transport protein",
+               "Ammonium transporter family",
+               "ammonium transporter sll1017"
+               ]
             }
         },
         "Error": {
