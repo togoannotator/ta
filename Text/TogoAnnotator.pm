@@ -350,13 +350,13 @@ sub retrieve {
     if( $curatedHash{$lc_query} ){ # 最初にcurateにマッチするか
         $match ='ex';
         $result = $curatedHash{$lc_query};
-	$info = 'in_curated_dictionary (before): '. $query;
+	$info = 'in_curated_dictionary (before)';
 	$results[0] = $result;
     }elsif( $correct_definitions{$query} ){ # 続いてafterに完全マッチするか
 	# print "\tex\t", $prfx. $correct_definitions{$query}, "\tin_dictionary: ", $query;
         $match ='ex';
         $result = $prfx. $correct_definitions{$query};
-	$info = 'in_dictionary '. ($prfx?"(prefix=${prfx})":""). ': '. $query;
+	$info = 'in_dictionary'. ($prfx?" (prefix=${prfx})":"");
 	$results[0] = $result;
     }elsif( $convtable{$query} ){ # そしてbeforeに完全マッチするか
 	# print "\tex\t", $prfx. $convtable{$query}, "\tconvert_from: ", $query;
@@ -368,7 +368,7 @@ sub retrieve {
 	}else{
 	    $match = 'ex';
 	    $result = join(" @@ ", map {$prfx. $_} keys %{$convtable{$query}});
-	    $info = 'convert_from dictionary '. ($prfx?"(prefix=${prfx})":""). ': '. $query;
+	    $info = 'convert_from dictionary'. ($prfx?" (prefix=${prfx})":"");
 	    $results[0] = $result;
 	}
     }else{ # そして類似マッチへ
@@ -400,7 +400,7 @@ sub retrieve {
 	    if($avoidcsFlag && $minfreq->{$out[0]} == -1 && $negative_min_words{$minword->{$out[0]}}){
 		$match ='no_hit';
 		$result = $oq;
-		$info = 'cs_avoidance: '. $query;
+		$info = 'cs_avoidance';
 	    }else{
 		$match = 'cs';
 		$result = $prfx.$correct_definitions{$out[0]};
@@ -425,7 +425,7 @@ sub retrieve {
 		if(defined $out[0] && $avoidcsFlag && $minfreq->{$out[0]} == -1 && $negative_min_words{$minword->{$out[0]}}){
 		    $match ='no_hit';
 		    $result = $oq;
-		    $info = 'bcs_avoidance: '. $query;
+		    $info = 'bcs_avoidance';
 		}else{
 		    $match = 'bcs';
 		    $result = defined $out[0] ? join(" @@ ", map {$prfx. $_} keys %{$convtable{$out[0]}}) : $oq;
