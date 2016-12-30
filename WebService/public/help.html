@@ -1,0 +1,89 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- <link rel="icon" href="../../favicon.ico"> -->
+    <title>TogoAnnotator Help</title>
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <!-- <link href="starter-template.css" rel="stylesheet"> -->
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="/js/ie-emulation-modes-warning.js"></script>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- for mojo/debug
+    <script src="/mojo/jquery/jquery.js"></script>
+    <script src="/mojo/prettify/run_prettify.js"></script>
+    <link href="/mojo/prettify/prettify-mojo-dark.css" rel="stylesheet">
+    -->
+  </head>
+  <body>
+   <div class="jumbotron text-center">
+      <h1>TogoAnnotator Help</h1>
+   </div> 
+<div class="container">
+<h3>Introduction</h3>
+<p>In the era of high-throughput sequencers, newly obtained genome sequence data have been accumulated rapidly. This advancement of sequence equipment significantly contributes the progress of the life science research. However, curating protein definition is still a highly labor-intensive work and a bottleneck of genome annotation.
+
+To make this curation works more efficient, TogoAnnotator accepts product names which you need to check and shows you recommended protein definitions (i.e., recommended product names of a gene) along with its related information. This related information includes other candidates, whether the input name matches ones of existing public databases such as UniProt gene symbols or not, and so on.
+</p>
+<p>TogoAnnotator uses a dictionary that holds pairs of a product name to be refined and its refined (i.e., recommended) name. Here, we call the latter "before name" and the latter "after name".
+In the TogoAnnotator process, an input product name is first checked to see if it exactly (i.e., literally) matches any after names. If it matches, it is already a recommended name and just fine. If it doesn't, then the input product name is checked to see if it exactly matches any before names. If it matches, its corresponding after name is a recommended name. In addition, TogoAnnotator provides an approximate match function, where you can get a recommended name that is approximately similar to the input product name or whose corresponding before name is approximately similar to the input name.
+</p>
+<h3>How to use</h3>
+<p>TogoAnnotator provides three ways of submitting product name(s). One is to submit a single product name with the HTTP GET method. Second is to submit a plain text file that contains a list of product names, each of which is written on one line. The third is to submit a DDBJ submission file where "product" property values are used as product names to be refined. The latter two ways assume the HTTP POST method.
+The JSON format is used to return results for all the three ways, and their structures are basically the same except for the first way because there is only one result. In other words, an array of a result for each product name is returned for the other two ways, and each result has the same structure as the first way.
+The technical details of each method are explained at the top page, and therefore here we just explain how to interpret the result data. As the technical details shows, each result has the following five fields or attributes.
+</p>
+<ul>
+<li>query
+<li>result
+<li>match
+<li>info
+<li>result_array
+</ul>
+<p>First, the "query" field contains the literally input query string.
+</p>
+<p>Second, the "result" field contains the recommended names for an inputted query. If the dictionary contains multiple recommended names, they are shown with the delimiter "@".
+</p>
+<p>Third, the "match" field contains the matching type of the input query to a dictionary entry. There are four values for this attribute, and "ex" means "Exact match", that is, the input query exactly matches an entry of the dictionary. Next, "cs" means "cosine", that is, the input query matches an entry approximately. TogoAnnotator hires the character based bi-gram cosine distance to determine how similar the input and the entry are, and threshold is 0.6. In addition, "bcs" means "cs" to "before name". The "cs" means approximate match to "after name", and the "bcs" means approximate match to "before name".
+</p>
+<p>Then, the "info" field contains related information. This field has two types of data, and one is whether an input product name matches an entry of existing public database entries. They are enzyme (IUBMB), locus name (UniProt), gene symbol (UniProt), and family name (Pfam). The other data include explanation of the result to help you interpret it. For example, this field contains "cs_avoidance", which means the input name contains a stop-word not to be used for approximate match. The stop-word list contains "subunit", "domain protein", "family protein", "-like protein", and "fragment". Note that "@" is used as the delimiter if multiple data are included in this field.
+</p>
+<p>Finally, the "result_array" field contains a list of candidate for recommendations. This field is empty unless approximate match is used to return a result. The symbol "@" is used as the delimiter.
+</p>
+<h3>Contact point</h3>
+<p>TogoAnnotator is collaboratedly developed by Database Center for Life Science (DBCLS) and Center for Information Biology, National Institute of Genetics (NIG).
+Any questions or suggestions are welcome. Please contact to Yasunori Yamamoto (yy@dbcls.rois.ac.jp).
+</p>
+</div>
+    <script src="/js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="/js/ie10-viewport-bug-workaround.js"></script>
+    <div class="jumbotron text-center">
+
+    <p>
+     <a rel="license" href="http://creativecommons.org/licenses/by/2.1/jp/">
+     <img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by/2.1/jp/88x31.png" /></a>
+       <a xmlns:dc="http://purl.org/dc/elements/1.1/" href="http://purl.org/dc/dcmitype/Text" rel="dc:type" style="text-decoration:none;color:black">TogoAnnotator</a> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://dbcls.rois.ac.jp/" rel="cc:attributionURL">Database Center for Life Science (DBCLS)</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/2.1/jp/">Creative Commons &#34920;&#31034; 2.1 &#26085;&#26412; License</a>. This software includes the work that is distributed in the Apache License 2.0.
+    </p>
+    <!--//<p> &copy; Copyright 2016-2017 <a href="http://dbcls.rois.ac.jp/">DBCLS</a></p>-->
+    </div>
+  </body>
+</html>
