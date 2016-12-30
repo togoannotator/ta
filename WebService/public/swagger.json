@@ -146,7 +146,7 @@
                 },
                 "match": {
                     "type": "string",
-                    "description": "a match type. (ex, cs, bsc, no_hit)."
+                    "description": "a match type. (ex, cs, bcs, no_hit)."
                 },
                 "info": {
                     "type": "string",
