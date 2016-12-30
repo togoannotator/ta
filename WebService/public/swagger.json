@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "title": "TogoAnnotator API",
-        "description": "TogoAnnotator has APIs available in several methods focused on refinement of gene annotation. When you input a query string or a file describing the gene product/description, you can retrieve the JSON representation of output by TogoAnnotator.",
+        "description": "TogoAnnotator has APIs available in several methods focused on refinement of gene annotation. When you input a query string or a file describing the gene product/description, you can retrieve the JSON representation of output by TogoAnnotator.<br>Note that Safari does not work properly if you upload a file.",
         "version": "1.0"
     },
     "host": "togoannotator.dbcls.jp",
