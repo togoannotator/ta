@@ -297,11 +297,18 @@ __DATA__
     <script src="/mojo/prettify/run_prettify.js"></script>
     <link href="/mojo/prettify/prettify-mojo-dark.css" rel="stylesheet">
     -->
+<style type="text/css">
+body { padding-top: 40px; }
+@media screen and (max-width: 768px) {
+    body { padding-top: 0px; }
+}
+</style>    
   </head>
   <body>
 <!--// swagger UI begin -->
-<body class="swagger-section">
-
+<!--//<body class="swagger-section">-->
+<body>
+<div class="jumbotron text-center">
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
         <div class="navbar-header">
@@ -321,7 +328,7 @@ __DATA__
       </div>
     </nav>
 
-   <div class="jumbotron text-center">
+<!--//   <div class="jumbotron text-center">-->
      <div class="container">
       <img style="width: 600px; height: 240 px;" src="images/horizontal.png" alt="TogoAnnotator" title="TogoAnnotator">
       <!--//<h1>TogoAnnotator</h1>-->
@@ -341,6 +348,8 @@ __DATA__
   </div>
 </div>
 -->
+
+<div class="swagger-section">
 
 <div id="message-bar" class="swagger-ui-wrap" data-sw-translate>&nbsp;</div>
 <div id="swagger-ui-container" class="swagger-ui-wrap"></div>
@@ -371,6 +380,7 @@ $ curl -s http://togoannotator.dbcls.jp/ddbj_submission.txt | curl -s -F 'upload
 </div>
 </div>
 
+</div>
 </div>
     <%= content %>
 
