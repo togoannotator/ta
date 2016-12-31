@@ -62,7 +62,7 @@ The technical details of each method are explained at the top page, and therefor
 </p>
 <p>Second, the "result" field contains the recommended names for an inputted query. If the dictionary contains multiple recommended names, they are shown with the delimiter "@".
 </p>
-<p>Third, the "match" field contains the matching type of the input query to a dictionary entry. There are four values for this attribute, and "ex" means "Exact match", that is, the input query exactly matches an entry of the dictionary. Next, "cs" means "cosine", that is, the input query matches an entry approximately. TogoAnnotator hires the character based bi-gram cosine distance to determine how similar the input and the entry are, and threshold is 0.6. In addition, "bcs" means "cs" to "before name". The "cs" means approximate match to "after name", and the "bcs" means approximate match to "before name".
+<p>Third, the "match" field contains the matching type of the input query to a dictionary entry. There are four values for this attribute, and "ex" means "Exact match", that is, the input query exactly matches an entry of the dictionary. Next, "cs" means "cosine", that is, the input query matches an entry approximately. TogoAnnotator hires the character based bi-gram cosine distance to determine how similar the input and the entry are, and threshold is 0.6. In addition, "bcs" means "cs" to "before name". The "cs" means approximate match to "after name", and the "bcs" means approximate match to "before name". Even the approximate match fails, the "match" field has the value of "no_hit".
 </p>
 <p>Then, the "info" field contains related information. This field has two types of data, and one is whether an input product name matches an entry of existing public database entries. They are enzyme (IUBMB), locus name (UniProt), gene symbol (UniProt), and family name (Pfam). The other data include explanation of the result to help you interpret it. For example, this field contains "cs_avoidance", which means the input name contains a stop-word not to be used for approximate match. The stop-word list contains "subunit", "domain protein", "family protein", "-like protein", and "fragment". Note that "@" is used as the delimiter if multiple data are included in this field.
 </p>
@@ -80,7 +80,7 @@ Any questions or suggestions are welcome. Please contact to Yasunori Yamamoto (y
 
     <p>
      <a rel="license" href="http://creativecommons.org/licenses/by/2.1/jp/">
-     <img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by/2.1/jp/88x31.png" /></a>
+     <img alt="Creative Commons License" style="border-width:0" src="/images/by.png" width="88" height="31" /></a>
        <a xmlns:dc="http://purl.org/dc/elements/1.1/" href="http://purl.org/dc/dcmitype/Text" rel="dc:type" style="text-decoration:none;color:black">TogoAnnotator</a> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://dbcls.rois.ac.jp/" rel="cc:attributionURL">Database Center for Life Science (DBCLS)</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/2.1/jp/">Creative Commons &#34920;&#31034; 2.1 &#26085;&#26412; License</a>. This software includes the work that is distributed in the Apache License 2.0.
     </p>
     <!--//<p> &copy; Copyright 2016-2017 <a href="http://dbcls.rois.ac.jp/">DBCLS</a></p>-->
