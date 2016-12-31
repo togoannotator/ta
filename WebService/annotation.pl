@@ -386,7 +386,7 @@ $ curl -s http://togoannotator.dbcls.jp/ddbj_submission.txt | curl -s -F 'upload
 
     <p>
      <a rel="license" href="http://creativecommons.org/licenses/by/2.1/jp/">
-     <img alt="Creative Commons License" style="border-width:0" src="/images/88x31.png" /></a>
+     <img alt="Creative Commons License" style="border-width:0" src="/images/by.png" /></a>
        <a xmlns:dc="http://purl.org/dc/elements/1.1/" href="http://purl.org/dc/dcmitype/Text" rel="dc:type" style="text-decoration:none;color:black">TogoAnnotator</a> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://dbcls.rois.ac.jp/" rel="cc:attributionURL">Database Center for Life Science (DBCLS)</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/2.1/jp/">Creative Commons &#34920;&#31034; 2.1 &#26085;&#26412; License</a>.
        </p>
        <p>This software includes the work that is distributed in the Apache License 2.0.</p>
