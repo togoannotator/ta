@@ -109,6 +109,20 @@ sub bioseqio2queries {
     return \@queries;
 }
 
+sub fasta2queries {
+    my @queries = ();
+    return unless $_[0];
+    use Bio::SeqIO;
+    use IO::String;
+    my $stringio = IO::String->new($_[0]);
+    my $seqio_object = Bio::SeqIO->new(-fh => $stringio, -format => 'fasta');
+    while (my $seq = $seqio_object->next_seq) {
+        #print Dumper $seq->desc;
+        push @queries, $seq->desc;
+    }    
+    return \@queries;
+}
+
 sub biosearchio2queries {
    my @queries = ();
    return unless $_[0];
@@ -259,6 +273,31 @@ post '/annotate/genbank' => sub {
   $self->redirect_to('index');
     }
 };
+
+post '/annotate/fasta' => sub {
+    my $self = shift;
+
+    my $upload = $self->param('upload');
+    if (ref $upload eq 'Mojo::Upload') {
+
+  my $file_type = $upload->headers->content_type;
+  #my %valid_types = map {$_ => 1} qw(image/gif image/jpeg image/png);
+
+  Text::TogoAnnotator->openDicts;
+  my $queries = fasta2queries($upload->slurp);
+  my @out = ();
+  foreach my $q (@$queries){
+      my $r = Text::TogoAnnotator->retrieve($q);
+      push @out, $r;
+  }
+  Text::TogoAnnotator->closeDicts;
+  return $self->render(json => \@out);
+
+    }else{
+  $self->redirect_to('index');
+    }
+};
+
 
 post '/annotate/blast' => sub {
    my $self = shift;
