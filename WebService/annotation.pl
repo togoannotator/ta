@@ -109,6 +109,25 @@ sub bioseqio2queries {
     return \@queries;
 }
 
+sub biosearchio2queries {
+   my @queries = ();
+   return unless $_[0];
+   use Bio::SearchIO; 
+   use IO::String;
+   my $stringio = IO::String->new($_[0]);
+   my $report_obj = new Bio::SearchIO( -fh => $stringio, -format => 'blast');
+    while( my $result = $report_obj->next_result ) { 
+        while( my $hit = $result->next_hit ) { 
+          print $hit->accession,"\t",$hit->description,"\n";
+            push @queries, $hit->description;
+            #while( $hsp = $hit->next_hsp ) {
+            #        $hsp->percent_identity, "\n";
+            #}  
+         }
+    }
+    return \@queries;
+} 
+
 get '/' => sub {
    my $self = shift;
    #$self->stash(name => qq{TogoAnnotator});
@@ -201,6 +220,31 @@ post '/annotate/genbank' => sub {
 
   Text::TogoAnnotator->openDicts;
   my $queries = bioseqio2queries($upload->slurp);
+  #my $queries = bioseqio2queries($upload->filename);
+  my @out = ();
+  foreach my $q (@$queries){
+      my $r = Text::TogoAnnotator->retrieve($q);
+      push @out, $r;
+  }
+  Text::TogoAnnotator->closeDicts;
+  return $self->render(json => \@out);
+
+    }else{
+  $self->redirect_to('index');
+    }
+};
+
+post '/annotate/blast' => sub {
+   my $self = shift;
+
+   my $upload = $self->param('upload');
+   if (ref $upload eq 'Mojo::Upload') {
+
+  my $file_type = $upload->headers->content_type;
+  #my %valid_types = map {$_ => 1} qw(image/gif image/jpeg image/png);
+
+  Text::TogoAnnotator->openDicts;
+  my $queries = biosearchio2queries($upload->slurp);
   #my $queries = bioseqio2queries($upload->filename);
   my @out = ();
   foreach my $q (@$queries){
