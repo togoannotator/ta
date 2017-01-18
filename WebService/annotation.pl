@@ -112,27 +112,29 @@ sub bioseqio2queries {
 sub biosearchio2queries {
    my @queries = ();
    return unless $_[0];
-   use Bio::SearchIO; 
+   use Bio::SearchIO;
    use IO::String;
    my $stringio = IO::String->new($_[0]);
    my $report_obj = new Bio::SearchIO( -fh => $stringio, -format => 'blast');
-    while( my $result = $report_obj->next_result ) { 
-        while( my $hit = $result->next_hit ) { 
-          print $hit->accession,"\t",$hit->description,"\n";
-            push @queries, $hit->description;
+    while( my $result = $report_obj->next_result ) {
+        while( my $hit = $result->next_hit ) {
+          # print $hit->accession,"\t",$hit->description,"\n";
+          (my $f = $hit->description) =~ s/\\u.*$//;
+          push @queries, trim( substr($f, 0, rindex($f, "[")) );
+          $queries[-1] =~ s/\\u.*$//;
             #while( $hsp = $hit->next_hsp ) {
             #        $hsp->percent_identity, "\n";
-            #}  
+            #}
          }
     }
     return \@queries;
-} 
+}
 
 get '/' => sub {
    my $self = shift;
    #$self->stash(name => qq{TogoAnnotator});
    $self->render(template => 'index');
-}; 
+};
 
 
 #post '/annotate' => sub {
@@ -397,7 +399,7 @@ body { padding-top: 40px; }
 @media screen and (max-width: 768px) {
     body { padding-top: 0px; }
 }
-</style>    
+</style>
   </head>
   <body>
 <!--// swagger UI begin -->
@@ -429,9 +431,9 @@ body { padding-top: 40px; }
       <!--//<h1>TogoAnnotator</h1>-->
       <p>A tool for genome reannotation</p>
      </div>
-   </div> 
+   </div>
    <div class="container">
-<!--//   
+<!--//
 <div id='header'>
   <div class="swagger-ui-wrap">
     <a id="logo" href="http://swagger.io"><img class="logo__img" alt="swagger" height="30" width="30" src="images/logo_small.png" /><span class="logo__title">swagger</span></a>
@@ -504,4 +506,3 @@ $ curl -s http://togoannotator.dbcls.jp/ddbj_submission.txt | curl -s -F 'upload
 @@ index.html.ep
 % layout 'default';
 %= content;
-
