@@ -118,10 +118,10 @@ sub biosearchio2queries {
    my $report_obj = new Bio::SearchIO( -fh => $stringio, -format => 'blast');
     while( my $result = $report_obj->next_result ) {
         while( my $hit = $result->next_hit ) {
-          # print $hit->accession,"\t",$hit->description,"\n";
-          (my $f = $hit->description) =~ s/\\u.*$//;
-          push @queries, trim( substr($f, 0, rindex($f, "[")) );
-          $queries[-1] =~ s/\\u.*$//;
+          (my $f = $hit->description) =~ s/[[:cntrl:]].*$//;
+	  $f =~ s/ *\[[^\[\]]+\]$//; # 末尾が]で終わっているときは、そこに生物種名が含まれているという想定の下、その部分を除去。
+          push @queries, $f;
+          #push @queries, trim( substr($f, 0, rindex($f, "[")) );
             #while( $hsp = $hit->next_hsp ) {
             #        $hsp->percent_identity, "\n";
             #}
