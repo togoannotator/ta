@@ -128,6 +128,30 @@ sub biosearchio2queries {
     return \@queries;
 } 
 
+sub gff2queries {
+   my @queries = ();
+   return unless $_[0];
+   use Bio::Tools::GFF;
+   use IO::String;
+   my $stringio = IO::String->new($_[0]);
+   #my $gff_filename = shift;
+   #my $gffio = Bio::Tools::GFF->new( -file => $gff_filename, -gff_version => 3 );
+   my $gffio = Bio::Tools::GFF->new( -fh => $stringio, -gff_version => 3 );
+
+   while ( my $feature = $gffio->next_feature() ) { 
+      for my $tag ($feature->get_all_tags) {
+        #print "  tag: ", $tag, "\n";
+         next if $tag ne 'product';
+         for my $value ($feature->get_tag_values($tag)) {
+           #print "    value: ", $value, "\n";
+            push @queries, $value;
+         }   
+      }   
+   }
+   $gffio->close();
+   return \@queries;
+}
+
 get '/' => sub {
    my $self = shift;
    #$self->stash(name => qq{TogoAnnotator});
@@ -259,7 +283,30 @@ post '/annotate/blast' => sub {
     }
 };
 
+post '/annotate/gff' => sub {
+   my $self = shift;
 
+   my $upload = $self->param('upload');
+   if (ref $upload eq 'Mojo::Upload') {
+
+  my $file_type = $upload->headers->content_type;
+  #my %valid_types = map {$_ => 1} qw(image/gif image/jpeg image/png);
+
+  Text::TogoAnnotator->openDicts;
+  my $queries = gff2queries($upload->slurp);
+  #my $queries = bioseqio2queries($upload->filename);
+  my @out = ();
+  foreach my $q (@$queries){
+      my $r = Text::TogoAnnotator->retrieve($q);
+      push @out, $r;
+  }
+  Text::TogoAnnotator->closeDicts;
+  return $self->render(json => \@out);
+
+    }else{
+  $self->redirect_to('index');
+    }
+};
 
 
 #plugin OpenAPI => {url => app->home->rel_file("public/swagger.json")};
