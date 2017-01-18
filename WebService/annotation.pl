@@ -86,6 +86,29 @@ sub ddbjfile2queries {
     return \@queries;
 }
 
+sub bioseqio2queries {
+    my @queries = ();
+    return unless $_[0];
+    use Bio::SeqIO;
+    use IO::String;
+    my $stringio = IO::String->new($_[0]);
+    my $seqio_object = Bio::SeqIO->new(-fh => $stringio, -format => 'genbank');
+    #my $seqio_object = Bio::SeqIO->new(-file => $_[0], -format => 'genbank');
+    my $seq_object = $seqio_object->next_seq;
+    for my $feat_object ($seq_object->get_SeqFeatures) {
+      #print "primary tag: ", $feat_object->primary_tag, "\n";
+        for my $tag ($feat_object->get_all_tags) {
+            #print "  tag: ", $tag, "\n";
+            next if $tag ne 'product';
+            for my $value ($feat_object->get_tag_values($tag)) {
+                #print "    value: ", $value, "\n";
+                push @queries, $value;
+            }
+        }
+    }
+    return \@queries;
+}
+
 get '/' => sub {
    my $self = shift;
    #$self->stash(name => qq{TogoAnnotator});
@@ -166,6 +189,34 @@ post '/annotate/ddbj' => sub {
 	$self->redirect_to('index');
     }
 };
+
+post '/annotate/genbank' => sub {
+    my $self = shift;
+
+    my $upload = $self->param('upload');
+    if (ref $upload eq 'Mojo::Upload') {
+
+  my $file_type = $upload->headers->content_type;
+  #my %valid_types = map {$_ => 1} qw(image/gif image/jpeg image/png);
+
+  Text::TogoAnnotator->openDicts;
+  my $queries = bioseqio2queries($upload->slurp);
+  #my $queries = bioseqio2queries($upload->filename);
+  my @out = ();
+  foreach my $q (@$queries){
+      my $r = Text::TogoAnnotator->retrieve($q);
+      push @out, $r;
+  }
+  Text::TogoAnnotator->closeDicts;
+  return $self->render(json => \@out);
+
+    }else{
+  $self->redirect_to('index');
+    }
+};
+
+
+
 
 #plugin OpenAPI => {url => app->home->rel_file("public/swagger.json")};
 app->log->level('debug');
