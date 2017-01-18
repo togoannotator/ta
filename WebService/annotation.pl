@@ -404,7 +404,7 @@ __DATA__
         url = decodeURIComponent(url[1]);
       } else {
         //url = "http://petstore.swagger.io/v2/swagger.json";
-        url = "/swagger.json";
+        url = "/v1/1//swagger.json";
         //url = "http://togo.genes.nig.ac.jp:3000//swagger.json";
       }
 
@@ -560,6 +560,34 @@ $ curl -s http://togoannotator.dbcls.jp/annotation_list.txt | curl -s -F 'upload
 $ curl -s http://togoannotator.dbcls.jp/ddbj_submission.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/genes' | jq
 
 </pre>
+
+<h2>4. Input GenBank format file <a href="http://togows.dbcls.jp/entry/nucleotide/BA000022.gb">BA000022.gb</a></h2>
+<pre class="prettyprint">
+#!sh
+$ curl -s http://togows.dbcls.jp/entry/nucleotide/BA000022.gb | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/genbank'  |jq
+
+</pre>
+
+<h2>5. Input BLAST report file <a href="/7XS7A95B015-Alignment.txt">7XS7A95B015-Alignment.txt</a></h2>
+<pre class="prettyprint">
+#!sh
+$ curl -s http://togoannotator.dbcls.jp/7XS7A95B015-Alignment.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/blast'  |jq
+
+</pre>
+
+<h2>6. Input GFF3 format file <a href="http://togows.dbcls.jp/entry/nucleotide/BA000022.gff">BA000022.gff</a></h2>
+<pre class="prettyprint">
+#!sh
+$ curl -s http://togows.dbcls.jp/entry/nucleotide/BA000022.gff | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/gff'
+</pre>
+
+<h2>7. Input FASTA format file <a href="http://togows.dbcls.jp/entry/nucleotide/ABA25090.1.fasta">ABA25090.1.fasta</a></h2>
+<pre class="prettyprint">
+#!sh
+$ curl -s http://togows.dbcls.jp/entry/nucleotide/ABA25090.1.fasta | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/fasta'   |jq
+</pre>
+
+
 </div>
 </div>
 
