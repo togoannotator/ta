@@ -36,7 +36,7 @@
   <body>
    <div class="jumbotron text-center">
       <h1>TogoAnnotator Help</h1>
-   </div> 
+   </div>
 <div class="container">
 <h3>Introduction</h3>
 <p>In the era of high-throughput sequencers, newly obtained genome sequence data have been accumulated rapidly. This advancement of sequence equipment significantly contributes to the progress of the life science research. However, curating protein definition is still a highly labor-intensive work and a bottleneck of genome annotation.
@@ -47,7 +47,7 @@ To make this curation work more efficient, TogoAnnotator accepts product names w
 In the TogoAnnotator process, an input product name is first checked to see if it exactly (<i>i.e.</i>, literally) matches any after names. If it matches, it is already a recommended name and just fine. If it doesn't, then the input product name is checked to see if it exactly matches any before names. If it matches, its corresponding after name is a recommended name. In addition, TogoAnnotator provides an approximate match function, where you can get a recommended name that is approximately similar to the input product name or whose corresponding before name is approximately similar to the input name.
 </p>
 <h3>How to use</h3>
-<p>TogoAnnotator provides three ways of submitting product name(s). The one is to submit a single product name by the HTTP GET method. The second is to submit a plain text file that contains a list of product names, each of which is written on one line. The third is to submit a DDBJ submission file where "product" property values are used as product names to be refined. The latter two ways assume the HTTP POST method.
+<p>TogoAnnotator provides seven ways of submitting product name(s). The one is to submit a single product name by the HTTP GET method. The second is to submit a plain text file that contains a list of product names, each of which is written on one line. The third is to submit a DDBJ submission file where "product" property values are used as product names to be refined. The fourth is to submit a GenBank format file, where product qualifier values are used as product names. The fifth is to sbmit a BLAST report file, where hit annotations are used as product names. The sixth is to submit a GFF3 format file, where product tag values of the attribute column are used as product names. The seventh is to submit a FASTA format file, where the description part of an entry is used as a product name. The latter six ways assume the HTTP POST method.
 The JSON format is used to return results for all the three ways, and their structures are basically the same except for the first way because there is only one result. In other words, an array of results for each product name is returned for the other two ways, and each result has the same structure as the first way.
 The technical details of each method are explained at the top page, and therefore here we just explain how to interpret the result data. As the technical details show, each result has the following five fields or attributes.
 </p>
