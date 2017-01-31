@@ -38,11 +38,18 @@ package Text::TogoAnnotator;
 # * 2016.12.22
 # UniProtのReviewed=trueであるタンパク質エントリのencodedByで結ばれる遺伝子のprefLabelを利用し、それに入力された文字がマッチした場合にはその旨infoに記述する仕様に変更。
 # Pfamのファミリーネームに入力された文字列がマッチした場合にはその旨infoに記述する仕様に変更。
+# * 2017.1.31
+# After -> Curated については実装から削除。Queryが与えられたら、それがCuratedのBeforeにマッチするか見て適宜書き換えるのみとする。
+# After -> Curated の部分については利用者がカスタム辞書を用意することで対応する方針とする。
+# 既に辞書の内部利用ファイルが作られている場合にはそれを利用できるようにした。$useCurrentDictで与える。
+# 内部辞書構築にはmkDictionary.pl を用いる。
 
 use warnings;
 use strict;
 use Fatal qw/open/;
 use File::Path 'mkpath';
+use File::Basename;
+use File::Slurp qw(read_file write_file);
 use Bag::Similarity::Cosine;
 use String::Trim;
 use simstring;
@@ -50,12 +57,14 @@ use DB_File;
 use PerlIO::gzip;
 use Lingua::EN::ABC qw/b2a/;
 use Text::Match::FastAlternatives;
+use JSON::XS;
 use utf8;
 
 my ($sysroot, $niteAll, $curatedDict, $enzymeDict, $locustag_prefix_name, $embl_locustag_name, $gene_symbol_name, $family_name);
 my ($nitealldb_after_name, $nitealldb_before_name);
 my ($niteall_after_cs_db, $niteall_before_cs_db);
 my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars, $locustag_prefix_matcher, $embl_locustag_matcher, $gene_symbol_matcher, $family_name_matcher);
+my $useCurrentDict;
 
 my (
     @sp_words, # マッチ対象から外すが、マッチ処理後は元に戻して結果に表示させる語群。
@@ -68,7 +77,7 @@ my (
     %negative_min_words,  # コサイン距離を用いた類似マッチではクエリと辞書中のエントリで文字列としては類似していても、両者の間に共通に出現する語が無い場合がある。
     # その場合、共通に出現する語がある辞書中エントリを優先させる処理をしているが、本処理が逆効果となってしまう語がここに含まれる。
     %wospconvtableD, %wospconvtableE, # 全空白文字除去前後の対応表。書換え前と後用それぞれ。
-    %name_provenance,     # 変換後デフィニションの由来。
+    #%name_provenance,     # 変換後デフィニションの由来。
     %curatedHash,         # curated辞書のエントリ（キーは小文字化する）
     %enzymeHash           # 酵素辞書のエントリ（小文字化する）
     );
@@ -83,6 +92,7 @@ sub init {
     $sysroot       = shift; # 辞書や作業用ファイルを生成するディレクトリ
     $niteAll       = shift; # 辞書名
     $curatedDict   = shift; # curated辞書名（形式は同一）
+    $useCurrentDict= shift; # 既に内部利用辞書ファイルがある場合には、それを削除して改めて構築するか否か
 
     $enzymeDict = "enzyme/enzyme_accepted_names.txt";
     $locustag_prefix_name = "locus_tag_prefix.txt";
@@ -131,24 +141,32 @@ sub init {
 
 sub readDict {
     # 類似度計算用辞書構築の準備
-    my $dictdir = 'dictionary/cdb_nite_ALL';
+    (my $dname = basename $niteAll) =~ s/\..*$//;
+    my $dictdir = 'dictionary/'.$dname;
 
-    if (!-d  $sysroot.'/'.$dictdir){
-	mkpath($sysroot.'/'.$dictdir);
+    my $niteall_after_db;
+    my $niteall_before_db;
+
+    unless( $useCurrentDict ){
+	if (!-d  $sysroot.'/'.$dictdir){
+	    mkpath($sysroot.'/'.$dictdir);
+	}
+
+	for my $f ( <${sysroot}/${dictdir}/after*> ){
+	    unlink $f;
+	}
+	for my $f ( <${sysroot}/${dictdir}/before*> ){
+	    unlink $f;
+	}
+
+	$nitealldb_after_name = $sysroot.'/'.$dictdir.'/after';   # After
+	$nitealldb_before_name = $sysroot.'/'.$dictdir.'/before'; # Before
+
+	$niteall_after_db = simstring::writer->new($nitealldb_after_name, $n_gram);
+	$niteall_before_db = simstring::writer->new($nitealldb_before_name, $n_gram);
     }
 
-    for my $f ( <${sysroot}/${dictdir}/after*> ){
-	unlink $f;
-    }
-    for my $f ( <${sysroot}/${dictdir}/before*> ){
-	unlink $f;
-    }
-
-    $nitealldb_after_name = $sysroot.'/'.$dictdir.'/after';   # After
-    $nitealldb_before_name = $sysroot.'/'.$dictdir.'/before'; # Before
-
-    my $niteall_after_db = simstring::writer->new($nitealldb_after_name, $n_gram);
-    my $niteall_before_db = simstring::writer->new($nitealldb_before_name, $n_gram);
+    my @hash_pack;
 
     # キュレーテッド辞書の構築
     if($curatedDict){
@@ -192,6 +210,7 @@ sub readDict {
     }
     close($locustag_prefix);
     $locustag_prefix_matcher = Text::Match::FastAlternatives->new( @prefix_array );
+
     # EMBLから取得したLocus tagリストの辞書構築
     my @locustag_array;
     open(my $embl_locustag, $sysroot.'/'.$embl_locustag_name);
@@ -230,80 +249,107 @@ sub readDict {
     $family_name_matcher = Text::Match::FastAlternatives->new( @pfam_family_array );
 
     # 類似度計算用および変換用辞書の構築
-    my $total = 0;
-    my $nite_all;
-    if($niteAll =~ /\.gz$/){
-	open($nite_all, "<:gzip", $sysroot.'/'.$niteAll);
+    if( $useCurrentDict ){
+
+	my $json = read_file($dictdir.'/dump.json', { binmode => ':raw' });
+	my $hash_pack_ptr = decode_json $json;
+
+	%convtable = %{ $hash_pack_ptr->[0] };
+	%wospconvtableE = %{ $hash_pack_ptr->[1] };
+	%wospconvtableD = %{ $hash_pack_ptr->[2] };
+	%correct_definitions = %{ $hash_pack_ptr->[3] };
+
+
     }else{
-	open($nite_all, $sysroot.'/'.$niteAll);
-    }
-    while(<$nite_all>){
-	chomp;
-	my (undef, $sno, $chk, undef, $name, $b4name, undef) = split /\t/;
-	next if $chk eq 'RNA' or $chk eq 'OK';
-	# next if $chk eq 'RNA' or $chk eq 'del' or $chk eq 'OK';
 
-	$name //= "";   # $chk が "del" のときは $name が空。
-	trim( $name );
-	trim( $b4name );
-	$name =~ s/^"\s*//;
-	$name =~ s/\s*"$//;
-	$b4name =~ s/^"\s*//;
-	$b4name =~ s/\s*"$//;
-
-	$name_provenance{$name} = "dictionary";
-	if($curatedHash{lc($name)}){
-	    my $_name = lc($name);
-	    $name = $curatedHash{$_name};
-	    $name_provenance{$name} = "curated (after)";
-	    # print "#Curated (after): ", $_name, "->", $name, "\n";
+	my $nite_all;
+	if($niteAll =~ /\.gz$/){
+	    open($nite_all, "<:gzip", $sysroot.'/'.$niteAll);
 	}else{
+	    open($nite_all, $sysroot.'/'.$niteAll);
+	}
+	while(<$nite_all>){
+	    chomp;
+	    my (undef, $sno, $chk, undef, $name, $b4name, undef) = split /\t/;
+	    next if $chk eq 'RNA' or $chk eq 'OK';
+	    # next if $chk eq 'RNA' or $chk eq 'del' or $chk eq 'OK';
+
+	    $name //= "";   # $chk が "del" のときは $name が空。
+	    trim( $name );
+	    trim( $b4name );
+	    $name =~ s/^"\s*//;
+	    $name =~ s/\s*"$//;
+	    $b4name =~ s/^"\s*//;
+	    $b4name =~ s/\s*"$//;
+
 	    for ( @sp_words ){
 		$name =~ s/^$_\s+//i;
 	    }
-	}
 
-	my $lcb4name = lc($b4name);
-	$lcb4name =~ s{$ignore_chars}{ }g;
-	$lcb4name = trim($lcb4name);
-	$lcb4name =~ s/  +/ /g;
-	for ( @sp_words ){
-	    if(index($lcb4name, $_) == 0){
-		$lcb4name =~ s/^$_\s+//;
+=head
+            $name_provenance{$name} = "dictionary";
+	    if($curatedHash{lc($name)}){
+		$name = $curatedHash{lc($name)};
+		$name_provenance{$name} = "curated (after)";
+		# print "#Curated (after): ", $_name, "->", $name, "\n";
+	    }else{
+		for ( @sp_words ){
+		    $name =~ s/^$_\s+//i;
+		}
+	    }
+=cut
+
+	    my $lcb4name = lc($b4name);
+	    $lcb4name =~ s{$ignore_chars}{ }g;
+	    $lcb4name = trim($lcb4name);
+	    $lcb4name =~ s/  +/ /g;
+	    for ( @sp_words ){
+		if(index($lcb4name, $_) == 0){
+		    $lcb4name =~ s/^$_\s+//;
+		}
+	    }
+
+	    if($chk eq 'del'){
+		$convtable{$lcb4name}{'__DEL__'}++;
+	    }else{
+		$convtable{$lcb4name}{$name}++;
+
+		# $niteall_before_db->insert($lcb4name);
+		(my $wosplcb4name = $lcb4name) =~ s/ //g;   #### 全ての空白を取り除く
+		$niteall_before_db->insert($wosplcb4name);
+		$wospconvtableE{$wosplcb4name}{$lcb4name}++;
+
+		my $lcname = lc($name);
+		$lcname =~ s{$ignore_chars}{ }g;
+		$lcname = trim($lcname);
+		$lcname =~ s/  +/ /g;
+		next if $correct_definitions{$lcname};
+		$correct_definitions{$lcname} = $name;
+		for ( split " ", $lcname ){
+		    s/\W+$//;
+		    $histogram{$_}++;
+		}
+		#$niteall_after_db->insert($lcname);
+		(my $wosplcname = $lcname) =~ s/ //g;   #### 全ての空白を取り除く
+		$niteall_after_db->insert($wosplcname);
+		$wospconvtableD{$wosplcname}{$lcname}++;
 	    }
 	}
+	close($nite_all);
 
-	if($chk eq 'del'){
-	    $convtable{$lcb4name}{'__DEL__'}++;
-	}else{
-	    $convtable{$lcb4name}{$name}++;
 
-	    # $niteall_before_db->insert($lcb4name);
-	    (my $wosplcb4name = $lcb4name) =~ s/ //g;   #### 全ての空白を取り除く
-	    $niteall_before_db->insert($wosplcb4name);
-	    $wospconvtableE{$wosplcb4name}{$lcb4name}++;
+	$niteall_after_db->close;
+	$niteall_before_db->close;
 
-	    my $lcname = lc($name);
-	    $lcname =~ s{$ignore_chars}{ }g;
-	    $lcname = trim($lcname);
-	    $lcname =~ s/  +/ /g;
-	    next if $correct_definitions{$lcname};
-	    $correct_definitions{$lcname} = $name;
-	    for ( split " ", $lcname ){
-		s/\W+$//;
-		$histogram{$_}++;
-		$total++;
-	    }
-	    #$niteall_after_db->insert($lcname);
-	    (my $wosplcname = $lcname) =~ s/ //g;   #### 全ての空白を取り除く
-	    $niteall_after_db->insert($wosplcname);
-	    $wospconvtableD{$wosplcname}{$lcname}++;
-	}
+#    push @hash_pack, \%name_provenance;
+	push @hash_pack, \%convtable;
+	push @hash_pack, \%wospconvtableE;
+	push @hash_pack, \%wospconvtableD;
+	push @hash_pack, \%correct_definitions;
+	my $json = encode_json \@hash_pack;
+	write_file($dictdir.'/dump.json', { binmode => ':raw' }, $json);
     }
-    close($nite_all);
 
-    $niteall_after_db->close;
-    $niteall_before_db->close;
 }
 
 sub openDicts {
