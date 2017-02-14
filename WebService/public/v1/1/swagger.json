@@ -30,6 +30,12 @@
                         "required": true,
                         "type": "string",
                         "default": "PsbA"
+                    },
+                    {
+                        "$ref": "#/parameters/dictionary"
+                    },
+                    {
+                        "$ref": "#/parameters/curated_dictionary"
                     }
                 ],
                 "responses": {
@@ -65,6 +71,12 @@
                 "parameters": [
                     {
                         "$ref": "#/parameters/upload"
+                    },
+                    {
+                        "$ref": "#/parameters/dictionary"
+                    },
+                    {
+                        "$ref": "#/parameters/curated_dictionary"
                     }
                 ],
                 "responses": {
@@ -99,6 +111,12 @@
                 "parameters": [
                     {
                         "$ref": "#/parameters/upload"
+                    },
+                    {
+                        "$ref": "#/parameters/dictionary"
+                    },
+                    {
+                        "$ref": "#/parameters/curated_dictionary"
                     }
                 ],
                 "responses": {
@@ -133,6 +151,12 @@
                 "parameters": [
                     {
                         "$ref": "#/parameters/upload"
+                    },
+                    {
+                        "$ref": "#/parameters/dictionary"
+                    },
+                    {
+                        "$ref": "#/parameters/curated_dictionary"
                     }
                 ],
                 "responses": {
@@ -167,6 +191,12 @@
                 "parameters": [
                     {
                         "$ref": "#/parameters/upload"
+                    },
+                    {
+                        "$ref": "#/parameters/dictionary"
+                    },
+                    {
+                        "$ref": "#/parameters/curated_dictionary"
                     }
                 ],
                 "responses": {
@@ -201,6 +231,12 @@
                 "parameters": [
                     {
                         "$ref": "#/parameters/upload"
+                    },
+                    {
+                        "$ref": "#/parameters/dictionary"
+                    },
+                    {
+                        "$ref": "#/parameters/curated_dictionary"
                     }
                 ],
                 "responses": {
@@ -235,6 +271,12 @@
                 "parameters": [
                     {
                         "$ref": "#/parameters/upload"
+                    },
+                    {
+                        "$ref": "#/parameters/dictionary"
+                    },
+                    {
+                        "$ref": "#/parameters/curated_dictionary"
                     }
                 ],
                 "responses": {
@@ -258,6 +300,25 @@
             "description": "The uploaded file data",
             "required": true,
             "type": "file"
+        },
+        "dictionary": {
+            "name": "dictionary",
+            "in": "formData",
+            "description": "Select a TogoAnnotator dictionary",
+            "required": true,
+            "type": "string",
+            "enum": [
+                "uniprot",
+                "cyanobase"
+            ],
+            "default": "cyanobase"
+        },
+        "curated_dictionary": {
+            "name": "curated_dictionary",
+            "in": "formData",
+            "description": "The uploaded file data",
+            "required": false,
+            "type": "string"
         }
     },
     "definitions": {
