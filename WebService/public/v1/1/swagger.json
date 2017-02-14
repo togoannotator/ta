@@ -36,6 +36,9 @@
                     },
                     {
                         "$ref": "#/parameters/curated_dictionary"
+                    },
+                    {
+                        "$ref": "#/parameters/limit"
                     }
                 ],
                 "responses": {
@@ -77,6 +80,9 @@
                     },
                     {
                         "$ref": "#/parameters/curated_dictionary"
+                    },
+                    {
+                        "$ref": "#/parameters/limit"
                     }
                 ],
                 "responses": {
@@ -117,6 +123,9 @@
                     },
                     {
                         "$ref": "#/parameters/curated_dictionary"
+                    },
+                    {
+                        "$ref": "#/parameters/limit"
                     }
                 ],
                 "responses": {
@@ -157,6 +166,9 @@
                     },
                     {
                         "$ref": "#/parameters/curated_dictionary"
+                    },
+                    {
+                        "$ref": "#/parameters/limit"
                     }
                 ],
                 "responses": {
@@ -197,6 +209,9 @@
                     },
                     {
                         "$ref": "#/parameters/curated_dictionary"
+                    },
+                    {
+                        "$ref": "#/parameters/limit"
                     }
                 ],
                 "responses": {
@@ -237,6 +252,9 @@
                     },
                     {
                         "$ref": "#/parameters/curated_dictionary"
+                    },
+                    {
+                        "$ref": "#/parameters/limit"
                     }
                 ],
                 "responses": {
@@ -277,6 +295,9 @@
                     },
                     {
                         "$ref": "#/parameters/curated_dictionary"
+                    },
+                    {
+                        "$ref": "#/parameters/limit"
                     }
                 ],
                 "responses": {
@@ -316,9 +337,17 @@
         "curated_dictionary": {
             "name": "curated_dictionary",
             "in": "formData",
-            "description": "The uploaded file data",
+            "description": "Set the URL of curated_dictionary.",
             "required": false,
             "type": "string"
+        },
+        "limit": {
+            "name": "limit",
+            "in": "formData",
+            "description": "Limit the number of items in result_array",
+            "required": false,
+            "default": 10,
+            "type": "integer"
         }
     },
     "definitions": {
