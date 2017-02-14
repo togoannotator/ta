@@ -303,6 +303,12 @@
                 ]
             }
         },
+        "Results": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/Result"
+            }
+        },
         "Error": {
             "type": "object",
             "properties": {
@@ -316,12 +322,6 @@
                 "fields": {
                     "type": "string"
                 }
-            }
-        },
-        "Results": {
-            "type": "array",
-            "items": {
-                "$ref": "#/definitions/Result"
             }
         }
     },
