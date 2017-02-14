@@ -59,6 +59,7 @@ use Lingua::EN::ABC qw/b2a/;
 use Text::Match::FastAlternatives;
 use JSON::XS;
 use utf8;
+use DBI;
 
 my ($sysroot, $niteAll, $curatedDict, $enzymeDict, $locustag_prefix_name, $embl_locustag_name, $gene_symbol_name, $family_name);
 my ($nitealldb_after_name, $nitealldb_before_name);
@@ -146,6 +147,10 @@ sub readDict {
 
     my $niteall_after_db;
     my $niteall_before_db;
+    my $dbh;
+
+    $nitealldb_after_name = $sysroot.'/'.$dictdir.'/after';   # After
+    $nitealldb_before_name = $sysroot.'/'.$dictdir.'/before'; # Before
 
     unless( $useCurrentDict ){
 	if (!-d  $sysroot.'/'.$dictdir){
@@ -159,11 +164,11 @@ sub readDict {
 	    unlink $f;
 	}
 
-	$nitealldb_after_name = $sysroot.'/'.$dictdir.'/after';   # After
-	$nitealldb_before_name = $sysroot.'/'.$dictdir.'/before'; # Before
-
 	$niteall_after_db = simstring::writer->new($nitealldb_after_name, $n_gram);
 	$niteall_before_db = simstring::writer->new($nitealldb_before_name, $n_gram);
+
+        $dbh = DBI->connect( "dbi:mysql:TogoAnnotator;localhost;mysql_socket=/opt/services/togoannot/local/mysql/mysql.sock",
+			"yayamamo", "yayamamo",  { RaiseError => 1, AutoCommit => 1, PrintWarn => 1}) or die "$!\n";
     }
 
     my @hash_pack;
@@ -337,7 +342,6 @@ sub readDict {
 	}
 	close($nite_all);
 
-
 	$niteall_after_db->close;
 	$niteall_before_db->close;
 
@@ -348,17 +352,53 @@ sub readDict {
 	push @hash_pack, \%correct_definitions;
 	my $json = encode_json \@hash_pack;
 	write_file($dictdir.'/dump.json', { binmode => ':raw' }, $json);
+	my $s_conv = $dbh->prepare('REPLACE INTO convtable VALUES (?,?)');
+	my $s_convE = $dbh->prepare('REPLACE INTO wospconvtableE VALUES (?,?)');
+	my $s_convD = $dbh->prepare('REPLACE INTO wospconvtableD VALUES (?,?)');
+	my $s_cd = $dbh->prepare('REPLACE INTO correct_definitions VALUES (?,?)');
+	my $c = 1;
+        while(my @cur = each %convtable){
+	    my $json = encode_json \@cur;
+	    $s_conv->execute($c++, $json) or die "execution failed: $dbh->errstr()";
+	    print $json, "\n";
+	}
+	$c = 1;
+        while(my @cur = each %wospconvtableE){
+	    my $json = encode_json \@cur;
+	    $s_convE->execute($c++, $json) or die "execution failed: $dbh->errstr()";
+	    print $json, "\n";
+	}
+	$c = 1;
+        while(my @cur = each %wospconvtableD){
+	    my $json = encode_json \@cur;
+	    $s_convD->execute($c++, $json) or die "execution failed: $dbh->errstr()";
+	    print $json, "\n";
+	}
+	$c = 1;
+        while(my @cur = each %correct_definitions){
+	    my $json = encode_json \@cur;
+	    $s_cd->execute($c++, $json) or die "execution failed: $dbh->errstr()";
+	    print $json, "\n";
+	}
+	$s_conv->finish();
+	$s_convE->finish();
+	$s_convD->finish();
+	$s_cd->finish();
+        $dbh->disconnect();
     }
 
 }
 
 sub openDicts {
+    print "openDics\n";
     $niteall_after_cs_db = simstring::reader->new($nitealldb_after_name);
     $niteall_after_cs_db->swig_measure_set($simstring::cosine);
     $niteall_after_cs_db->swig_threshold_set($cos_threshold);
     $niteall_before_cs_db = simstring::reader->new($nitealldb_before_name);
     $niteall_before_cs_db->swig_measure_set($simstring::cosine);
     $niteall_before_cs_db->swig_threshold_set($cos_threshold);
+    print "Done\n";
+    $niteall_after_cs_db = simstring::reader->new($nitealldb_after_name);
 }
 
 sub closeDicts {

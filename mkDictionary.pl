@@ -13,7 +13,7 @@ my $sysroot = "$Bin";
 
 our ($opt_t, $opt_m) = (0.6, 5);
 if( $ARGV[0] ){
-    Text::TogoAnnotator->init($opt_t, 30, $opt_m, 3, $sysroot, $ARGV[0], "", 1); 
+    Text::TogoAnnotator->init($opt_t, 30, $opt_m, 3, $sysroot, $ARGV[0], "", 0); 
 }
 
 __END__

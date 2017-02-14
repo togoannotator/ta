@@ -6,6 +6,7 @@ use FindBin qw($Bin);
 use lib "$Bin/..";
 use Text::TogoAnnotator;
 use Data::Dumper;
+use Mojo::mysql;
 
 app->config(hypnotoad => {listen => ['http://*:5000']});
 app->mode('production');
@@ -17,7 +18,7 @@ plugin 'CORS';
 my $sysroot = "$Bin/..";
 print "sysroot:", $sysroot, "\n";
 our ($opt_t, $opt_m) = (0.6, 5);
-Text::TogoAnnotator->init($opt_t, 30, $opt_m, 3, $sysroot, "dict_cyanobacteria_20151120_with_cyanobase.txt.gz","dict_cyanobacteria_curated.txt");
+Text::TogoAnnotator->init($opt_t, 30, $opt_m, 3, $sysroot, "dict_cyanobacteria_20151120_with_cyanobase.txt.gz", "dict_cyanobacteria_curated.txt", 0);
 print "Server ready.\n";
 
 # sub match{
