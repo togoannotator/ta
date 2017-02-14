@@ -64,21 +64,14 @@
                 ],
                 "parameters": [
                     {
-                        "name": "upload",
-                        "in": "formData",
-                        "description": "The uploaded file data",
-                        "required": true,
-                        "type": "file"
+                        "$ref": "#/parameters/upload"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful Operation",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Result"
-                            }
+                            "$ref": "#/definitions/Results"
                         }
                     },
                     "400": {
@@ -105,21 +98,14 @@
                 ],
                 "parameters": [
                     {
-                        "name": "upload",
-                        "in": "formData",
-                        "description": "The uploaded file data",
-                        "required": true,
-                        "type": "file"
+                        "$ref": "#/parameters/upload"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful operation",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Result"
-                            }
+                            "$ref": "#/definitions/Results"
                         }
                     },
                     "400": {
@@ -146,21 +132,14 @@
                 ],
                 "parameters": [
                     {
-                        "name": "upload",
-                        "in": "formData",
-                        "description": "The uploaded file data",
-                        "required": true,
-                        "type": "file"
+                        "$ref": "#/parameters/upload"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful operation",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Result"
-                            }
+                            "$ref": "#/definitions/Results"
                         }
                     },
                     "400": {
@@ -187,21 +166,14 @@
                 ],
                 "parameters": [
                     {
-                        "name": "upload",
-                        "in": "formData",
-                        "description": "The uploaded file data",
-                        "required": true,
-                        "type": "file"
+                        "$ref": "#/parameters/upload"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful operation",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Result"
-                            }
+                            "$ref": "#/definitions/Results"
                         }
                     },
                     "400": {
@@ -228,21 +200,14 @@
                 ],
                 "parameters": [
                     {
-                        "name": "upload",
-                        "in": "formData",
-                        "description": "The uploaded file data",
-                        "required": true,
-                        "type": "file"
+                        "$ref": "#/parameters/upload"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful operation",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Result"
-                            }
+                            "$ref": "#/definitions/Results"
                         }
                     },
                     "400": {
@@ -269,31 +234,30 @@
                 ],
                 "parameters": [
                     {
-                        "name": "upload",
-                        "in": "formData",
-                        "description": "The uploaded file data",
-                        "required": true,
-                        "type": "file"
+                        "$ref": "#/parameters/upload"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful operation",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Result"
-                            }
+                            "$ref": "#/definitions/Results"
                         }
                     },
                     "400": {
-                        "description": "Bad request. Invalid input file supplied.",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
+                        "$ref": "#/responses/ErrorResponse400Standard"
                     }
                 }
             }
+        }
+    },
+    "parameters": {
+        "upload": {
+            "name": "upload",
+            "in": "formData",
+            "description": "The uploaded file data",
+            "required": true,
+            "type": "file"
         }
     },
     "definitions": {
@@ -352,6 +316,20 @@
                 "fields": {
                     "type": "string"
                 }
+            }
+        },
+        "Results": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/Result"
+            }
+        }
+    },
+    "responses": {
+        "ErrorResponse400Standard": {
+            "description": "Bad request. Invalid input file supplied.",
+            "schema": {
+                "$ref": "#/definitions/Error"
             }
         }
     }
