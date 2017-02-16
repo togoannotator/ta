@@ -29,6 +29,8 @@ my $verify = "SG25アノテーション確認用_After_10_utf8.txt";
 my $sysroot = "$Bin";
 my $evaldir = '20131122_dbcls';
 
+$| = 1;
+
 our ($opt_t, $opt_m) = (0.6, 5);
 getopt('tm'); # -tm take arg.  Sets $opt_t, $opt_m as a side effect.
 
