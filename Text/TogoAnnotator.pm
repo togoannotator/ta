@@ -60,12 +60,15 @@ use Text::Match::FastAlternatives;
 use JSON::XS;
 use utf8;
 use DBI;
+use Digest::MD5 qw/md5_hex/;
+use Data::Dumper;
 
 my ($sysroot, $niteAll, $curatedDict, $enzymeDict, $locustag_prefix_name, $embl_locustag_name, $gene_symbol_name, $family_name);
 my ($nitealldb_after_name, $nitealldb_before_name);
 my ($niteall_after_cs_db, $niteall_before_cs_db);
 my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars, $locustag_prefix_matcher, $embl_locustag_matcher, $gene_symbol_matcher, $family_name_matcher);
 my $useCurrentDict;
+my ($dbh, $r_conv, $r_convE, $r_convD, $r_cd);
 
 my (
     @sp_words, # マッチ対象から外すが、マッチ処理後は元に戻して結果に表示させる語群。
@@ -83,7 +86,6 @@ my (
     %enzymeHash           # 酵素辞書のエントリ（小文字化する）
     );
 my ($minfreq, $minword, $ifhit, $cosdist);
-
 sub init {
     my $_this = shift;
     $cos_threshold = shift; # cosine距離で類似度を測る際に用いる閾値。この値以上類似している場合は変換対象の候補とする。
@@ -123,6 +125,8 @@ sub init {
 
     $cosine_object = Bag::Similarity::Cosine->new;
 
+    $dbh = DBI->connect( "dbi:mysql:TogoAnnotator;localhost;mysql_socket=/opt/services/togoannot/local/mysql/mysql.sock",
+			 "yayamamo", "yayamamo",  { RaiseError => 1, AutoCommit => 1, PrintWarn => 1}) or die "$!\n";
     readDict();
 }
 
@@ -144,10 +148,10 @@ sub readDict {
     # 類似度計算用辞書構築の準備
     (my $dname = basename $niteAll) =~ s/\..*$//;
     my $dictdir = 'dictionary/'.$dname;
+    my $md5dname = md5_hex($dname);
 
     my $niteall_after_db;
     my $niteall_before_db;
-    my $dbh;
 
     $nitealldb_after_name = $sysroot.'/'.$dictdir.'/after';   # After
     $nitealldb_before_name = $sysroot.'/'.$dictdir.'/before'; # Before
@@ -166,9 +170,6 @@ sub readDict {
 
 	$niteall_after_db = simstring::writer->new($nitealldb_after_name, $n_gram);
 	$niteall_before_db = simstring::writer->new($nitealldb_before_name, $n_gram);
-
-        $dbh = DBI->connect( "dbi:mysql:TogoAnnotator;localhost;mysql_socket=/opt/services/togoannot/local/mysql/mysql.sock",
-			"yayamamo", "yayamamo",  { RaiseError => 1, AutoCommit => 1, PrintWarn => 1}) or die "$!\n";
     }
 
     my @hash_pack;
@@ -259,11 +260,10 @@ sub readDict {
 	my $json = read_file($dictdir.'/dump.json', { binmode => ':raw' });
 	my $hash_pack_ptr = decode_json $json;
 
-	%convtable = %{ $hash_pack_ptr->[0] };
-	%wospconvtableE = %{ $hash_pack_ptr->[1] };
-	%wospconvtableD = %{ $hash_pack_ptr->[2] };
+	# %convtable = %{ $hash_pack_ptr->[0] };
+	# %wospconvtableE = %{ $hash_pack_ptr->[1] };
+	# %wospconvtableD = %{ $hash_pack_ptr->[2] };
 	%correct_definitions = %{ $hash_pack_ptr->[3] };
-
 
     }else{
 
@@ -345,40 +345,29 @@ sub readDict {
 	$niteall_after_db->close;
 	$niteall_before_db->close;
 
-#    push @hash_pack, \%name_provenance;
-	push @hash_pack, \%convtable;
-	push @hash_pack, \%wospconvtableE;
-	push @hash_pack, \%wospconvtableD;
+#	push @hash_pack, \%name_provenance;
+#	push @hash_pack, \%convtable;
+#	push @hash_pack, \%wospconvtableE;
+#	push @hash_pack, \%wospconvtableD;
 	push @hash_pack, \%correct_definitions;
 	my $json = encode_json \@hash_pack;
 	write_file($dictdir.'/dump.json', { binmode => ':raw' }, $json);
-	my $s_conv = $dbh->prepare('REPLACE INTO convtable VALUES (?,?)');
-	my $s_convE = $dbh->prepare('REPLACE INTO wospconvtableE VALUES (?,?)');
-	my $s_convD = $dbh->prepare('REPLACE INTO wospconvtableD VALUES (?,?)');
-	my $s_cd = $dbh->prepare('REPLACE INTO correct_definitions VALUES (?,?)');
-	my $c = 1;
-        while(my @cur = each %convtable){
-	    my $json = encode_json \@cur;
-	    $s_conv->execute($c++, $json) or die "execution failed: $dbh->errstr()";
-	    print $json, "\n";
+
+	my $s_conv  = $dbh->prepare('INSERT INTO `convtable` (`json`,`dictionary`) VALUES (?,"'.$md5dname.'")');
+	my $s_convE = $dbh->prepare('INSERT INTO `wospconvtableE` (`json`,`dictionary`) VALUES (?,"'.$md5dname.'")');
+	my $s_convD = $dbh->prepare('INSERT INTO `wospconvtableD` (`json`,`dictionary`) VALUES (?,"'.$md5dname.'")');
+	my $s_cd    = $dbh->prepare('INSERT INTO `correct_definitions` (`json`,`dictionary`) VALUES (?,"'.$md5dname.'")');
+        while(my ($k,$v) = each %convtable){
+	    $s_conv->execute(encode_json {$k=>$v}) or die "execution failed: $dbh->errstr()";
 	}
-	$c = 1;
-        while(my @cur = each %wospconvtableE){
-	    my $json = encode_json \@cur;
-	    $s_convE->execute($c++, $json) or die "execution failed: $dbh->errstr()";
-	    print $json, "\n";
+        while(my ($k,$v) = each %wospconvtableE){
+	    $s_convE->execute(encode_json {$k=>$v}) or die "execution failed: $dbh->errstr()";
 	}
-	$c = 1;
-        while(my @cur = each %wospconvtableD){
-	    my $json = encode_json \@cur;
-	    $s_convD->execute($c++, $json) or die "execution failed: $dbh->errstr()";
-	    print $json, "\n";
+        while(my ($k,$v) = each %wospconvtableD){
+	    $s_convD->execute(encode_json {$k=>$v}) or die "execution failed: $dbh->errstr()";
 	}
-	$c = 1;
-        while(my @cur = each %correct_definitions){
-	    my $json = encode_json \@cur;
-	    $s_cd->execute($c++, $json) or die "execution failed: $dbh->errstr()";
-	    print $json, "\n";
+        while(my ($k,$v) = each %correct_definitions){
+	    $s_cd->execute(encode_json {$k=>$v}) or die "execution failed: $dbh->errstr()";
 	}
 	$s_conv->finish();
 	$s_convE->finish();
@@ -390,20 +379,42 @@ sub readDict {
 }
 
 sub openDicts {
-    print "openDics\n";
     $niteall_after_cs_db = simstring::reader->new($nitealldb_after_name);
     $niteall_after_cs_db->swig_measure_set($simstring::cosine);
     $niteall_after_cs_db->swig_threshold_set($cos_threshold);
     $niteall_before_cs_db = simstring::reader->new($nitealldb_before_name);
     $niteall_before_cs_db->swig_measure_set($simstring::cosine);
     $niteall_before_cs_db->swig_threshold_set($cos_threshold);
-    print "Done\n";
     $niteall_after_cs_db = simstring::reader->new($nitealldb_after_name);
 }
 
 sub closeDicts {
     $niteall_after_cs_db->close;
     $niteall_before_cs_db->close;
+}
+
+sub queryConvTableDB {
+    (my $qquery = $_[0]) =~ s/'/\\'/g;
+    my $rconv  = $dbh->prepare(q/SELECT json->"$.*" FROM `convtable` WHERE json->'$."/.$qquery.q/"' is not null AND dictionary="/.$md5dname.'"');
+    $rconv->execute;
+    my $conv_rs;
+    if($conv_rs = $rconv->fetchrow_arrayref){
+	$conv_rs = decode_json($conv_rs->[0])->[0];
+    }
+    $rconv->finish;
+    return $conv_rs;
+}
+
+sub queryWOSPD_DB {
+    (my $qquery = $_[0]) =~ s/'/\\'/g;
+    my $rconv  = $dbh->prepare(q/SELECT json->"$.*" FROM `wospconvtableD` WHERE json->'$."/.$qquery.q/"' is not null AND dictionary="/.$md5dname.'"'/);
+    $rconv->execute;
+    my $conv_rs;
+    if($conv_rs = $rconv->fetchrow_arrayref){
+	$conv_rs = decode_json($conv_rs->[0])->[0];
+    }
+    $rconv->finish;
+    return $conv_rs;
 }
 
 sub retrieve {
@@ -433,6 +444,28 @@ sub retrieve {
 	    last;
         }
     }
+
+    (my $qquery = $query) =~ s/'/\\'/g;
+    my $rconv  = $dbh->prepare(q/SELECT json->"$.*" FROM `convtable`           WHERE json->'$."/.$qquery.q/"' is not null AND dictionary="/.$md5dname.'"'/);
+    my $rcd    = $dbh->prepare(q/SELECT json->"$.*" FROM `correct_definitions` WHERE json->'$."/.$qquery.q/"' is not null AND dictionary="/.$md5dname.'"'/);
+
+    $rconv->execute;
+    $rcd->execute;
+
+    my ($conv_rs, $convD_rs, $convE_rs, $cd_rs);
+    if($conv_rs = $rconv->fetchrow_arrayref){
+	$conv_rs = decode_json($conv_rs->[0])->[0];
+    }
+    if($cd_rs = $rcd->fetchrow_arrayref){
+	$cd_rs = decode_json($cd_rs->[0])->[0];
+    }
+
+    # print "\n";
+    # print Dumper $conv_rs, "\n";
+    # print Dumper $convD_rs, "\n";
+    # print Dumper $convE_rs, "\n";
+    # print Dumper $cd_rs, "\n";
+
     if( $curatedHash{$lc_query} ){ # 最初にcurateにマッチするか
         $match ='ex';
         $result = $curatedHash{$lc_query};
@@ -444,16 +477,20 @@ sub retrieve {
         $result = $prfx. $correct_definitions{$query};
 	$info = 'in_dictionary'. ($prfx?" (prefix=${prfx})":"");
 	$results[0] = $result;
-    }elsif( $convtable{$query} ){ # そしてbeforeに完全マッチするか
+    }elsif( $conv_rs ){ # そしてbeforeに完全マッチするか
+#    }elsif( $convtable{$query} ){ # そしてbeforeに完全マッチするか
 	# print "\tex\t", $prfx. $convtable{$query}, "\tconvert_from: ", $query;
-	if($convtable{$query}{'__DEL__'}){
-	    my @others = grep {$_ ne '__DEL__'} keys %{$convtable{$query}};
+	if( $conv_rs->{'__DEL__'} ){
+	# if($convtable{$query}{'__DEL__'}){
+	    my @others = grep {$_ ne '__DEL__'} keys %{ $conv_rs };
+	    # my @others = grep {$_ ne '__DEL__'} keys %{$convtable{$query}};
 	    $match = 'del';
 	    $result = $query;
 	    $info = 'Human check preferable (other entries with the same "before" entry: '.join(" @@ ", @others).')';
 	}else{
 	    $match = 'ex';
-	    $result = join(" @@ ", map {$prfx. $_} keys %{$convtable{$query}});
+	    $result = join(" @@ ", map {$prfx. $_} keys %{ $conv_rs });
+	    # $result = join(" @@ ", map {$prfx. $_} keys %{$convtable{$query}});
 	    $info = 'convert_from dictionary'. ($prfx?" (prefix=${prfx})":"");
 	    $results[0] = $result;
 	}
@@ -479,7 +516,8 @@ sub retrieve {
 	    #全ての空白を取り除く処理をした場合には検索結果の文字列を復元する必要があるため、下記部分をコメントアウトしている。
 	    #my @out = sort {$minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /} grep {$cache{$_}++; $cache{$_} == 1} @$retr;
 	    #その代わり以下のコードが必要。
-	    my @out = sort by_priority grep {$cache{$_}++; $cache{$_} == 1} map { keys %{$wospconvtableD{$_}} } @$retr;
+	    my @out = sort by_priority grep {$cache{$_}++; $cache{$_} == 1} map { keys %{ queryWOSPD_DB($_) } } @$retr; #### 要対応
+	    # my @out = sort by_priority grep {$cache{$_}++; $cache{$_} == 1} map { keys %{$wospconvtableD{$_}} } @$retr; #### 要対応
 	    #####
 	    my $le = (@out > $cs_max)?($cs_max-1):$#out;
 	    # print "\tcs\t", join(" @@ ", (map {$prfx.$correct_definitions{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
@@ -514,9 +552,14 @@ sub retrieve {
 		    $info = 'bcs_avoidance';
 		}else{
 		    $match = 'bcs';
-		    $result = defined $out[0] ? join(" @@ ", map {$prfx. $_} keys %{$convtable{$out[0]}}) : $oq;
+		    $result = $oq;
+		    if(defined($out[0]) && (my $qcr = queryConvTableDB($out[0]))){
+			$result = join(" @@ ", map {$prfx. $_} keys %{ $qcr });
+		    }
+		    # $result = defined $out[0] ? join(" @@ ", map {$prfx. $_} keys %{$convtable{$out[0]}}) : $oq; ##### convtable対応
 		    if(defined $out[0]){
-			$info   = join(" % ", (map {join(" @@ ", map {$prfx. $_} keys %{$convtable{$_}}).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+			$info   = join(" % ", (map {join(" @@ ", map {$prfx. $_} keys %{ queryConvTableDB($_) }).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+			# $info   = join(" % ", (map {join(" @@ ", map {$prfx. $_} keys %{$convtable{$_}}).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le])); ##### convtable対応
 		    }else{
 			$info   = "Cosine_Sim_To:".join(" % ", @$retr_e);
 		    } 
@@ -546,6 +589,10 @@ sub retrieve {
 	$info .= " [Family name]";
     }
     $result = b2a($result);
+
+    $rconv->finish;
+    $rcd->finish;
+
     return({'query'=> $oq, 'result' => $result, 'match' => $match, 'info' => $info, 'result_array' => \@results});
 }
 
@@ -608,17 +655,32 @@ sub getScore {
     my $qtms = shift;
     my $minf = shift;
     my $query = shift;
+
     my (%minfreq, %minword, %ifhit, %cosdistance);
     # 対象タンパク質のスコアは、当該タンパク質を構成する単語それぞれにつき、検索対象辞書中での当該単語の出現頻度のうち最小値を割り当てる
     # 最小値を持つ語は $minword{$_} に代入する
     # また、検索タンパク質名を構成する単語が、検索対象辞書からヒットした各タンパク質名に含まれている場合は $ifhit{$_} にフラグが立つ
 
     #全ての空白を取り除く処理をした場合への対応
-    my $wospct = ($minf)? \%wospconvtableD : \%wospconvtableE;
+    # my $wospct = ($minf)? \%wospconvtableD : \%wospconvtableE;
+
+    my ($rconv, $conv_rs);
+
     #####
     for (@$retr){
 	my $wosp = $_;               # <--- 全ての空白を取り除く処理をした場合への対応
-	for (keys %{$wospct->{$_}}){ # <--- 全ての空白を取り除く処理をした場合への対応
+	(my $_wosp = $_) =~ s/'/\\'/g;
+	if($minf){
+	    $rconv = $dbh->prepare(q/SELECT json->"$.*" FROM `wospconvtableD` WHERE json->'$."/.$_wosp.q/"' is not null AND dictionary="/.$md5dname.'"'/);
+	}else{
+	    $rconv = $dbh->prepare(q/SELECT json->"$.*" FROM `wospconvtableE` WHERE json->'$."/.$_wosp.q/"' is not null AND dictionary="/.$md5dname.'"'/);
+	}
+	$rconv->execute;
+	if($conv_rs = $rconv->fetchrow_arrayref){
+	    $conv_rs = decode_json($conv_rs->[0])->[0];
+	}
+	for (keys %{ $conv_rs }){ # <--- 全ての空白を取り除く処理をした場合への対応
+	# for (keys %{$wospct->{$_}}){ # <--- 全ての空白を取り除く処理をした場合への対応
 	    $cosdistance{$_} = $cosine_object->similarity($query, $wosp, $n_gram);
 	    my $score = 100000;
 	    my $word = '';
@@ -639,6 +701,8 @@ sub getScore {
 	    $minword{$_} = $word;
 	    $ifhit{$_}++ if $hitflg;
 	}                            # <--- 全ての空白を取り除く処理をした場合への対応
+
+	$rconv->finish;
     }
     # 検索タンパク質名を構成する単語が、ヒットした各タンパク質名に複数含まれる場合には、その中で検索対象辞書中での出現頻度スコアが最小であるものを採用する
     # そして最小の語のスコアは-1とする。
@@ -655,6 +719,7 @@ sub getScore {
 	    $minfreq{$_} = -1 if $minword{$_} eq $minword{$leastwrd};
 	}
     }
+
     return (\%minfreq, \%minword, \%ifhit, \%cosdistance);
 }
 
