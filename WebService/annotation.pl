@@ -18,7 +18,7 @@ plugin 'CORS';
 my $sysroot = "$Bin/..";
 print "sysroot:", $sysroot, "\n";
 our ($opt_t, $opt_m) = (0.6, 5);
-Text::TogoAnnotator->init($opt_t, 30, $opt_m, 3, $sysroot, "dict_cyanobacteria_20151120_with_cyanobase.txt.gz", "dict_cyanobacteria_curated.txt", 0);
+Text::TogoAnnotator->init($opt_t, 30, $opt_m, 3, $sysroot, "dict_cyanobacteria_20151120_with_cyanobase.txt.gz", "dict_cyanobacteria_curated.txt", 1);
 print "Server ready.\n";
 
 # sub match{

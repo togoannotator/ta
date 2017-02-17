@@ -43,19 +43,21 @@ package Text::TogoAnnotator;
 # After -> Curated の部分については利用者がカスタム辞書を用意することで対応する方針とする。
 # 既に辞書の内部利用ファイルが作られている場合にはそれを利用できるようにした。$useCurrentDictで与える。
 # 内部辞書構築にはmkDictionary.pl を用いる。
+# * 2017.2.17
+# MySQLを用いて各種辞書にアクセスする方式に変更。
 
 use warnings;
 use strict;
 use Fatal qw/open/;
 use File::Path 'mkpath';
 use File::Basename;
-use File::Slurp qw(read_file write_file);
+#use File::Slurp qw(read_file write_file);
 use Bag::Similarity::Cosine;
 use String::Trim;
 use simstring;
 use PerlIO::gzip;
 use Lingua::EN::ABC qw/b2a/;
-use Text::Match::FastAlternatives;
+#use Text::Match::FastAlternatives;
 use JSON::XS;
 use utf8;
 use DBI;
@@ -68,6 +70,7 @@ my ($niteall_after_cs_db, $niteall_before_cs_db);
 my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars, $locustag_prefix_matcher, $embl_locustag_matcher, $gene_symbol_matcher, $family_name_matcher);
 my $useCurrentDict;
 my ($dbh, $r_conv, $r_convE, $r_convD, $r_cd, $md5dname);
+my ($r_locus_tag_prefix, $r_embl2locus_tag, $r_gene_symbol, $r_family_name);
 
 my (
     @sp_words, # マッチ対象から外すが、マッチ処理後は元に戻して結果に表示させる語群。
@@ -87,7 +90,6 @@ my (
 my ($minfreq, $minword, $ifhit, $cosdist);
 
 sub init {
-    print "Initializing.\n";
     my $_this = shift;
     $cos_threshold = shift; # cosine距離で類似度を測る際に用いる閾値。この値以上類似している場合は変換対象の候補とする。
     $e_threashold  = shift; # E列での表現から候補を探す場合、辞書中での最大出現頻度がここで指定する数未満の場合のもののみを対象とする。
@@ -129,7 +131,6 @@ sub init {
     $dbh = DBI->connect( "dbi:mysql:TogoAnnotator;localhost;mysql_socket=/opt/services/togoannot/local/mysql/mysql.sock",
 			 "yayamamo", "yayamamo",  { RaiseError => 1, AutoCommit => 1, PrintWarn => 1}) or die "$!\n";
     readDict();
-    print "Done.\n";
 }
 
 =head
@@ -177,7 +178,6 @@ sub readDict {
     my @hash_pack;
 
     # キュレーテッド辞書の構築
-    print "C.\n";
     if($curatedDict){
 	open(my $curated_dict, $sysroot.'/'.$curatedDict);
 	while(<$curated_dict>){
@@ -199,7 +199,6 @@ sub readDict {
     }
 
     # 酵素辞書の構築
-    print "E.\n";
     open(my $enzyme_dict, $sysroot.'/'.$enzymeDict);
     while(<$enzyme_dict>){
     	chomp;
@@ -208,6 +207,7 @@ sub readDict {
     }
     close($enzyme_dict);
 
+=head
     # Locus tagのprefixリストを取得し、辞書を構築
     print "L1.\n";
     my @prefix_array;
@@ -261,6 +261,7 @@ sub readDict {
     }
     close($pfam_family);
     $family_name_matcher = Text::Match::FastAlternatives->new( @pfam_family_array );
+=cut
 
     # 類似度計算用および変換用辞書の構築
     if( $useCurrentDict ){
@@ -358,24 +359,24 @@ sub readDict {
 #	push @hash_pack, \%wospconvtableE;
 #	push @hash_pack, \%wospconvtableD;
 #	push @hash_pack, \%correct_definitions;
-	my $json = encode_json \@hash_pack;
-	write_file($dictdir.'/dump.json', { binmode => ':raw' }, $json);
+#	my $json = encode_json \@hash_pack;
+#	write_file($dictdir.'/dump.json', { binmode => ':raw' }, $json);
 
-	my $s_conv  = $dbh->prepare('INSERT INTO `convtable` (`json`,`dictionary`) VALUES (?,"'.$md5dname.'")');
-	my $s_convE = $dbh->prepare('INSERT INTO `wospconvtableE` (`json`,`dictionary`) VALUES (?,"'.$md5dname.'")');
-	my $s_convD = $dbh->prepare('INSERT INTO `wospconvtableD` (`json`,`dictionary`) VALUES (?,"'.$md5dname.'")');
-	my $s_cd    = $dbh->prepare('INSERT INTO `correct_definitions` (`json`,`dictionary`) VALUES (?,"'.$md5dname.'")');
+	my $s_conv  = $dbh->prepare('INSERT INTO `convtable`           (`tkey`,`json`,`dictionary`)   VALUES (?,?,"'.$md5dname.'")');
+	my $s_convE = $dbh->prepare('INSERT INTO `wospconvtableE`      (`tkey`,`json`,`dictionary`)   VALUES (?,?,"'.$md5dname.'")');
+	my $s_convD = $dbh->prepare('INSERT INTO `wospconvtableD`      (`tkey`,`json`,`dictionary`)   VALUES (?,?,"'.$md5dname.'")');
+	my $s_cd    = $dbh->prepare('INSERT INTO `correct_definitions` (`tkey`,`tvalue`,`dictionary`) VALUES (?,?,"'.$md5dname.'")');
         while(my ($k,$v) = each %convtable){
-	    $s_conv->execute(encode_json {$k=>$v}) or die "execution failed: $dbh->errstr()";
+	    $s_conv->execute($k, encode_json($v)) or die "execution failed: $dbh->errstr()";
 	}
         while(my ($k,$v) = each %wospconvtableE){
-	    $s_convE->execute(encode_json {$k=>$v}) or die "execution failed: $dbh->errstr()";
+	    $s_convE->execute($k, encode_json($v)) or die "execution failed: $dbh->errstr()";
 	}
         while(my ($k,$v) = each %wospconvtableD){
-	    $s_convD->execute(encode_json {$k=>$v}) or die "execution failed: $dbh->errstr()";
+	    $s_convD->execute($k, encode_json($v)) or die "execution failed: $dbh->errstr()";
 	}
         while(my ($k,$v) = each %correct_definitions){
-	    $s_cd->execute(encode_json {$k=>$v}) or die "execution failed: $dbh->errstr()";
+	    $s_cd->execute($k, $v) or die "execution failed: $dbh->errstr()";
 	}
 	$s_conv->finish();
 	$s_convE->finish();
@@ -387,7 +388,6 @@ sub readDict {
 }
 
 sub openDicts {
-    print "Openinig.\n";
     $niteall_after_cs_db = simstring::reader->new($nitealldb_after_name);
     $niteall_after_cs_db->swig_measure_set($simstring::cosine);
     $niteall_after_cs_db->swig_threshold_set($cos_threshold);
@@ -396,11 +396,14 @@ sub openDicts {
     $niteall_before_cs_db->swig_threshold_set($cos_threshold);
     $niteall_after_cs_db = simstring::reader->new($nitealldb_after_name);
 
-    $r_conv  = $dbh->prepare(q/SELECT json->"$.*" FROM `convtable` WHERE json->? is not null AND dictionary="/.$md5dname.'"');
-    $r_convD = $dbh->prepare(q/SELECT json->"$.*" FROM `wospconvtableD` WHERE json->? is not null AND dictionary="/.$md5dname.'"');
-    $r_convE = $dbh->prepare(q/SELECT json->"$.*" FROM `wospconvtableE` WHERE json->? is not null AND dictionary="/.$md5dname.'"');
-    $r_cd    = $dbh->prepare(q/SELECT json->"$.*" FROM `correct_definitions` WHERE json->? is not null AND dictionary="/.$md5dname.'"');
-    print "Done.\n";
+    $r_conv  = $dbh->prepare(q/SELECT json FROM `convtable` WHERE tkey=? AND dictionary="/.$md5dname.'"');
+    $r_convD = $dbh->prepare(q/SELECT json FROM `wospconvtableD` WHERE tkey=? AND dictionary="/.$md5dname.'"');
+    $r_convE = $dbh->prepare(q/SELECT json FROM `wospconvtableE` WHERE tkey=? AND dictionary="/.$md5dname.'"');
+    $r_cd    = $dbh->prepare(q/SELECT tvalue FROM `correct_definitions` WHERE tkey=? AND dictionary="/.$md5dname.'"');
+    $r_locus_tag_prefix = $dbh->prepare("SELECT tagprefix FROM `locus_tag_prefix` WHERE ? LIKE CONCAT (tagprefix, '\_', '%')");
+    $r_embl2locus_tag   = $dbh->prepare("SELECT locus_tag FROM `embl2locus_tag` WHERE locus_tag = ?");
+    $r_gene_symbol      = $dbh->prepare("SELECT gene_symbol FROM `gene_symbol_name` WHERE gene_symbol = ?");
+    $r_family_name      = $dbh->prepare("SELECT family FROM `family_name` WHERE family = ?");
 }
 
 sub closeDicts {
@@ -410,34 +413,35 @@ sub closeDicts {
     $r_convD->finish;
     $r_convE->finish;
     $r_cd->finish;
+    $r_locus_tag_prefix->finish;
+    $r_embl2locus_tag->finish;
+    $r_gene_symbol->finish;
+    $r_family_name->finish;
 }
 
 sub queryConvTableDB {
-    my $jpath = q,$.",.$_[0].q,",;
-    $r_conv->execute($jpath);
+    $r_conv->execute($_[0]);
     my $conv_rs;
     if($conv_rs = $r_conv->fetchrow_arrayref){
-	$conv_rs = decode_json($conv_rs->[0])->[0];
+	$conv_rs = decode_json($conv_rs->[0]);
     }
     return $conv_rs;
 }
 
 sub queryWOSPD_DB {
-    my $jpath = q,$.",.$_[0].q,",;
-    $r_convD->execute($jpath);
+    $r_convD->execute($_[0]);
     my $conv_rs;
     if($conv_rs = $r_convD->fetchrow_arrayref){
-	$conv_rs = decode_json($conv_rs->[0])->[0];
+	$conv_rs = decode_json($conv_rs->[0]);
     }
     return $conv_rs;
 }
 
 sub queryCorrectDefDB {
-    my $jpath = q,$.",.$_[0].q,",;
-    $r_cd->execute($jpath);
+    $r_cd->execute($_[0]);
     my $conv_rs;
     if($conv_rs = $r_cd->fetchrow_arrayref){
-	$conv_rs = decode_json($conv_rs->[0])->[0];
+	$conv_rs = $conv_rs->[0];
     }
     return $conv_rs;
 }
@@ -470,17 +474,16 @@ sub retrieve {
         }
     }
 
-    my $jpath = q/$."/.$query.q/"/;
-    $r_conv->execute($jpath);
-    $r_cd->execute($jpath);
+    $r_conv->execute($query);
+    $r_cd->execute($query);
 
     my $conv_rs;
     if($conv_rs = $r_conv->fetchrow_arrayref){
-	$conv_rs = decode_json($conv_rs->[0])->[0];
+	$conv_rs = decode_json($conv_rs->[0]);
     }
     my $cd_rs = "";
     if($cd_rs = $r_cd->fetchrow_arrayref){
-	$cd_rs = decode_json($cd_rs->[0])->[0];
+	$cd_rs = $cd_rs->[0];
     }
 
     if( $curatedHash{$lc_query} ){ # 最初にcurateにマッチするか
@@ -599,18 +602,36 @@ sub retrieve {
 	$info .= " [Enzyme name]";
     }
     for (split " ", lc($result)){
-	if($embl_locustag_matcher->exact_match($_)){
+	$r_embl2locus_tag->execute($_);
+	if($r_embl2locus_tag->fetchrow_arrayref){
 	    $info .= " [Locus tag]";
-	}elsif($locustag_prefix_matcher->match_at($_, 0)){
-	    $info .= " [Locus prefix]";
+	}elsif(/_/){
+	    $r_locus_tag_prefix->execute($_);
+	    if($r_locus_tag_prefix->fetchrow_arrayref){
+		$info .= " [Locus prefix]";
+	    }
 	}
+	# if($embl_locustag_matcher->exact_match($_)){
+	#     $info .= " [Locus tag]";
+	# }elsif($locustag_prefix_matcher->match_at($_, 0)){
+	#     $info .= " [Locus prefix]";
+	# }
     }
-    if($gene_symbol_matcher->exact_match($lc_query)){
+    $r_gene_symbol->execute($lc_query);
+    if($r_gene_symbol->fetchrow_arrayref){
 	$info .= " [Gene symbol]";
     }
-    if($family_name_matcher->exact_match($lc_query)){
+    $r_family_name->execute($lc_query);
+    if($r_family_name->fetchrow_arrayref){
 	$info .= " [Family name]";
     }
+
+    # if($gene_symbol_matcher->exact_match($lc_query)){
+    # 	$info .= " [Gene symbol]";
+    # }
+    # if($family_name_matcher->exact_match($lc_query)){
+    # 	$info .= " [Family name]";
+    # }
     $result = b2a($result);
 
     $r_conv->finish;
@@ -692,10 +713,9 @@ sub getScore {
     #####
     for (@$retr){
 	my $wosp = $_;               # <--- 全ての空白を取り除く処理をした場合への対応
-	my $jpath = q/$."/.$wosp.q/"/;
-	$rconv->execute($jpath);
+	$rconv->execute($wosp);
 	if($conv_rs = $rconv->fetchrow_arrayref){
-	    $conv_rs = decode_json($conv_rs->[0])->[0];
+	    $conv_rs = decode_json($conv_rs->[0]);
 	}
 	for (keys %{ $conv_rs }){ # <--- 全ての空白を取り除く処理をした場合への対応
 	# for (keys %{$wospct->{$_}}){ # <--- 全ての空白を取り除く処理をした場合への対応
