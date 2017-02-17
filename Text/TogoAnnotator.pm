@@ -362,22 +362,36 @@ sub readDict {
 #	my $json = encode_json \@hash_pack;
 #	write_file($dictdir.'/dump.json', { binmode => ':raw' }, $json);
 
-	my $s_conv  = $dbh->prepare('INSERT INTO `convtable`           (`tkey`,`json`,`dictionary`)   VALUES (?,?,"'.$md5dname.'")');
-	my $s_convE = $dbh->prepare('INSERT INTO `wospconvtableE`      (`tkey`,`json`,`dictionary`)   VALUES (?,?,"'.$md5dname.'")');
-	my $s_convD = $dbh->prepare('INSERT INTO `wospconvtableD`      (`tkey`,`json`,`dictionary`)   VALUES (?,?,"'.$md5dname.'")');
-	my $s_cd    = $dbh->prepare('INSERT INTO `correct_definitions` (`tkey`,`tvalue`,`dictionary`) VALUES (?,?,"'.$md5dname.'")');
+	my $s_conv  = $dbh->prepare(
+	    'INSERT INTO `convtable` (`tkey`,`json`,`dictionary`) '
+	    .'SELECT * FROM (SELECT ?,?,"'.$md5dname.'") AS TMP '
+	    .'WHERE NOT EXISTS (SELECT id_convtable FROM `convtable` WHERE dictionary="'.$md5dname.'" AND tkey=?)');
+	my $s_convE = $dbh->prepare(
+	    'INSERT INTO `wospconvtableE` (`tkey`,`json`,`dictionary`) '
+	    .'SELECT * FROM (SELECT ?,?,"'.$md5dname.'") AS TMP '
+	    .'WHERE NOT EXISTS (SELECT id_wospconvtableD FROM `wospconvtableD` WHERE dictionary="'.$md5dname.'" AND tkey=?)');
+	my $s_convD = $dbh->prepare(
+	    'INSERT INTO `wospconvtableD` (`tkey`,`json`,`dictionary`) '
+	    .'SELECT * FROM (SELECT ?,?,"'.$md5dname.'") AS TMP '
+	    .'WHERE NOT EXISTS (SELECT id_wospconvtableE FROM `wospconvtableE` WHERE dictionary="'.$md5dname.'" AND tkey=?)');
+	my $s_cd    = $dbh->prepare(
+	    'INSERT INTO `correct_definitions` (`tkey`,`tvalue`,`dictionary`) '
+	    .'SELECT * FROM (SELECT ? AS tkey, ? AS tvalue, "'.$md5dname.'" AS dictionary) AS TMP '
+	    .'WHERE NOT EXISTS (SELECT id_correct_definitions FROM `correct_definitions` WHERE dictionary="'.$md5dname.'" AND tkey=?)');
+
         while(my ($k,$v) = each %convtable){
-	    $s_conv->execute($k, encode_json($v)) or die "execution failed: $dbh->errstr()";
+	    $s_conv->execute($k, encode_json($v), $k) or die "execution failed: $dbh->errstr()";
 	}
         while(my ($k,$v) = each %wospconvtableE){
-	    $s_convE->execute($k, encode_json($v)) or die "execution failed: $dbh->errstr()";
+	    $s_convE->execute($k, encode_json($v), $k) or die "execution failed: $dbh->errstr()";
 	}
         while(my ($k,$v) = each %wospconvtableD){
-	    $s_convD->execute($k, encode_json($v)) or die "execution failed: $dbh->errstr()";
+	    $s_convD->execute($k, encode_json($v), $k) or die "execution failed: $dbh->errstr()";
 	}
         while(my ($k,$v) = each %correct_definitions){
-	    $s_cd->execute($k, $v) or die "execution failed: $dbh->errstr()";
+	    $s_cd->execute($k, $v, $k) or die "execution failed: $dbh->errstr()";
 	}
+
 	$s_conv->finish();
 	$s_convE->finish();
 	$s_convD->finish();
