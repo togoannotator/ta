@@ -38,39 +38,24 @@ package Text::TogoAnnotator;
 # * 2016.12.22
 # UniProtのReviewed=trueであるタンパク質エントリのencodedByで結ばれる遺伝子のprefLabelを利用し、それに入力された文字がマッチした場合にはその旨infoに記述する仕様に変更。
 # Pfamのファミリーネームに入力された文字列がマッチした場合にはその旨infoに記述する仕様に変更。
-# * 2017.1.31
-# After -> Curated については実装から削除。Queryが与えられたら、それがCuratedのBeforeにマッチするか見て適宜書き換えるのみとする。
-# After -> Curated の部分については利用者がカスタム辞書を用意することで対応する方針とする。
-# 既に辞書の内部利用ファイルが作られている場合にはそれを利用できるようにした。$useCurrentDictで与える。
-# 内部辞書構築にはmkDictionary.pl を用いる。
-# * 2017.2.17
-# MySQLを用いて各種辞書にアクセスする方式に変更。
 
 use warnings;
 use strict;
 use Fatal qw/open/;
 use File::Path 'mkpath';
-use File::Basename;
-#use File::Slurp qw(read_file write_file);
 use Bag::Similarity::Cosine;
 use String::Trim;
 use simstring;
+use DB_File;
 use PerlIO::gzip;
 use Lingua::EN::ABC qw/b2a/;
-#use Text::Match::FastAlternatives;
-use JSON::XS;
+use Text::Match::FastAlternatives;
 use utf8;
-use DBI;
-use Digest::MD5 qw/md5_hex/;
-use Data::Dumper;
 
 my ($sysroot, $niteAll, $curatedDict, $enzymeDict, $locustag_prefix_name, $embl_locustag_name, $gene_symbol_name, $family_name);
 my ($nitealldb_after_name, $nitealldb_before_name);
 my ($niteall_after_cs_db, $niteall_before_cs_db);
 my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars, $locustag_prefix_matcher, $embl_locustag_matcher, $gene_symbol_matcher, $family_name_matcher);
-my $useCurrentDict;
-my ($dbh, $r_conv, $r_convE, $r_convD, $r_cd, $md5dname);
-my ($r_locus_tag_prefix, $r_embl2locus_tag, $r_gene_symbol, $r_family_name);
 
 my (
     @sp_words, # マッチ対象から外すが、マッチ処理後は元に戻して結果に表示させる語群。
@@ -83,7 +68,7 @@ my (
     %negative_min_words,  # コサイン距離を用いた類似マッチではクエリと辞書中のエントリで文字列としては類似していても、両者の間に共通に出現する語が無い場合がある。
     # その場合、共通に出現する語がある辞書中エントリを優先させる処理をしているが、本処理が逆効果となってしまう語がここに含まれる。
     %wospconvtableD, %wospconvtableE, # 全空白文字除去前後の対応表。書換え前と後用それぞれ。
-    #%name_provenance,     # 変換後デフィニションの由来。
+    %name_provenance,     # 変換後デフィニションの由来。
     %curatedHash,         # curated辞書のエントリ（キーは小文字化する）
     %enzymeHash           # 酵素辞書のエントリ（小文字化する）
     );
@@ -98,7 +83,6 @@ sub init {
     $sysroot       = shift; # 辞書や作業用ファイルを生成するディレクトリ
     $niteAll       = shift; # 辞書名
     $curatedDict   = shift; # curated辞書名（形式は同一）
-    $useCurrentDict= shift; # 既に内部利用辞書ファイルがある場合には、それを削除して改めて構築するか否か
 
     $enzymeDict = "enzyme/enzyme_accepted_names.txt";
     $locustag_prefix_name = "locus_tag_prefix.txt";
@@ -128,8 +112,6 @@ sub init {
 
     $cosine_object = Bag::Similarity::Cosine->new;
 
-    $dbh = DBI->connect( "dbi:mysql:TogoAnnotator;localhost;mysql_socket=/opt/services/togoannot/local/mysql/mysql.sock",
-			 "yayamamo", "yayamamo",  { RaiseError => 1, AutoCommit => 1, PrintWarn => 1}) or die "$!\n";
     readDict();
 }
 
@@ -149,33 +131,24 @@ sub init {
 
 sub readDict {
     # 類似度計算用辞書構築の準備
-    (my $dname = basename $niteAll) =~ s/\..*$//;
-    my $dictdir = 'dictionary/'.$dname;
-    $md5dname = md5_hex($dname);
+    my $dictdir = 'dictionary/cdb_nite_ALL';
 
-    my $niteall_after_db;
-    my $niteall_before_db;
+    if (!-d  $sysroot.'/'.$dictdir){
+	mkpath($sysroot.'/'.$dictdir);
+    }
+
+    for my $f ( <${sysroot}/${dictdir}/after*> ){
+	unlink $f;
+    }
+    for my $f ( <${sysroot}/${dictdir}/before*> ){
+	unlink $f;
+    }
 
     $nitealldb_after_name = $sysroot.'/'.$dictdir.'/after';   # After
     $nitealldb_before_name = $sysroot.'/'.$dictdir.'/before'; # Before
 
-    unless( $useCurrentDict ){
-	if (!-d  $sysroot.'/'.$dictdir){
-	    mkpath($sysroot.'/'.$dictdir);
-	}
-
-	for my $f ( <${sysroot}/${dictdir}/after*> ){
-	    unlink $f;
-	}
-	for my $f ( <${sysroot}/${dictdir}/before*> ){
-	    unlink $f;
-	}
-
-	$niteall_after_db = simstring::writer->new($nitealldb_after_name, $n_gram);
-	$niteall_before_db = simstring::writer->new($nitealldb_before_name, $n_gram);
-    }
-
-    my @hash_pack;
+    my $niteall_after_db = simstring::writer->new($nitealldb_after_name, $n_gram);
+    my $niteall_before_db = simstring::writer->new($nitealldb_before_name, $n_gram);
 
     # キュレーテッド辞書の構築
     if($curatedDict){
@@ -207,9 +180,7 @@ sub readDict {
     }
     close($enzyme_dict);
 
-=head
     # Locus tagのprefixリストを取得し、辞書を構築
-    print "L1.\n";
     my @prefix_array;
     open(my $locustag_prefix, $sysroot.'/'.$locustag_prefix_name);
     while(<$locustag_prefix>){
@@ -221,9 +192,7 @@ sub readDict {
     }
     close($locustag_prefix);
     $locustag_prefix_matcher = Text::Match::FastAlternatives->new( @prefix_array );
-
     # EMBLから取得したLocus tagリストの辞書構築
-    print "L2.\n";
     my @locustag_array;
     open(my $embl_locustag, $sysroot.'/'.$embl_locustag_name);
     while(<$embl_locustag>){
@@ -239,7 +208,6 @@ sub readDict {
     $embl_locustag_matcher = Text::Match::FastAlternatives->new( @locustag_array );
 
     # UniProtのReviewed=Trueなエントリについて、それをコードする遺伝子名のprefLabelにあるシンボル
-    print "U.\n";
     my @gene_symbol_array;
     open(my $gene_symbol, $sysroot.'/'.$gene_symbol_name);
     while(<$gene_symbol>){
@@ -251,7 +219,6 @@ sub readDict {
     $gene_symbol_matcher = Text::Match::FastAlternatives->new( @gene_symbol_array );
 
     # Pfamデータベースにあるファミリー名
-    print "P.\n";
     my @pfam_family_array;
     open(my $pfam_family, $sysroot.'/'.$family_name);
     while(<$pfam_family>){
@@ -261,144 +228,82 @@ sub readDict {
     }
     close($pfam_family);
     $family_name_matcher = Text::Match::FastAlternatives->new( @pfam_family_array );
-=cut
 
     # 類似度計算用および変換用辞書の構築
-    if( $useCurrentDict ){
-
-	# my $json = read_file($dictdir.'/dump.json', { binmode => ':raw' });
-	# my $hash_pack_ptr = decode_json $json;
-
-	# %convtable = %{ $hash_pack_ptr->[0] };
-	# %wospconvtableE = %{ $hash_pack_ptr->[1] };
-	# %wospconvtableD = %{ $hash_pack_ptr->[2] };
-	# %correct_definitions = %{ $hash_pack_ptr->[3] };
-
+    my $total = 0;
+    my $nite_all;
+    if($niteAll =~ /\.gz$/){
+	open($nite_all, "<:gzip", $sysroot.'/'.$niteAll);
     }else{
+	open($nite_all, $sysroot.'/'.$niteAll);
+    }
+    while(<$nite_all>){
+	chomp;
+	my (undef, $sno, $chk, undef, $name, $b4name, undef) = split /\t/;
+	next if $chk eq 'RNA' or $chk eq 'OK';
+	# next if $chk eq 'RNA' or $chk eq 'del' or $chk eq 'OK';
 
-	my $nite_all;
-	if($niteAll =~ /\.gz$/){
-	    open($nite_all, "<:gzip", $sysroot.'/'.$niteAll);
+	$name //= "";   # $chk が "del" のときは $name が空。
+	trim( $name );
+	trim( $b4name );
+	$name =~ s/^"\s*//;
+	$name =~ s/\s*"$//;
+	$b4name =~ s/^"\s*//;
+	$b4name =~ s/\s*"$//;
+
+	$name_provenance{$name} = "dictionary";
+	if($curatedHash{lc($name)}){
+	    my $_name = lc($name);
+	    $name = $curatedHash{$_name};
+	    $name_provenance{$name} = "curated (after)";
+	    # print "#Curated (after): ", $_name, "->", $name, "\n";
 	}else{
-	    open($nite_all, $sysroot.'/'.$niteAll);
-	}
-	while(<$nite_all>){
-	    chomp;
-	    my (undef, $sno, $chk, undef, $name, $b4name, undef) = split /\t/;
-	    next if $chk eq 'RNA' or $chk eq 'OK';
-	    # next if $chk eq 'RNA' or $chk eq 'del' or $chk eq 'OK';
-
-	    $name //= "";   # $chk が "del" のときは $name が空。
-	    trim( $name );
-	    trim( $b4name );
-	    $name =~ s/^"\s*//;
-	    $name =~ s/\s*"$//;
-	    $b4name =~ s/^"\s*//;
-	    $b4name =~ s/\s*"$//;
-
 	    for ( @sp_words ){
 		$name =~ s/^$_\s+//i;
 	    }
+	}
 
-=head
-            $name_provenance{$name} = "dictionary";
-	    if($curatedHash{lc($name)}){
-		$name = $curatedHash{lc($name)};
-		$name_provenance{$name} = "curated (after)";
-		# print "#Curated (after): ", $_name, "->", $name, "\n";
-	    }else{
-		for ( @sp_words ){
-		    $name =~ s/^$_\s+//i;
-		}
-	    }
-=cut
-
-	    my $lcb4name = lc($b4name);
-	    $lcb4name =~ s{$ignore_chars}{ }g;
-	    $lcb4name = trim($lcb4name);
-	    $lcb4name =~ s/  +/ /g;
-	    for ( @sp_words ){
-		if(index($lcb4name, $_) == 0){
-		    $lcb4name =~ s/^$_\s+//;
-		}
-	    }
-
-	    if($chk eq 'del'){
-		$convtable{$lcb4name}{'__DEL__'}++;
-	    }else{
-		$convtable{$lcb4name}{$name}++;
-
-		# $niteall_before_db->insert($lcb4name);
-		(my $wosplcb4name = $lcb4name) =~ s/ //g;   #### 全ての空白を取り除く
-		$niteall_before_db->insert($wosplcb4name);
-		$wospconvtableE{$wosplcb4name}{$lcb4name}++;
-
-		my $lcname = lc($name);
-		$lcname =~ s{$ignore_chars}{ }g;
-		$lcname = trim($lcname);
-		$lcname =~ s/  +/ /g;
-		next if $correct_definitions{$lcname};
-		$correct_definitions{$lcname} = $name;
-		for ( split " ", $lcname ){
-		    s/\W+$//;
-		    $histogram{$_}++;
-		}
-		#$niteall_after_db->insert($lcname);
-		(my $wosplcname = $lcname) =~ s/ //g;   #### 全ての空白を取り除く
-		$niteall_after_db->insert($wosplcname);
-		$wospconvtableD{$wosplcname}{$lcname}++;
+	my $lcb4name = lc($b4name);
+	$lcb4name =~ s{$ignore_chars}{ }g;
+	$lcb4name = trim($lcb4name);
+	$lcb4name =~ s/  +/ /g;
+	for ( @sp_words ){
+	    if(index($lcb4name, $_) == 0){
+		$lcb4name =~ s/^$_\s+//;
 	    }
 	}
-	close($nite_all);
 
-	$niteall_after_db->close;
-	$niteall_before_db->close;
+	if($chk eq 'del'){
+	    $convtable{$lcb4name}{'__DEL__'}++;
+	}else{
+	    $convtable{$lcb4name}{$name}++;
 
-#	push @hash_pack, \%name_provenance;
-#	push @hash_pack, \%convtable;
-#	push @hash_pack, \%wospconvtableE;
-#	push @hash_pack, \%wospconvtableD;
-#	push @hash_pack, \%correct_definitions;
-#	my $json = encode_json \@hash_pack;
-#	write_file($dictdir.'/dump.json', { binmode => ':raw' }, $json);
+	    # $niteall_before_db->insert($lcb4name);
+	    (my $wosplcb4name = $lcb4name) =~ s/ //g;   #### 全ての空白を取り除く
+	    $niteall_before_db->insert($wosplcb4name);
+	    $wospconvtableE{$wosplcb4name}{$lcb4name}++;
 
-	my $s_conv  = $dbh->prepare(
-	    'INSERT INTO `convtable` (`tkey`,`json`,`dictionary`) '
-	    .'SELECT * FROM (SELECT ?,?,"'.$md5dname.'") AS TMP '
-	    .'WHERE NOT EXISTS (SELECT id_convtable FROM `convtable` WHERE dictionary="'.$md5dname.'" AND tkey=?)');
-	my $s_convE = $dbh->prepare(
-	    'INSERT INTO `wospconvtableE` (`tkey`,`json`,`dictionary`) '
-	    .'SELECT * FROM (SELECT ?,?,"'.$md5dname.'") AS TMP '
-	    .'WHERE NOT EXISTS (SELECT id_wospconvtableD FROM `wospconvtableD` WHERE dictionary="'.$md5dname.'" AND tkey=?)');
-	my $s_convD = $dbh->prepare(
-	    'INSERT INTO `wospconvtableD` (`tkey`,`json`,`dictionary`) '
-	    .'SELECT * FROM (SELECT ?,?,"'.$md5dname.'") AS TMP '
-	    .'WHERE NOT EXISTS (SELECT id_wospconvtableE FROM `wospconvtableE` WHERE dictionary="'.$md5dname.'" AND tkey=?)');
-	my $s_cd    = $dbh->prepare(
-	    'INSERT INTO `correct_definitions` (`tkey`,`tvalue`,`dictionary`) '
-	    .'SELECT * FROM (SELECT ? AS tkey, ? AS tvalue, "'.$md5dname.'" AS dictionary) AS TMP '
-	    .'WHERE NOT EXISTS (SELECT id_correct_definitions FROM `correct_definitions` WHERE dictionary="'.$md5dname.'" AND tkey=?)');
-
-        while(my ($k,$v) = each %convtable){
-	    $s_conv->execute($k, encode_json($v), $k) or die "execution failed: $dbh->errstr()";
+	    my $lcname = lc($name);
+	    $lcname =~ s{$ignore_chars}{ }g;
+	    $lcname = trim($lcname);
+	    $lcname =~ s/  +/ /g;
+	    next if $correct_definitions{$lcname};
+	    $correct_definitions{$lcname} = $name;
+	    for ( split " ", $lcname ){
+		s/\W+$//;
+		$histogram{$_}++;
+		$total++;
+	    }
+	    #$niteall_after_db->insert($lcname);
+	    (my $wosplcname = $lcname) =~ s/ //g;   #### 全ての空白を取り除く
+	    $niteall_after_db->insert($wosplcname);
+	    $wospconvtableD{$wosplcname}{$lcname}++;
 	}
-        while(my ($k,$v) = each %wospconvtableE){
-	    $s_convE->execute($k, encode_json($v), $k) or die "execution failed: $dbh->errstr()";
-	}
-        while(my ($k,$v) = each %wospconvtableD){
-	    $s_convD->execute($k, encode_json($v), $k) or die "execution failed: $dbh->errstr()";
-	}
-        while(my ($k,$v) = each %correct_definitions){
-	    $s_cd->execute($k, $v, $k) or die "execution failed: $dbh->errstr()";
-	}
-
-	$s_conv->finish();
-	$s_convE->finish();
-	$s_convD->finish();
-	$s_cd->finish();
-        $dbh->disconnect();
     }
+    close($nite_all);
 
+    $niteall_after_db->close;
+    $niteall_before_db->close;
 }
 
 sub openDicts {
@@ -408,56 +313,11 @@ sub openDicts {
     $niteall_before_cs_db = simstring::reader->new($nitealldb_before_name);
     $niteall_before_cs_db->swig_measure_set($simstring::cosine);
     $niteall_before_cs_db->swig_threshold_set($cos_threshold);
-    $niteall_after_cs_db = simstring::reader->new($nitealldb_after_name);
-
-    $r_conv  = $dbh->prepare(q/SELECT json FROM `convtable` WHERE tkey=? AND dictionary="/.$md5dname.'"');
-    $r_convD = $dbh->prepare(q/SELECT json FROM `wospconvtableD` WHERE tkey=? AND dictionary="/.$md5dname.'"');
-    $r_convE = $dbh->prepare(q/SELECT json FROM `wospconvtableE` WHERE tkey=? AND dictionary="/.$md5dname.'"');
-    $r_cd    = $dbh->prepare(q/SELECT tvalue FROM `correct_definitions` WHERE tkey=? AND dictionary="/.$md5dname.'"');
-    $r_locus_tag_prefix = $dbh->prepare("SELECT tagprefix FROM `locus_tag_prefix` WHERE ? LIKE CONCAT (tagprefix, '\_', '%')");
-    $r_embl2locus_tag   = $dbh->prepare("SELECT locus_tag FROM `embl2locus_tag` WHERE locus_tag = ?");
-    $r_gene_symbol      = $dbh->prepare("SELECT gene_symbol FROM `gene_symbol_name` WHERE gene_symbol = ?");
-    $r_family_name      = $dbh->prepare("SELECT family FROM `family_name` WHERE family = ?");
 }
 
 sub closeDicts {
     $niteall_after_cs_db->close;
     $niteall_before_cs_db->close;
-    $r_conv->finish;
-    $r_convD->finish;
-    $r_convE->finish;
-    $r_cd->finish;
-    $r_locus_tag_prefix->finish;
-    $r_embl2locus_tag->finish;
-    $r_gene_symbol->finish;
-    $r_family_name->finish;
-}
-
-sub queryConvTableDB {
-    $r_conv->execute($_[0]);
-    my $conv_rs;
-    if($conv_rs = $r_conv->fetchrow_arrayref){
-	$conv_rs = decode_json($conv_rs->[0]);
-    }
-    return $conv_rs;
-}
-
-sub queryWOSPD_DB {
-    $r_convD->execute($_[0]);
-    my $conv_rs;
-    if($conv_rs = $r_convD->fetchrow_arrayref){
-	$conv_rs = decode_json($conv_rs->[0]);
-    }
-    return $conv_rs;
-}
-
-sub queryCorrectDefDB {
-    $r_cd->execute($_[0]);
-    my $conv_rs;
-    if($conv_rs = $r_cd->fetchrow_arrayref){
-	$conv_rs = $conv_rs->[0];
-    }
-    return $conv_rs;
 }
 
 sub retrieve {
@@ -487,46 +347,27 @@ sub retrieve {
 	    last;
         }
     }
-
-    $r_conv->execute($query);
-    $r_cd->execute($query);
-
-    my $conv_rs;
-    if($conv_rs = $r_conv->fetchrow_arrayref){
-	$conv_rs = decode_json($conv_rs->[0]);
-    }
-    my $cd_rs = "";
-    if($cd_rs = $r_cd->fetchrow_arrayref){
-	$cd_rs = $cd_rs->[0];
-    }
-
     if( $curatedHash{$lc_query} ){ # 最初にcurateにマッチするか
         $match ='ex';
         $result = $curatedHash{$lc_query};
 	$info = 'in_curated_dictionary (before)';
 	$results[0] = $result;
-    }elsif( $cd_rs ){ # 続いてafterに完全マッチするか
-#    }elsif( $correct_definitions{$query} ){ # 続いてafterに完全マッチするか
+    }elsif( $correct_definitions{$query} ){ # 続いてafterに完全マッチするか
 	# print "\tex\t", $prfx. $correct_definitions{$query}, "\tin_dictionary: ", $query;
         $match ='ex';
-        $result = $prfx. $cd_rs;
-        # $result = $prfx. $correct_definitions{$query};
+        $result = $prfx. $correct_definitions{$query};
 	$info = 'in_dictionary'. ($prfx?" (prefix=${prfx})":"");
 	$results[0] = $result;
-    }elsif( $conv_rs ){ # そしてbeforeに完全マッチするか
-#    }elsif( $convtable{$query} ){ # そしてbeforeに完全マッチするか
-	#### print "\tex\t", $prfx. $convtable{$query}, "\tconvert_from: ", $query;
-	if( $conv_rs->{'__DEL__'} ){
-	# if($convtable{$query}{'__DEL__'}){
-	    my @others = grep {$_ ne '__DEL__'} keys %{ $conv_rs };
-	    # my @others = grep {$_ ne '__DEL__'} keys %{$convtable{$query}};
+    }elsif( $convtable{$query} ){ # そしてbeforeに完全マッチするか
+	# print "\tex\t", $prfx. $convtable{$query}, "\tconvert_from: ", $query;
+	if($convtable{$query}{'__DEL__'}){
+	    my @others = grep {$_ ne '__DEL__'} keys %{$convtable{$query}};
 	    $match = 'del';
 	    $result = $query;
 	    $info = 'Human check preferable (other entries with the same "before" entry: '.join(" @@ ", @others).')';
 	}else{
 	    $match = 'ex';
-	    $result = join(" @@ ", map {$prfx. $_} keys %{ $conv_rs });
-	    # $result = join(" @@ ", map {$prfx. $_} keys %{$convtable{$query}});
+	    $result = join(" @@ ", map {$prfx. $_} keys %{$convtable{$query}});
 	    $info = 'convert_from dictionary'. ($prfx?" (prefix=${prfx})":"");
 	    $results[0] = $result;
 	}
@@ -552,8 +393,7 @@ sub retrieve {
 	    #全ての空白を取り除く処理をした場合には検索結果の文字列を復元する必要があるため、下記部分をコメントアウトしている。
 	    #my @out = sort {$minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /} grep {$cache{$_}++; $cache{$_} == 1} @$retr;
 	    #その代わり以下のコードが必要。
-	    my @out = sort by_priority grep {$cache{$_}++; $cache{$_} == 1} map { keys %{ queryWOSPD_DB($_) } } @$retr; #### 要対応
-	    # my @out = sort by_priority grep {$cache{$_}++; $cache{$_} == 1} map { keys %{$wospconvtableD{$_}} } @$retr; #### 要対応
+	    my @out = sort by_priority grep {$cache{$_}++; $cache{$_} == 1} map { keys %{$wospconvtableD{$_}} } @$retr;
 	    #####
 	    my $le = (@out > $cs_max)?($cs_max-1):$#out;
 	    # print "\tcs\t", join(" @@ ", (map {$prfx.$correct_definitions{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
@@ -563,13 +403,9 @@ sub retrieve {
 		$info = 'cs_avoidance';
 	    }else{
 		$match = 'cs';
-		$result = $prfx.queryCorrectDefDB($out[0]);
-		$info   = join(" @@ ", (map {$prfx.queryCorrectDefDB($out[0]).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
-		@results = map { $prfx.queryCorrectDefDB($out[0]) } @out[0..$le];
-
-		# $result = $prfx.$correct_definitions{$out[0]};
-		# $info   = join(" @@ ", (map {$prfx.$correct_definitions{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
-		# @results = map { $prfx.$correct_definitions{$_} } @out[0..$le];
+		$result = $prfx.$correct_definitions{$out[0]};
+		$info   = join(" @@ ", (map {$prfx.$correct_definitions{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+		@results = map { $prfx.$correct_definitions{$_} } @out[0..$le];
 	    }
 	}else{
 	    #全ての空白を取り除く処理をした場合への対応
@@ -592,14 +428,9 @@ sub retrieve {
 		    $info = 'bcs_avoidance';
 		}else{
 		    $match = 'bcs';
-		    $result = $oq;
-		    if(defined($out[0]) && (my $qcr = queryConvTableDB($out[0]))){
-			$result = join(" @@ ", map {$prfx. $_} keys %{ $qcr });
-		    }
-		    # $result = defined $out[0] ? join(" @@ ", map {$prfx. $_} keys %{$convtable{$out[0]}}) : $oq; ##### convtable対応
+		    $result = defined $out[0] ? join(" @@ ", map {$prfx. $_} keys %{$convtable{$out[0]}}) : $oq;
 		    if(defined $out[0]){
-			$info   = join(" % ", (map {join(" @@ ", map {$prfx. $_} keys %{ queryConvTableDB($_) }).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
-			# $info   = join(" % ", (map {join(" @@ ", map {$prfx. $_} keys %{$convtable{$_}}).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le])); ##### convtable対応
+			$info   = join(" % ", (map {join(" @@ ", map {$prfx. $_} keys %{$convtable{$_}}).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
 		    }else{
 			$info   = "Cosine_Sim_To:".join(" % ", @$retr_e);
 		    } 
@@ -616,41 +447,19 @@ sub retrieve {
 	$info .= " [Enzyme name]";
     }
     for (split " ", lc($result)){
-	$r_embl2locus_tag->execute($_);
-	if($r_embl2locus_tag->fetchrow_arrayref){
+	if($embl_locustag_matcher->exact_match($_)){
 	    $info .= " [Locus tag]";
-	}elsif(/_/){
-	    $r_locus_tag_prefix->execute($_);
-	    if($r_locus_tag_prefix->fetchrow_arrayref){
-		$info .= " [Locus prefix]";
-	    }
+	}elsif($locustag_prefix_matcher->match_at($_, 0)){
+	    $info .= " [Locus prefix]";
 	}
-	# if($embl_locustag_matcher->exact_match($_)){
-	#     $info .= " [Locus tag]";
-	# }elsif($locustag_prefix_matcher->match_at($_, 0)){
-	#     $info .= " [Locus prefix]";
-	# }
     }
-    $r_gene_symbol->execute($lc_query);
-    if($r_gene_symbol->fetchrow_arrayref){
+    if($gene_symbol_matcher->exact_match($lc_query)){
 	$info .= " [Gene symbol]";
     }
-    $r_family_name->execute($lc_query);
-    if($r_family_name->fetchrow_arrayref){
+    if($family_name_matcher->exact_match($lc_query)){
 	$info .= " [Family name]";
     }
-
-    # if($gene_symbol_matcher->exact_match($lc_query)){
-    # 	$info .= " [Gene symbol]";
-    # }
-    # if($family_name_matcher->exact_match($lc_query)){
-    # 	$info .= " [Family name]";
-    # }
     $result = b2a($result);
-
-    $r_conv->finish;
-    $r_cd->finish;
-
     return({'query'=> $oq, 'result' => $result, 'match' => $match, 'info' => $info, 'result_array' => \@results});
 }
 
@@ -713,26 +522,17 @@ sub getScore {
     my $qtms = shift;
     my $minf = shift;
     my $query = shift;
-
     my (%minfreq, %minword, %ifhit, %cosdistance);
     # 対象タンパク質のスコアは、当該タンパク質を構成する単語それぞれにつき、検索対象辞書中での当該単語の出現頻度のうち最小値を割り当てる
     # 最小値を持つ語は $minword{$_} に代入する
     # また、検索タンパク質名を構成する単語が、検索対象辞書からヒットした各タンパク質名に含まれている場合は $ifhit{$_} にフラグが立つ
 
     #全ての空白を取り除く処理をした場合への対応
-    # my $wospct = ($minf)? \%wospconvtableD : \%wospconvtableE;
-    my $rconv = $minf? $r_convD : $r_convE;
-    my $conv_rs;
-
+    my $wospct = ($minf)? \%wospconvtableD : \%wospconvtableE;
     #####
     for (@$retr){
 	my $wosp = $_;               # <--- 全ての空白を取り除く処理をした場合への対応
-	$rconv->execute($wosp);
-	if($conv_rs = $rconv->fetchrow_arrayref){
-	    $conv_rs = decode_json($conv_rs->[0]);
-	}
-	for (keys %{ $conv_rs }){ # <--- 全ての空白を取り除く処理をした場合への対応
-	# for (keys %{$wospct->{$_}}){ # <--- 全ての空白を取り除く処理をした場合への対応
+	for (keys %{$wospct->{$_}}){ # <--- 全ての空白を取り除く処理をした場合への対応
 	    $cosdistance{$_} = $cosine_object->similarity($query, $wosp, $n_gram);
 	    my $score = 100000;
 	    my $word = '';
@@ -769,7 +569,6 @@ sub getScore {
 	    $minfreq{$_} = -1 if $minword{$_} eq $minword{$leastwrd};
 	}
     }
-
     return (\%minfreq, \%minword, \%ifhit, \%cosdistance);
 }
 
