@@ -1,5 +1,6 @@
 use Mojolicious::Lite;
 use Mojo::Parameters;
+use Mojo::Server::Prefork;
 use utf8;
 use Encode qw/encode decode/;
 use FindBin qw($Bin);
@@ -8,9 +9,11 @@ use Text::TogoAnnotator;
 use Data::Dumper;
 use Mojo::mysql;
 
-app->config(hypnotoad => {listen => ['http://*:5000']});
+app->config(hypnotoad => {listen => ['http://*:5000'], heartbeat_timeout => 600});
 app->mode('production');
 #app->mode('development');
+
+#$prefork->heartbeat_timeout(120);
 
 #plugin 'PODRenderer';
 plugin 'CORS';
@@ -18,7 +21,7 @@ plugin 'CORS';
 my $sysroot = "$Bin/..";
 print "sysroot:", $sysroot, "\n";
 our ($opt_t, $opt_m) = (0.6, 5);
-Text::TogoAnnotator->init($opt_t, 30, $opt_m, 3, $sysroot, "dict_cyanobacteria_20151120_with_cyanobase.txt.gz", "dict_cyanobacteria_curated.txt", 1);
+Text::TogoAnnotator->init($opt_t, 30, $opt_m, 3, $sysroot, "dict_cyanobacteria_20151120_with_cyanobase.txt.gz", "dict_cyanobacteria_curated.txt", 0);
 print "Server ready.\n";
 
 # sub match{
@@ -558,7 +561,7 @@ $ curl -s http://togoannotator.dbcls.jp/annotation_list.txt | curl -s -F 'upload
 <h2>3. Input <a href="/ddbj_submission.txt">ddbj_submission.txt</a></h2>
 <pre class="prettyprint">
 #!sh
-$ curl -s http://togoannotator.dbcls.jp/ddbj_submission.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/genes' | jq
+$ curl -s http://togoannotator.dbcls.jp/ddbj_submission.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/ddbj' | jq
 
 </pre>
 
