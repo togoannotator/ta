@@ -43,6 +43,7 @@ use warnings;
 use strict;
 use Fatal qw/open/;
 use File::Path 'mkpath';
+use File::Basename;
 use Bag::Similarity::Cosine;
 use String::Trim;
 use simstring;
@@ -50,12 +51,16 @@ use DB_File;
 use PerlIO::gzip;
 use Lingua::EN::ABC qw/b2a/;
 use Text::Match::FastAlternatives;
+use Search::Elasticsearch;
 use utf8;
+use Digest::MD5 qw/md5_hex/;
 
-my ($sysroot, $niteAll, $curatedDict, $enzymeDict, $locustag_prefix_name, $embl_locustag_name, $gene_symbol_name, $family_name);
+my ($sysroot, $niteAll, $curatedDict, $enzymeDict, $locustag_prefix_name, $embl_locustag_name, $gene_symbol_name, $family_name, $esearch);
 my ($nitealldb_after_name, $nitealldb_before_name);
 my ($niteall_after_cs_db, $niteall_before_cs_db);
 my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars, $locustag_prefix_matcher, $embl_locustag_matcher, $gene_symbol_matcher, $family_name_matcher);
+my $useCurrentDict;
+my $md5dname;
 
 my (
     @sp_words, # マッチ対象から外すが、マッチ処理後は元に戻して結果に表示させる語群。
@@ -83,6 +88,7 @@ sub init {
     $sysroot       = shift; # 辞書や作業用ファイルを生成するディレクトリ
     $niteAll       = shift; # 辞書名
     $curatedDict   = shift; # curated辞書名（形式は同一）
+    $useCurrentDict= shift; # 既に内部利用辞書ファイルがある場合には、それを削除して改めて構築するか否か
 
     $enzymeDict = "enzyme/enzyme_accepted_names.txt";
     $locustag_prefix_name = "locus_tag_prefix.txt";
@@ -111,6 +117,7 @@ sub init {
     $ignore_chars = qr{[-/,:+()]};
 
     $cosine_object = Bag::Similarity::Cosine->new;
+    $esearch = Search::Elasticsearch->new();
 
     readDict();
 }
@@ -131,24 +138,35 @@ sub init {
 
 sub readDict {
     # 類似度計算用辞書構築の準備
-    my $dictdir = 'dictionary/cdb_nite_ALL';
+    #my $dictdir = 'dictionary/cdb_nite_ALL';
+    (my $dname = basename $niteAll) =~ s/\..*$//;
+    my $dictdir = 'dictionary/'.$dname;
+    $md5dname = md5_hex($dname);
 
-    if (!-d  $sysroot.'/'.$dictdir){
-	mkpath($sysroot.'/'.$dictdir);
-    }
-
-    for my $f ( <${sysroot}/${dictdir}/after*> ){
-	unlink $f;
-    }
-    for my $f ( <${sysroot}/${dictdir}/before*> ){
-	unlink $f;
-    }
+    my $niteall_after_db;
+    my $niteall_before_db;
 
     $nitealldb_after_name = $sysroot.'/'.$dictdir.'/after';   # After
     $nitealldb_before_name = $sysroot.'/'.$dictdir.'/before'; # Before
 
-    my $niteall_after_db = simstring::writer->new($nitealldb_after_name, $n_gram);
-    my $niteall_before_db = simstring::writer->new($nitealldb_before_name, $n_gram);
+    print "dictdir: $dictdir\n";
+    print "md5name: $md5dname\n";
+
+    unless( $useCurrentDict ){
+	if (!-d  $sysroot.'/'.$dictdir){
+	    mkpath($sysroot.'/'.$dictdir);
+	}
+
+	for my $f ( <${sysroot}/${dictdir}/after*> ){
+	    unlink $f;
+	}
+	for my $f ( <${sysroot}/${dictdir}/before*> ){
+	    unlink $f;
+	}
+
+	$niteall_after_db = simstring::writer->new($nitealldb_after_name, $n_gram);
+	$niteall_before_db = simstring::writer->new($nitealldb_before_name, $n_gram);
+    }
 
     # キュレーテッド辞書の構築
     if($curatedDict){
@@ -229,6 +247,10 @@ sub readDict {
     close($pfam_family);
     $family_name_matcher = Text::Match::FastAlternatives->new( @pfam_family_array );
 
+    if( $useCurrentDict ){
+	return;
+    }
+
     # 類似度計算用および変換用辞書の構築
     my $total = 0;
     my $nite_all;
@@ -307,6 +329,8 @@ sub readDict {
 }
 
 sub openDicts {
+    print "Open: $nitealldb_after_name\n";
+    print "Open: $nitealldb_before_name\n";
     $niteall_after_cs_db = simstring::reader->new($nitealldb_after_name);
     $niteall_after_cs_db->swig_measure_set($simstring::cosine);
     $niteall_after_cs_db->swig_threshold_set($cos_threshold);
@@ -318,6 +342,73 @@ sub openDicts {
 sub closeDicts {
     $niteall_after_cs_db->close;
     $niteall_before_cs_db->close;
+}
+
+sub chk_convtable_a {
+    my $results = $esearch->search(
+	index => 'dict_'. $md5dname,
+	type => 'convtable',
+	body => {
+	    query => {
+		term => { "normalized_name.keyword" => $_[0] }
+	    }}
+	);
+    return $results->{"hits"}->{"hits"}; # the ref to an array
+}
+
+sub chk_convtable_b {
+    my $results = $esearch->search(
+	index => 'dict_'. $md5dname,
+	type => 'convtable',
+	body => {
+	    query => {
+		constant_score => {
+		    filter => {
+			bool => {
+			    filter => [
+				{ term =>
+				  {
+				      "normalized_name.keyword" => $_[0],
+				  }},
+				{ term =>
+				  {
+				      "name.keyword" => '__DEL__',
+				  }}],
+			}}
+		}
+	    }}
+	);
+    return $results->{"hits"}->{"total"}; # # of hits
+}
+
+sub get_wospconv {
+    my $results = $esearch->search(
+	index => 'dict_'.$md5dname,
+	type => 'wospconvtable'.$_[0], # "D" or "E"
+	body => {
+	    query => {
+		term => { "normalized_name.keyword" => $_[1] }
+	    }}
+	);
+    # print "\n>>>\n", "dict_". $md5dname, "\n", 'wospconvtable'.$_[0], "\n", "normalized_name.keyword:", $_[1], "\n<<<\n";
+    return $results->{"hits"}->{"hits"}; # the ref to an array
+}
+
+sub get_correct_definitions {
+    my $results = $esearch->search(
+	index => 'dict_'.$md5dname,
+	type => 'correct_definitions',
+	body => {
+	    query => {
+		term => { "normalized_name.keyword" => $_[0] }
+	    }}
+	);
+    my $ptr = $results->{"hits"}->{"hits"};
+    if(@$ptr){
+	return $ptr->[0]->{"_source"}->{"name"};
+    }else{
+	return "";
+    }
 }
 
 sub retrieve {
@@ -352,22 +443,28 @@ sub retrieve {
         $result = $curatedHash{$lc_query};
 	$info = 'in_curated_dictionary (before)';
 	$results[0] = $result;
-    }elsif( $correct_definitions{$query} ){ # 続いてafterに完全マッチするか
+    }elsif( get_correct_definitions( $query ) ){ # 続いてafterに完全マッチするか
+    #}elsif( $correct_definitions{$query} ){ # 続いてafterに完全マッチするか
 	# print "\tex\t", $prfx. $correct_definitions{$query}, "\tin_dictionary: ", $query;
         $match ='ex';
-        $result = $prfx. $correct_definitions{$query};
+        $result = $prfx. get_correct_definitions( $query );
+        # $result = $prfx. $correct_definitions{$query};
 	$info = 'in_dictionary'. ($prfx?" (prefix=${prfx})":"");
 	$results[0] = $result;
-    }elsif( $convtable{$query} ){ # そしてbeforeに完全マッチするか
+    }elsif( @{ chk_convtable_a( $query ) } ){ # そしてbeforeに完全マッチするか
+    #}elsif( $convtable{$query} ){ # そしてbeforeに完全マッチするか
 	# print "\tex\t", $prfx. $convtable{$query}, "\tconvert_from: ", $query;
-	if($convtable{$query}{'__DEL__'}){
-	    my @others = grep {$_ ne '__DEL__'} keys %{$convtable{$query}};
+	if( chk_convtable_b( $query ) ){
+	#if($convtable{$query}{'__DEL__'}){
+	    my @others = grep {$_->{"_source"}->{"name"} ne '__DEL__'} @{ chk_convtable_a( $query ) };
+	    # my @others = grep {$_ ne '__DEL__'} keys %{$convtable{$query}};
 	    $match = 'del';
 	    $result = $query;
 	    $info = 'Human check preferable (other entries with the same "before" entry: '.join(" @@ ", @others).')';
 	}else{
 	    $match = 'ex';
-	    $result = join(" @@ ", map {$prfx. $_} keys %{$convtable{$query}});
+	    $result = join(" @@ ", map {$prfx. ($_->{"_source"}->{"name"}) } @{ chk_convtable_a( $query ) } );
+	    # $result = join(" @@ ", map {$prfx. $_} keys %{$convtable{$query}});
 	    $info = 'convert_from dictionary'. ($prfx?" (prefix=${prfx})":"");
 	    $results[0] = $result;
 	}
@@ -392,8 +489,9 @@ sub retrieve {
 	    my %cache;
 	    #全ての空白を取り除く処理をした場合には検索結果の文字列を復元する必要があるため、下記部分をコメントアウトしている。
 	    #my @out = sort {$minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /} grep {$cache{$_}++; $cache{$_} == 1} @$retr;
+	    my @out = sort by_priority grep { $cache{$_}++; $cache{$_} == 1} map { $_->{"_source"}->{"name"} } map { @{ get_wospconv("D", $_) } } @$retr;
 	    #その代わり以下のコードが必要。
-	    my @out = sort by_priority grep {$cache{$_}++; $cache{$_} == 1} map { keys %{$wospconvtableD{$_}} } @$retr;
+	    #my @out = sort by_priority grep {$cache{$_}++; $cache{$_} == 1} map { keys %{$wospconvtableD{$_}} } @$retr;
 	    #####
 	    my $le = (@out > $cs_max)?($cs_max-1):$#out;
 	    # print "\tcs\t", join(" @@ ", (map {$prfx.$correct_definitions{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
@@ -403,9 +501,12 @@ sub retrieve {
 		$info = 'cs_avoidance';
 	    }else{
 		$match = 'cs';
-		$result = $prfx.$correct_definitions{$out[0]};
-		$info   = join(" @@ ", (map {$prfx.$correct_definitions{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
-		@results = map { $prfx.$correct_definitions{$_} } @out[0..$le];
+		$result = $prfx.( get_correct_definitions( $out[0] ) );
+		# $result = $prfx.$correct_definitions{$out[0]};
+		$info   = join(" @@ ", (map {$prfx.( get_correct_definitions( $_ ) ).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+		# $info   = join(" @@ ", (map {$prfx.$correct_definitions{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+		@results = map { $prfx.( get_correct_definitions( $_ ) ) } @out[0..$le];
+		# @results = map { $prfx.$correct_definitions{$_} } @out[0..$le];
 	    }
 	}else{
 	    #全ての空白を取り除く処理をした場合への対応
@@ -428,9 +529,13 @@ sub retrieve {
 		    $info = 'bcs_avoidance';
 		}else{
 		    $match = 'bcs';
-		    $result = defined $out[0] ? join(" @@ ", map {$prfx. $_} keys %{$convtable{$out[0]}}) : $oq;
+
+		    
+		    $result = defined $out[0] ? join(" @@ ", map {$prfx. $_->{"_source"}->{"name"} } @{ chk_convtable_a( $out[0] ) } ) : $oq;
+		    # $result = defined $out[0] ? join(" @@ ", map {$prfx. $_} keys %{$convtable{$out[0]}}) : $oq;
 		    if(defined $out[0]){
-			$info   = join(" % ", (map {join(" @@ ", map {$prfx. $_} keys %{$convtable{$_}}).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+			$info   = join(" % ", (map {join(" @@ ", map {$prfx. $_->{"_source"}->{"name"} } @{ chk_convtable_a( $out[0] ) } ).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+			# $info   = join(" % ", (map {join(" @@ ", map {$prfx. $_} keys %{$convtable{$_}}).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
 		    }else{
 			$info   = "Cosine_Sim_To:".join(" % ", @$retr_e);
 		    } 
@@ -528,11 +633,14 @@ sub getScore {
     # また、検索タンパク質名を構成する単語が、検索対象辞書からヒットした各タンパク質名に含まれている場合は $ifhit{$_} にフラグが立つ
 
     #全ての空白を取り除く処理をした場合への対応
-    my $wospct = ($minf)? \%wospconvtableD : \%wospconvtableE;
+    my $wospct = ($minf)? "D" : "E";
+    #my $wospct = ($minf)? \%wospconvtableD : \%wospconvtableE;
     #####
-    for (@$retr){
-	my $wosp = $_;               # <--- 全ての空白を取り除く処理をした場合への対応
-	for (keys %{$wospct->{$_}}){ # <--- 全ての空白を取り除く処理をした場合への対応
+    for my $wosp (@$retr){
+	# <--- 全ての空白を取り除く処理をした場合への対応
+	for my $r ( @{ get_wospconv($wospct, $wosp) } ){ # <--- 全ての空白を取り除く処理をした場合への対応
+	# for (keys %{$wospct->{$_}}){ # <--- 全ての空白を取り除く処理をした場合への対応
+	    $_ = $r->{"_source"}->{"name"};
 	    $cosdistance{$_} = $cosine_object->similarity($query, $wosp, $n_gram);
 	    my $score = 100000;
 	    my $word = '';
