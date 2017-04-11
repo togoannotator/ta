@@ -356,28 +356,45 @@ sub chk_convtable_a {
     return $results->{"hits"}->{"hits"}; # the ref to an array
 }
 
+sub mget_wospconv {
+    my @terms = map { {"term" => {"normalized_name.keyword" => $_}} } @{$_[1]};
+    my $results = $esearch->search(
+	index => 'dict_'.$md5dname,
+	type => 'wospconvtable'.$_[0], # "D" or "E"
+	body => {
+	    query => {
+		bool => {
+		    should => \@terms,
+		}},
+	    size => 0,
+	    aggs => {
+		distinct => {
+		    terms => {
+			field => "name.keyword",
+			size => 1000
+		    }
+		}}
+	});
+    return $results->{"aggregations"}->{"distinct"}->{"buckets"}; # the ref to an array
+}
+
 sub chk_convtable_b {
     my $results = $esearch->search(
 	index => 'dict_'. $md5dname,
 	type => 'convtable',
 	body => {
 	    query => {
-		constant_score => {
-		    filter => {
-			bool => {
-			    filter => [
-				{ term =>
-				  {
-				      "normalized_name.keyword" => $_[0],
-				  }},
-				{ term =>
-				  {
-				      "name.keyword" => '__DEL__',
-				  }}],
-			}}
-		}
-	    }}
-	);
+		bool => {
+		    must => [
+			{ term =>
+			  {
+			      "normalized_name.keyword" => $_[0],
+			  }},
+			{ term =>
+			  {
+			      "name.keyword" => '__DEL__',
+			  }}],
+		}}});
     return $results->{"hits"}->{"total"}; # # of hits
 }
 
@@ -401,8 +418,9 @@ sub get_correct_definitions {
 	body => {
 	    query => {
 		term => { "normalized_name.keyword" => $_[0] }
-	    }}
-	);
+	    },
+	    size => 1
+	});
     my $ptr = $results->{"hits"}->{"hits"};
     if(@$ptr){
 	return $ptr->[0]->{"_source"}->{"name"};
@@ -451,19 +469,19 @@ sub retrieve {
         # $result = $prfx. $correct_definitions{$query};
 	$info = 'in_dictionary'. ($prfx?" (prefix=${prfx})":"");
 	$results[0] = $result;
-    }elsif( @{ chk_convtable_a( $query ) } ){ # そしてbeforeに完全マッチするか
+    }elsif( my @chkconvtbla_set = @{ chk_convtable_a( $query ) } ){ # そしてbeforeに完全マッチするか
     #}elsif( $convtable{$query} ){ # そしてbeforeに完全マッチするか
 	# print "\tex\t", $prfx. $convtable{$query}, "\tconvert_from: ", $query;
 	if( chk_convtable_b( $query ) ){
 	#if($convtable{$query}{'__DEL__'}){
-	    my @others = grep {$_->{"_source"}->{"name"} ne '__DEL__'} @{ chk_convtable_a( $query ) };
+	    my @others = grep {$_->{"_source"}->{"name"} ne '__DEL__'} @chkconvtbla_set;
 	    # my @others = grep {$_ ne '__DEL__'} keys %{$convtable{$query}};
 	    $match = 'del';
 	    $result = $query;
 	    $info = 'Human check preferable (other entries with the same "before" entry: '.join(" @@ ", @others).')';
 	}else{
 	    $match = 'ex';
-	    $result = join(" @@ ", map {$prfx. ($_->{"_source"}->{"name"}) } @{ chk_convtable_a( $query ) } );
+	    $result = join(" @@ ", map {$prfx. ($_->{"_source"}->{"name"}) } @chkconvtbla_set );
 	    # $result = join(" @@ ", map {$prfx. $_} keys %{$convtable{$query}});
 	    $info = 'convert_from dictionary'. ($prfx?" (prefix=${prfx})":"");
 	    $results[0] = $result;
@@ -486,10 +504,11 @@ sub retrieve {
 	my %qtms = map {$_ => 1} grep {s/\W+$//;$histogram{$_}} (split " ", $query);
 	if($retr->[0]){
 	    ($minfreq, $minword, $ifhit, $cosdist) = getScore($retr, \%qtms, 1, $qwosp);
-	    my %cache;
+	    #my %cache;
 	    #全ての空白を取り除く処理をした場合には検索結果の文字列を復元する必要があるため、下記部分をコメントアウトしている。
 	    #my @out = sort {$minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /} grep {$cache{$_}++; $cache{$_} == 1} @$retr;
-	    my @out = sort by_priority grep { $cache{$_}++; $cache{$_} == 1} map { $_->{"_source"}->{"name"} } map { @{ get_wospconv("D", $_) } } @$retr;
+	    #my @out = sort by_priority grep { $cache{$_}++; $cache{$_} == 1} map { $_->{"_source"}->{"name"} } map { @{ get_wospconv("D", $_) } } @$retr;
+	    my @out = sort by_priority map { $_->{"key"} } @{ mget_wospconv("D", $retr) };
 	    #その代わり以下のコードが必要。
 	    #my @out = sort by_priority grep {$cache{$_}++; $cache{$_} == 1} map { keys %{$wospconvtableD{$_}} } @$retr;
 	    #####
@@ -501,11 +520,13 @@ sub retrieve {
 		$info = 'cs_avoidance';
 	    }else{
 		$match = 'cs';
-		$result = $prfx.( get_correct_definitions( $out[0] ) );
+		my @result_set = map { get_correct_definitions( $_ ) } @out[0..$le];
+
+		$result = $prfx.( $result_set[0] );
 		# $result = $prfx.$correct_definitions{$out[0]};
-		$info   = join(" @@ ", (map {$prfx.( get_correct_definitions( $_ ) ).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+		$info   = join(" @@ ", (map {$prfx.( $result_set[$_] ).' ['.$minfreq->{$out[$_]}.':'.$minword->{$out[$_]}.']'} (0..$le) ));
 		# $info   = join(" @@ ", (map {$prfx.$correct_definitions{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
-		@results = map { $prfx.( get_correct_definitions( $_ ) ) } @out[0..$le];
+		@results = map { $prfx.$_ } @result_set;
 		# @results = map { $prfx.$correct_definitions{$_} } @out[0..$le];
 	    }
 	}else{
@@ -529,8 +550,6 @@ sub retrieve {
 		    $info = 'bcs_avoidance';
 		}else{
 		    $match = 'bcs';
-
-		    
 		    $result = defined $out[0] ? join(" @@ ", map {$prfx. $_->{"_source"}->{"name"} } @{ chk_convtable_a( $out[0] ) } ) : $oq;
 		    # $result = defined $out[0] ? join(" @@ ", map {$prfx. $_} keys %{$convtable{$out[0]}}) : $oq;
 		    if(defined $out[0]){
