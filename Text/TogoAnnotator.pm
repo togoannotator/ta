@@ -118,6 +118,8 @@ sub init {
 
     $cosine_object = Bag::Similarity::Cosine->new;
     $esearch = Search::Elasticsearch->new();
+    #$esearch = Search::Elasticsearch->new(serializer => 'JSON::XS');
+    #$esearch = Search::Elasticsearch->new(cxn_pool => 'Sniff');
 
     readDict();
 }
@@ -376,6 +378,21 @@ sub mget_wospconv {
 		}}
 	});
     return $results->{"aggregations"}->{"distinct"}->{"buckets"}; # the ref to an array
+}
+
+sub get_all_wospconv {
+    my @terms = map { {"term" => {"normalized_name.keyword" => $_}} } @{$_[1]};
+    my $results = $esearch->search(
+	index => 'dict_'.$md5dname,
+	type => 'wospconvtable'.$_[0], # "D" or "E"
+	body => {
+	    query => {
+		bool => {
+		    should => \@terms,
+		}},
+	    size => 500
+	});
+    return $results->{"hits"}->{"hits"}; # the ref to an array
 }
 
 sub chk_convtable_b {
@@ -655,31 +672,28 @@ sub getScore {
     my $wospct = ($minf)? "D" : "E";
     #my $wospct = ($minf)? \%wospconvtableD : \%wospconvtableE;
     #####
-    for my $wosp (@$retr){
-	# <--- 全ての空白を取り除く処理をした場合への対応
-	for my $r ( @{ get_wospconv($wospct, $wosp) } ){ # <--- 全ての空白を取り除く処理をした場合への対応
-	# for (keys %{$wospct->{$_}}){ # <--- 全ての空白を取り除く処理をした場合への対応
-	    $_ = $r->{"_source"}->{"name"};
-	    $cosdistance{$_} = $cosine_object->similarity($query, $wosp, $n_gram);
-	    my $score = 100000;
-	    my $word = '';
-	    my $hitflg = 0;
-	    for (split){
-		my $h = $histogram{$_} // 0;
-		if($qtms->{$_}){
-		    $hitflg++;
-		}else{
-		    $h += 10000;
-		}
-		if($score > $h){
-		    $score = $h;
-		    $word = $_;
-		}
+    for my $hit ( @{ get_all_wospconv($wospct, $retr) } ) { # <--- 全ての空白を取り除く処理をした場合への対応
+	my $wosp = $hit->{"_source"}->{"normalized_name"};
+	$_ = $hit->{"_source"}->{"name"};
+	$cosdistance{$_} = $cosine_object->similarity($query, $wosp, $n_gram);
+	my $score = 100000;
+	my $word = '';
+	my $hitflg = 0;
+	for (split){
+	    my $h = $histogram{$_} // 0;
+	    if($qtms->{$_}){
+		$hitflg++;
+	    }else{
+		$h += 10000;
 	    }
-	    $minfreq{$_} = $score;
-	    $minword{$_} = $word;
-	    $ifhit{$_}++ if $hitflg;
-	}                            # <--- 全ての空白を取り除く処理をした場合への対応
+	    if($score > $h){
+		$score = $h;
+		$word = $_;
+	    }
+	}
+	$minfreq{$_} = $score;
+	$minword{$_} = $word;
+	$ifhit{$_}++ if $hitflg;
     }
     # 検索タンパク質名を構成する単語が、ヒットした各タンパク質名に複数含まれる場合には、その中で検索対象辞書中での出現頻度スコアが最小であるものを採用する
     # そして最小の語のスコアは-1とする。
