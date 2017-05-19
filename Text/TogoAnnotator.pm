@@ -74,11 +74,8 @@ my (
     @avoid_cs_terms # コサイン距離を用いた類似マッチの対象にはしない文字列群。種々の辞書に完全一致しない場合はno_hitとする。
     );
 my (
-    %correct_definitions, # マッチ用内部辞書には全エントリが小文字化されて入るが、同じく小文字化したクエリが完全一致した場合には辞書に既にあるとして処理する。
-    %convtable,           # 書換辞書の書換前後の対応表。小文字化したクエリが、同じく小文字化した書換え前の語に一致した場合は対応する書換後の語を一致させて出力する。
     %negative_min_words,  # コサイン距離を用いた類似マッチではクエリと辞書中のエントリで文字列としては類似していても、両者の間に共通に出現する語が無い場合がある。
     # その場合、共通に出現する語がある辞書中エントリを優先させる処理をしているが、本処理が逆効果となってしまう語がここに含まれる。
-    %wospconvtableD, %wospconvtableE, # 全空白文字除去前後の対応表。書換え前と後用それぞれ。
     %name_provenance,     # 変換後デフィニションの由来。
     %curatedHash,         # curated辞書のエントリ（キーは小文字化する）
     %enzymeHash           # 酵素辞書のエントリ（小文字化する）
@@ -145,6 +142,13 @@ sub init {
 =cut
 
 sub readDict {
+
+    our (
+	%correct_definitions, # マッチ用内部辞書には全エントリが小文字化されて入るが、同じく小文字化したクエリが完全一致した場合には辞書に既にあるとして処理する。
+	%convtable,           # 書換辞書の書換前後の対応表。小文字化したクエリが、同じく小文字化した書換え前の語に一致した場合は対応する書換後の語を一致させて出力する。
+	%wospconvtableD, %wospconvtableE, # 全空白文字除去前後の対応表。書換え前と後用それぞれ。
+	);
+
     # 類似度計算用辞書構築の準備
     #my $dictdir = 'dictionary/cdb_nite_ALL';
     (my $dname = basename $niteAll) =~ s/\..*$//;
@@ -358,17 +362,17 @@ sub loadEsearch {
     print "Loading some dictionary data to Elasticsearch.\n";
     for my $type (qw/convtable correct_definitions wospconvtableD wospconvtableE/) {
 	my $id = 0;
+	print $type,"\n";
+	no strict "refs";
 	while(my ($tkey, $tvalue) = each %{$type}){
 	    $id++;
-	    my $frequency = 0;
-	    my $name = "";
 	    if($type eq "correct_definitions"){
-		$name = $tvalue;
+		$esearch->index( index => "dict_".$md5dname, type => $type, id => $id, body => { name => $tvalue, normalized_name => $tkey, frequency => 0 });
 	    }else{
-		$name = [ keys %$tvalue ];
-		$frequency = [ values %$tvalue ];
+		while(my ($name, $frequency) = each %$tvalue){
+		    $esearch->index( index => "dict_".$md5dname, type => $type, id => $id, body => { name => $name, normalized_name => $tkey, frequency => $frequency });
+		}
 	    }
-	    $esearch->index( index => "dict_".$md5dname, type => $type, id => $id, body => { name => $name, normalized_name => $tkey, frequency => $frequency });
 	}
     }
     print "Done.\n";
