@@ -407,9 +407,7 @@ __DATA__
       if (url && url.length > 1) {
         url = decodeURIComponent(url[1]);
       } else {
-        //url = "http://petstore.swagger.io/v2/swagger.json";
         url = "/v1/1/swagger.json";
-        //url = "http://togo.genes.nig.ac.jp:3000//swagger.json";
       }
 
       hljs.configure({
@@ -486,139 +484,123 @@ __DATA__
     -->
 <style type="text/css">
 body { padding-top: 40px; }
-@media screen and (max-width: 768px) {
+ @media screen and (max-width: 768px) {
     body { padding-top: 0px; }
+    }
+
+#resources {
+    min-width: 760px;
 }
 </style>
-  </head>
-  <body>
-<!--// swagger UI begin -->
-<!--//<body class="swagger-section">-->
+</head>
 <body>
-<div class="jumbotron text-center">
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#">TogoAnnotator</a>
-        </div>
-        <div id="navbar" class="collapse navbar-collapse">
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="/help.html">Help</a></li>
-          </ul>
-        </div><!--/.nav-collapse -->
+<!--//<div class="jumbotron">-->
+  <div class="text-center">
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">TogoAnnotator</a>
       </div>
-    </nav>
-
-<!--//   <div class="jumbotron text-center">-->
-     <div class="container">
-      <img style="width: 600px; height: 240 px;" src="images/horizontal.png" alt="TogoAnnotator" title="TogoAnnotator">
-      <!--//<h1>TogoAnnotator</h1>-->
-      <p>A tool for genome reannotation</p>
-     </div>
-   </div>
-   <div class="container">
-<!--//
-<div id='header'>
-  <div class="swagger-ui-wrap">
-    <a id="logo" href="http://swagger.io"><img class="logo__img" alt="swagger" height="30" width="30" src="images/logo_small.png" /><span class="logo__title">swagger</span></a>
-    <form id='api_selector'>
-      <div class='input'><input placeholder="http://example.com/api" id="input_baseUrl" name="baseUrl" type="text"/></div>
-      <div id='auth_container'></div>
-      <div class='input'><a id="explore" class="header__btn" href="#" data-sw-translate>Explore</a></div>
-    </form>
+      <div id="navbar" class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="#">Home</a></li>
+          <li><a href="/help.html">Help</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
   </div>
-</div>
--->
 
-<div class="swagger-section">
+  <div class="page-header text-center">
+    <!--//<div class="swagger-ui-wrap text-center">-->
+      <img style="width: 600px; height: 240 px;" src="images/horizontal.png" alt="TogoAnnotator" title="TogoAnnotator">
+      <p>A tool for genome reannotation</p>
+    <!--//</div>-->
+  </div>
+  
+  <div>
+    <div class="swagger-section">
+      <div id="message-bar" class="swagger-ui-wrap" data-sw-translate>&nbsp;</div>
+      <div id="swagger-ui-container" class="swagger-ui-wrap"></div>
+      <!--//swagger UI end -->
 
-<div id="message-bar" class="swagger-ui-wrap" data-sw-translate>&nbsp;</div>
-<div id="swagger-ui-container" class="swagger-ui-wrap"></div>
-<!--//swagger UI end -->
-
-<div id="swagger-ui-container" class="swagger-ui-wrap">
-<div class="info" id="api_sample">
-  <div class="info_title">API request examples</div>
-<h2>1. Input "DnaA" query</h2>
+      <!--//API Sample -->      
+      <div id="swagger-ui-container" class="swagger-ui-wrap">
+        <div class="info" id="api_sample">
+          <div class="info_title">API request examples</div>
+            <h2>1. Input "DnaA" query</h2>
 <pre class="prettyprint">
 #!sh
 $ curl -s 'http://togoannotator.dbcls.jp/annotate/gene/DnaA' | jq
 </pre>
 
-<h2>2. Input <a href="/annotation_list.txt">annotation_list.txt</a></h2>
+            <h2>2. Input <a href="/annotation_list.txt">annotation_list.txt</a></h2>
 <pre class="prettyprint">
 #!sh
 $ curl -s http://togoannotator.dbcls.jp/annotation_list.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/genes' | jq
 
 </pre>
 
-<h2>3. Input <a href="/ddbj_submission.txt">ddbj_submission.txt</a></h2>
+            <h2>3. Input <a href="/ddbj_submission.txt">ddbj_submission.txt</a></h2>
 <pre class="prettyprint">
 #!sh
 $ curl -s http://togoannotator.dbcls.jp/ddbj_submission.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/ddbj' | jq
 
 </pre>
 
-<h2>4. Input GenBank format file <a href="http://togows.dbcls.jp/entry/nucleotide/BA000022.gb">BA000022.gb</a></h2>
+            <h2>4. Input GenBank format file <a href="http://togows.dbcls.jp/entry/nucleotide/BA000022.gb">BA000022.gb</a></h2>
 <pre class="prettyprint">
 #!sh
 $ curl -s http://togows.dbcls.jp/entry/nucleotide/BA000022.gb | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/genbank'  |jq
 
 </pre>
 
-<h2>5. Input BLAST report file <a href="/7XS7A95B015-Alignment.txt">7XS7A95B015-Alignment.txt</a></h2>
+            <h2>5. Input BLAST report file <a href="/7XS7A95B015-Alignment.txt">7XS7A95B015-Alignment.txt</a></h2>
 <pre class="prettyprint">
 #!sh
 $ curl -s http://togoannotator.dbcls.jp/7XS7A95B015-Alignment.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/blast'  |jq
 
 </pre>
 
-<h2>6. Input GFF3 format file <a href="http://togows.dbcls.jp/entry/nucleotide/BA000022.gff">BA000022.gff</a></h2>
+            <h2>6. Input GFF3 format file <a href="http://togows.dbcls.jp/entry/nucleotide/BA000022.gff">BA000022.gff</a></h2>
 <pre class="prettyprint">
 #!sh
 $ curl -s http://togows.dbcls.jp/entry/nucleotide/BA000022.gff | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/gff'
 </pre>
 
-<h2>7. Input FASTA format file <a href="http://togows.dbcls.jp/entry/nucleotide/ABA25090.1.fasta">ABA25090.1.fasta</a></h2>
+            <h2>7. Input FASTA format file <a href="http://togows.dbcls.jp/entry/nucleotide/ABA25090.1.fasta">ABA25090.1.fasta</a></h2>
 <pre class="prettyprint">
 #!sh
 $ curl -s http://togows.dbcls.jp/entry/nucleotide/ABA25090.1.fasta | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/fasta'   |jq
 </pre>
 
 
-</div>
-</div>
-
-</div>
-</div>
-    <%= content %>
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>-->
-    <!--<script>window.jQuery || document.write('<script src="/js/jquery.min.js"><\/script>')</script>-->
-    <script src="/js/bootstrap.min.js"></script>
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="/js/ie10-viewport-bug-workaround.js"></script>
-    <div class="jumbotron text-center">
-
-    <p>
-     <a rel="license" href="http://creativecommons.org/licenses/by/2.1/jp/">
-     <img alt="Creative Commons License" style="border-width:0" src="/images/by.png" width="88" height="31" /></a>
-       <a xmlns:dc="http://purl.org/dc/elements/1.1/" href="http://purl.org/dc/dcmitype/Text" rel="dc:type" style="text-decoration:none;color:black">TogoAnnotator</a> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://dbcls.rois.ac.jp/" rel="cc:attributionURL">Database Center for Life Science (DBCLS)</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/2.1/jp/">Creative Commons &#34920;&#31034; 2.1 &#26085;&#26412; License</a>.
-       </p>
-       <p>This software includes the work that is distributed in the Apache License 2.0.</p>
-    </p>
-    <!--//<p> &copy; Copyright 2016-2017 <a href="http://dbcls.rois.ac.jp/">DBCLS</a></p>-->
+          </div>
+        </div>
+      </div>
     </div>
-  </body>
+  </div>  
+<!--//</div>-->  
+    <%= content %>
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<script src="/js/ie10-viewport-bug-workaround.js"></script>
+
+<!--// TogoAnnotator Footer-->
+<div class="jumbotron text-center">
+  <p>
+    <a rel="license" href="http://creativecommons.org/licenses/by/2.1/jp/">
+    <img alt="Creative Commons License" style="border-width:0" src="/images/by.png" width="88" height="31" /></a>
+    <a xmlns:dc="http://purl.org/dc/elements/1.1/" href="http://purl.org/dc/dcmitype/Text" rel="dc:type" style="text-decoration:none;color:black">TogoAnnotator</a> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://dbcls.rois.ac.jp/" rel="cc:attributionURL">Database Center for Life Science (DBCLS)</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/2.1/jp/">Creative Commons &#34920;&#31034; 2.1 &#26085;&#26412; License</a>.
+  </p>
+  <p>This software includes the work that is distributed in the Apache License 2.0.</p>
+</div>
+
+</body>
 </html>
 
 @@ index.html.ep
