@@ -46,18 +46,17 @@ package Text::TogoAnnotator;
 
 use warnings;
 use strict;
+use utf8;
 use Fatal qw/open/;
 use File::Path 'mkpath';
 use File::Basename;
 use Bag::Similarity::Cosine;
 use String::Trim;
 use simstring;
-use DB_File;
 use PerlIO::gzip;
 use Lingua::EN::ABC qw/b2a/;
 use Text::Match::FastAlternatives;
 use Search::Elasticsearch;
-use utf8;
 use Digest::MD5 qw/md5_hex/;
 use Sereal::Encoder qw/sereal_encode_with_object/;
 use Sereal::Decoder qw/sereal_decode_with_object/;
@@ -269,10 +268,8 @@ sub readDict {
 
     if( $useCurrentDict ){
 	print "Reading histogram.\n";
-	sereal_decode_with_object(
-	    Sereal::Decoder->new(),
-	    read_file($sysroot.'/'.$dictdir.'/histogram'),
-	    $histogram);
+	my $decoder = Sereal::Decoder->new();
+	$histogram = sereal_decode_with_object($decoder, read_file($sysroot.'/'.$dictdir.'/histogram'));
 	print "Done.\n";
 	return;
     }
@@ -353,7 +350,8 @@ sub readDict {
     $niteall_after_db->close;
     $niteall_before_db->close;
 
-    write_file($sysroot.'/'.$dictdir.'/histogram', sereal_encode_with_object(Sereal::Encoder->new(), $histogram));
+    my $encoder = Sereal::Encoder->new();
+    write_file($sysroot.'/'.$dictdir.'/histogram', sereal_encode_with_object($encoder, $histogram));
     loadEsearch();
 
 }
