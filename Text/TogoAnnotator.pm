@@ -359,7 +359,7 @@ sub readDict {
 }
 
 sub loadEsearch {
-    print "Loading some dictionary data to Elasticsearch.\n";
+    print "Loading some dictionaries to Elasticsearch.\n";
     for my $type (qw/convtable correct_definitions wospconvtableD wospconvtableE/) {
 	my $id = 0;
 	print $type,"\n";
