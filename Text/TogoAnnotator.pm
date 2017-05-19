@@ -38,6 +38,8 @@ package Text::TogoAnnotator;
 # * 2016.12.22
 # UniProtのReviewed=trueであるタンパク質エントリのencodedByで結ばれる遺伝子のprefLabelを利用し、それに入力された文字がマッチした場合にはその旨infoに記述する仕様に変更。
 # Pfamのファミリーネームに入力された文字列がマッチした場合にはその旨infoに記述する仕様に変更。
+# ' 2017.4.28
+# Elasticsearchに対応。
 
 use warnings;
 use strict;
@@ -54,6 +56,9 @@ use Text::Match::FastAlternatives;
 use Search::Elasticsearch;
 use utf8;
 use Digest::MD5 qw/md5_hex/;
+use Sereal::Encoder qw/sereal_encode_with_object/;
+use Sereal::Decoder qw/sereal_decode_with_object/;
+use File::Slurp;
 
 my ($sysroot, $niteAll, $curatedDict, $enzymeDict, $locustag_prefix_name, $embl_locustag_name, $gene_symbol_name, $family_name, $esearch);
 my ($nitealldb_after_name, $nitealldb_before_name);
@@ -170,6 +175,7 @@ sub readDict {
 	$niteall_before_db = simstring::writer->new($nitealldb_before_name, $n_gram);
     }
 
+    print "Prepare: Curated Dictionary.\n";
     # キュレーテッド辞書の構築
     if($curatedDict){
 	open(my $curated_dict, $sysroot.'/'.$curatedDict);
@@ -192,6 +198,7 @@ sub readDict {
     }
 
     # 酵素辞書の構築
+    print "Prepare: Enzyme Dictionary.\n";
     open(my $enzyme_dict, $sysroot.'/'.$enzymeDict);
     while(<$enzyme_dict>){
     	chomp;
@@ -201,6 +208,7 @@ sub readDict {
     close($enzyme_dict);
 
     # Locus tagのprefixリストを取得し、辞書を構築
+    print "Prepare: Locus Prefix Dictionary.\n";
     my @prefix_array;
     open(my $locustag_prefix, $sysroot.'/'.$locustag_prefix_name);
     while(<$locustag_prefix>){
@@ -212,7 +220,9 @@ sub readDict {
     }
     close($locustag_prefix);
     $locustag_prefix_matcher = Text::Match::FastAlternatives->new( @prefix_array );
+
     # EMBLから取得したLocus tagリストの辞書構築
+    print "Prepare: Locus Tag Dictionary.\n";
     my @locustag_array;
     open(my $embl_locustag, $sysroot.'/'.$embl_locustag_name);
     while(<$embl_locustag>){
@@ -225,9 +235,10 @@ sub readDict {
 	push @locustag_array, lc($_);
     }
     close($embl_locustag);
-    $embl_locustag_matcher = Text::Match::FastAlternatives->new( @locustag_array );
+    $embl_locustag_matcher = Text::Match::FastAlternatives->new( @locustag_array ); # 初期化中、最も時間のかかる部分
 
     # UniProtのReviewed=Trueなエントリについて、それをコードする遺伝子名のprefLabelにあるシンボル
+    print "Prepare: Gene Symbol Dictionary.\n";
     my @gene_symbol_array;
     open(my $gene_symbol, $sysroot.'/'.$gene_symbol_name);
     while(<$gene_symbol>){
@@ -239,6 +250,7 @@ sub readDict {
     $gene_symbol_matcher = Text::Match::FastAlternatives->new( @gene_symbol_array );
 
     # Pfamデータベースにあるファミリー名
+    print "Prepare: Pfam Dictionary.\n";
     my @pfam_family_array;
     open(my $pfam_family, $sysroot.'/'.$family_name);
     while(<$pfam_family>){
@@ -248,6 +260,7 @@ sub readDict {
     }
     close($pfam_family);
     $family_name_matcher = Text::Match::FastAlternatives->new( @pfam_family_array );
+    print "Prepare: Done.\n";
 
     if( $useCurrentDict ){
 	return;
@@ -328,6 +341,12 @@ sub readDict {
 
     $niteall_after_db->close;
     $niteall_before_db->close;
+
+    my $encoder = Sereal::Encoder->new();
+    write_file($sysroot.'/'.$dictdir.'/histogram', sereal_encode_with_object($encoder, \%histogram));
+
+    my $decoder = Sereal::Decoder->new();
+    my $_histgram = sereal_decode_with_object($decoder, read_file($sysroot.'/'.$dictdir.'/histogram'));
 }
 
 sub openDicts {
@@ -344,6 +363,21 @@ sub openDicts {
 sub closeDicts {
     $niteall_after_cs_db->close;
     $niteall_before_cs_db->close;
+}
+
+sub chk_convtable_a_all {
+    my @terms = map { {"term" => {"normalized_name.keyword" => $_}} } @{$_[0]};
+    my $results = $esearch->search(
+	index => 'dict_'. $md5dname,
+	type => 'convtable',
+	body => {
+	    query => {
+		bool => {
+		    should => \@terms,
+		}},
+	    size => 500
+	});
+    return $results->{"hits"}->{"hits"}; # the ref to an array
 }
 
 sub chk_convtable_a {
@@ -415,19 +449,6 @@ sub chk_convtable_b {
     return $results->{"hits"}->{"total"}; # # of hits
 }
 
-sub get_wospconv {
-    my $results = $esearch->search(
-	index => 'dict_'.$md5dname,
-	type => 'wospconvtable'.$_[0], # "D" or "E"
-	body => {
-	    query => {
-		term => { "normalized_name.keyword" => $_[1] }
-	    }}
-	);
-    # print "\n>>>\n", "dict_". $md5dname, "\n", 'wospconvtable'.$_[0], "\n", "normalized_name.keyword:", $_[1], "\n<<<\n";
-    return $results->{"hits"}->{"hits"}; # the ref to an array
-}
-
 sub get_correct_definitions {
     my $results = $esearch->search(
 	index => 'dict_'.$md5dname,
@@ -478,11 +499,11 @@ sub retrieve {
         $result = $curatedHash{$lc_query};
 	$info = 'in_curated_dictionary (before)';
 	$results[0] = $result;
-    }elsif( get_correct_definitions( $query ) ){ # 続いてafterに完全マッチするか
+    }elsif( (my $cd = get_correct_definitions( $query )) ne "" ){ # 続いてafterに完全マッチするか
     #}elsif( $correct_definitions{$query} ){ # 続いてafterに完全マッチするか
 	# print "\tex\t", $prfx. $correct_definitions{$query}, "\tin_dictionary: ", $query;
         $match ='ex';
-        $result = $prfx. get_correct_definitions( $query );
+        $result = $prfx. $cd;
         # $result = $prfx. $correct_definitions{$query};
 	$info = 'in_dictionary'. ($prfx?" (prefix=${prfx})":"");
 	$results[0] = $result;
@@ -524,7 +545,6 @@ sub retrieve {
 	    #my %cache;
 	    #全ての空白を取り除く処理をした場合には検索結果の文字列を復元する必要があるため、下記部分をコメントアウトしている。
 	    #my @out = sort {$minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /} grep {$cache{$_}++; $cache{$_} == 1} @$retr;
-	    #my @out = sort by_priority grep { $cache{$_}++; $cache{$_} == 1} map { $_->{"_source"}->{"name"} } map { @{ get_wospconv("D", $_) } } @$retr;
 	    my @out = sort by_priority map { $_->{"key"} } @{ mget_wospconv("D", $retr) };
 	    #その代わり以下のコードが必要。
 	    #my @out = sort by_priority grep {$cache{$_}++; $cache{$_} == 1} map { keys %{$wospconvtableD{$_}} } @$retr;
@@ -538,7 +558,6 @@ sub retrieve {
 	    }else{
 		$match = 'cs';
 		my @result_set = map { get_correct_definitions( $_ ) } @out[0..$le];
-
 		$result = $prfx.( $result_set[0] );
 		# $result = $prfx.$correct_definitions{$out[0]};
 		$info   = join(" @@ ", (map {$prfx.( $result_set[$_] ).' ['.$minfreq->{$out[$_]}.':'.$minword->{$out[$_]}.']'} (0..$le) ));
@@ -567,14 +586,26 @@ sub retrieve {
 		    $info = 'bcs_avoidance';
 		}else{
 		    $match = 'bcs';
-		    $result = defined $out[0] ? join(" @@ ", map {$prfx. $_->{"_source"}->{"name"} } @{ chk_convtable_a( $out[0] ) } ) : $oq;
-		    # $result = defined $out[0] ? join(" @@ ", map {$prfx. $_} keys %{$convtable{$out[0]}}) : $oq;
-		    if(defined $out[0]){
-			$info   = join(" % ", (map {join(" @@ ", map {$prfx. $_->{"_source"}->{"name"} } @{ chk_convtable_a( $out[0] ) } ).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
-			# $info   = join(" % ", (map {join(" @@ ", map {$prfx. $_} keys %{$convtable{$_}}).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
-		    }else{
-			$info   = "Cosine_Sim_To:".join(" % ", @$retr_e);
-		    } 
+		    $result = $oq;
+		    $info = "Cosine_Sim_To:".join(" % ", @$retr_e);
+		    if( defined $out[0] ){
+			my %conv_result;
+			for ( @{ chk_convtable_a_all( \@out[0..$le] ) } ){
+			    push @{ $conv_result{$_->{"_source"}->{"normalized_name"}} }, $prfx. $_->{"_source"}->{"name"};
+			}
+			$result = join(" @@ ", @{ $conv_result{$out[0]} } );
+			$info   = join(" % ", (map {join(" @@ ", map { $_ } @{ $conv_result{$_} } ).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+		    }
+
+		    # $result = defined $out[0] ? join(" @@ ", map {$prfx. $_->{"_source"}->{"name"} } @{ chk_convtable_a( $out[0] ) } ) : $oq;
+		    # # $result = defined $out[0] ? join(" @@ ", map {$prfx. $_} keys %{$convtable{$out[0]}}) : $oq;
+		    # if(defined $out[0]){
+		    # 	$info   = join(" % ", (map {join(" @@ ", map {$prfx. $_->{"_source"}->{"name"} } @{ chk_convtable_a( $_ ) } ).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+		    # 	# $info   = join(" % ", (map {join(" @@ ", map {$prfx. $_} keys %{$convtable{$_}}).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
+		    # }else{
+		    # 	$info   = "Cosine_Sim_To:".join(" % ", @$retr_e);
+		    # }
+
 		}
 	    } else {
 		# print "\tno_hit\t";
