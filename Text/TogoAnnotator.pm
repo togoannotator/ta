@@ -38,8 +38,11 @@ package Text::TogoAnnotator;
 # * 2016.12.22
 # UniProtのReviewed=trueであるタンパク質エントリのencodedByで結ばれる遺伝子のprefLabelを利用し、それに入力された文字がマッチした場合にはその旨infoに記述する仕様に変更。
 # Pfamのファミリーネームに入力された文字列がマッチした場合にはその旨infoに記述する仕様に変更。
-# ' 2017.4.28
+# * 2017.4.28
 # Elasticsearchに対応。
+# * 2017.5.18
+# Elasticsearchへのデータのロード用ルーチン追加
+# histogramのストアとロード対応（Sereal::Encoder/Decoderを利用）
 
 use warnings;
 use strict;
@@ -64,8 +67,7 @@ my ($sysroot, $niteAll, $curatedDict, $enzymeDict, $locustag_prefix_name, $embl_
 my ($nitealldb_after_name, $nitealldb_before_name);
 my ($niteall_after_cs_db, $niteall_before_cs_db);
 my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars, $locustag_prefix_matcher, $embl_locustag_matcher, $gene_symbol_matcher, $family_name_matcher);
-my $useCurrentDict;
-my $md5dname;
+my ($histogram, $useCurrentDict, $md5dname);
 
 my (
     @sp_words, # マッチ対象から外すが、マッチ処理後は元に戻して結果に表示させる語群。
@@ -73,7 +75,6 @@ my (
     );
 my (
     %correct_definitions, # マッチ用内部辞書には全エントリが小文字化されて入るが、同じく小文字化したクエリが完全一致した場合には辞書に既にあるとして処理する。
-    %histogram,
     %convtable,           # 書換辞書の書換前後の対応表。小文字化したクエリが、同じく小文字化した書換え前の語に一致した場合は対応する書換後の語を一致させて出力する。
     %negative_min_words,  # コサイン距離を用いた類似マッチではクエリと辞書中のエントリで文字列としては類似していても、両者の間に共通に出現する語が無い場合がある。
     # その場合、共通に出現する語がある辞書中エントリを優先させる処理をしているが、本処理が逆効果となってしまう語がここに含まれる。
@@ -263,6 +264,12 @@ sub readDict {
     print "Prepare: Done.\n";
 
     if( $useCurrentDict ){
+	print "Reading histogram.\n";
+	sereal_decode_with_object(
+	    Sereal::Decoder->new(),
+	    read_file($sysroot.'/'.$dictdir.'/histogram'),
+	    $histogram);
+	print "Done.\n";
 	return;
     }
 
@@ -328,7 +335,7 @@ sub readDict {
 	    $correct_definitions{$lcname} = $name;
 	    for ( split " ", $lcname ){
 		s/\W+$//;
-		$histogram{$_}++;
+		$histogram->{$_}++;
 		$total++;
 	    }
 	    #$niteall_after_db->insert($lcname);
@@ -342,11 +349,29 @@ sub readDict {
     $niteall_after_db->close;
     $niteall_before_db->close;
 
-    my $encoder = Sereal::Encoder->new();
-    write_file($sysroot.'/'.$dictdir.'/histogram', sereal_encode_with_object($encoder, \%histogram));
+    write_file($sysroot.'/'.$dictdir.'/histogram', sereal_encode_with_object(Sereal::Encoder->new(), $histogram));
+    loadEsearch();
 
-    my $decoder = Sereal::Decoder->new();
-    my $_histgram = sereal_decode_with_object($decoder, read_file($sysroot.'/'.$dictdir.'/histogram'));
+}
+
+sub loadEsearch {
+    print "Loading some dictionary data to Elasticsearch.\n";
+    for my $type (qw/convtable correct_definitions wospconvtableD wospconvtableE/) {
+	my $id = 0;
+	while(my ($tkey, $tvalue) = each %{$type}){
+	    $id++;
+	    my $frequency = 0;
+	    my $name = "";
+	    if($type eq "correct_definitions"){
+		$name = $tvalue;
+	    }else{
+		$name = [ keys %$tvalue ];
+		$frequency = [ values %$tvalue ];
+	    }
+	    $esearch->index( index => "dict_".$md5dname, type => $type, id => $id, body => { name => $name, normalized_name => $tkey, frequency => $frequency });
+	}
+    }
+    print "Done.\n";
 }
 
 sub openDicts {
@@ -358,6 +383,7 @@ sub openDicts {
     $niteall_before_cs_db = simstring::reader->new($nitealldb_before_name);
     $niteall_before_cs_db->swig_measure_set($simstring::cosine);
     $niteall_before_cs_db->swig_threshold_set($cos_threshold);
+    print "Done.\n";
 }
 
 sub closeDicts {
@@ -539,7 +565,7 @@ sub retrieve {
 	    $retr = $niteall_after_cs_db->retrieve($qwosp);
 	}
 	#####
-	my %qtms = map {$_ => 1} grep {s/\W+$//;$histogram{$_}} (split " ", $query);
+	my %qtms = map {$_ => 1} grep {s/\W+$//;$histogram->{$_}} (split " ", $query);
 	if($retr->[0]){
 	    ($minfreq, $minword, $ifhit, $cosdist) = getScore($retr, \%qtms, 1, $qwosp);
 	    #my %cache;
@@ -590,7 +616,7 @@ sub retrieve {
 		    $info = "Cosine_Sim_To:".join(" % ", @$retr_e);
 		    if( defined $out[0] ){
 			my %conv_result;
-			for ( @{ chk_convtable_a_all( \@out[0..$le] ) } ){
+			for ( @{ chk_convtable_a_all( [ @out[0..$le] ] ) } ){
 			    push @{ $conv_result{$_->{"_source"}->{"normalized_name"}} }, $prfx. $_->{"_source"}->{"name"};
 			}
 			$result = join(" @@ ", @{ $conv_result{$out[0]} } );
@@ -711,7 +737,7 @@ sub getScore {
 	my $word = '';
 	my $hitflg = 0;
 	for (split){
-	    my $h = $histogram{$_} // 0;
+	    my $h = $histogram->{$_} // 0;
 	    if($qtms->{$_}){
 		$hitflg++;
 	    }else{
