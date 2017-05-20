@@ -488,9 +488,12 @@ body { padding-top: 40px; }
     body { padding-top: 0px; }
     }
 
-#resources {
-    min-width: 760px;
+.container {
+  max-width: 880px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
+
 </style>
 </head>
 <body>
