@@ -12,7 +12,7 @@ use Getopt::Std;
 #use lib qw(/home/tga/togoannotator /home/tga/simstring-1.0/swig/perl);
 use FindBin qw($Bin);
 use lib "$Bin";
-
+use open qw/:utf8/;
 use Text::TogoAnnotator;
 use utf8;
 

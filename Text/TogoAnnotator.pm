@@ -48,6 +48,7 @@ use warnings;
 use strict;
 use utf8;
 use Fatal qw/open/;
+use open qw/:utf8/;
 use File::Path 'mkpath';
 use File::Basename;
 use Bag::Similarity::Cosine;
@@ -531,7 +532,8 @@ sub retrieve {
     #}elsif( $correct_definitions{$query} ){ # 続いてafterに完全マッチするか
 	# print "\tex\t", $prfx. $correct_definitions{$query}, "\tin_dictionary: ", $query;
         $match ='ex';
-        $result = $prfx. $cd;
+	$result = $oq;
+        # $result = $prfx. $cd;
         # $result = $prfx. $correct_definitions{$query};
 	$info = 'in_dictionary'. ($prfx?" (prefix=${prfx})":"");
 	$results[0] = $result;
