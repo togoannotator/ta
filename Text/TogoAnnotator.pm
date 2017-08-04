@@ -267,6 +267,7 @@ sub readDict {
     $family_name_matcher = Text::Match::FastAlternatives->new( @pfam_family_array );
     print "Prepare: Done.\n";
 
+    # 辞書を構築しない場合は以下の分岐内でreturnする
     if( $useCurrentDict ){
 	print "Reading histogram.\n";
 	my $decoder = Sereal::Decoder->new();
@@ -274,6 +275,10 @@ sub readDict {
 	print "Done.\n";
 	return;
     }
+
+    #
+    # useCurrentDictがFalseのときのみ以下のコードが実行される
+    #
 
     # 類似度計算用および変換用辞書の構築
     my $total = 0;

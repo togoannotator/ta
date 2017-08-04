@@ -9,7 +9,8 @@ use Text::TogoAnnotator;
 use Data::Dumper;
 use Mojo::mysql;
 
-app->config(hypnotoad => {listen => ['http://*:5000'], heartbeat_timeout => 600});
+my $port = $ENV{HYP_PORT} // 5001;
+app->config(hypnotoad => {listen => ['http://*:'.$port], heartbeat_timeout => 1200});
 app->mode('production');
 #app->mode('development');
 
