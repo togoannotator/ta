@@ -152,6 +152,8 @@ sub readDict {
     # 類似度計算用辞書構築の準備
     #my $dictdir = 'dictionary/cdb_nite_ALL';
     (my $dname = basename $niteAll) =~ s/\..*$//;
+print $dname."\n";
+print $niteAll."\n";
     my $dictdir = 'dictionary/'.$dname;
     $md5dname = md5_hex($dname);
 
@@ -284,9 +286,11 @@ sub readDict {
     my $total = 0;
     my $nite_all;
     if($niteAll =~ /\.gz$/){
-	open($nite_all, "<:gzip", $sysroot.'/'.$niteAll);
+	#open($nite_all, "<:gzip", $sysroot.'/'.$niteAll);
+	open($nite_all, "<:gzip", $niteAll);
     }else{
-	open($nite_all, $sysroot.'/'.$niteAll);
+	#open($nite_all, $sysroot.'/'.$niteAll);
+	open($nite_all, $niteAll);
     }
     while(<$nite_all>){
 	chomp;
