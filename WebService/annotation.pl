@@ -18,9 +18,10 @@ app->mode('production');
 
 #plugin 'PODRenderer';
 plugin 'CORS';
-#plugin 'JSONConfig';
+plugin 'JSONConfig';
 
 my $sysroot = "$Bin/..";
+print "port:", $port, "\n";
 print "sysroot:", $sysroot, "\n";
 our ($opt_t, $opt_m) = (0.6, 5);
 Text::TogoAnnotator->init($opt_t, 30, $opt_m, 3, $sysroot, "dict_cyanobacteria_20151120.txt", "dict_cyanobacteria_curated.txt", 1);
