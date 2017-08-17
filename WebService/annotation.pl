@@ -18,6 +18,7 @@ app->mode('production');
 
 #plugin 'PODRenderer';
 plugin 'CORS';
+#plugin 'JSONConfig';
 
 my $sysroot = "$Bin/..";
 print "sysroot:", $sysroot, "\n";
