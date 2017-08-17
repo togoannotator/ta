@@ -185,7 +185,8 @@ print $niteAll."\n";
     print "Prepare: Curated Dictionary.\n";
     # キュレーテッド辞書の構築
     if($curatedDict){
-	open(my $curated_dict, $sysroot.'/'.$curatedDict);
+	#open(my $curated_dict, $sysroot.'/'.$curatedDict);
+	open(my $curated_dict, $curatedDict);
 	while(<$curated_dict>){
 	    chomp;
 	    my (undef, undef, undef, undef, $name, undef, $curated, $note) = split /\t/;

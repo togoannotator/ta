@@ -22,6 +22,11 @@ my $ports = {
 'dict_dfast_lab' => 5004,
 };
 
+my $curated_dicts = {
+'dict_cyanobacteria_20151120_with_cyanobase' =>  '/opt/services2/togoannot/togoannotator_tf/bin/../data/dict_cyanobacteria_curated.txt'
+#'dict_cyanobacteria_20151120_with_cyanobase' =>  'dict_cyanobacteria_curated.txt'
+};
+
 my $conf ={};
 opendir(DIR, "$sysroot/data");
 foreach my $dict_file (readdir(DIR)){
@@ -40,10 +45,11 @@ foreach my $dict_file (readdir(DIR)){
         "cs_max" => 5,
         "n_gram" => 3,
         #"sysroot"=> $sysroot,
-        "niteAll"=> "$sysroot/data/$dict_file",
-        "curatedDict"=> ""
+        "niteAll"=> "$sysroot/data/$dict_file"
+        #"curatedDict"=> ""
         #"useCurrentDict"=> 1
     };
+     $o->{'curatedDict'} =  $curated_dicts->{$base} || '';
      $o->{'port'} = $ports->{$base}; 
 #    $o->{'sysroot'} = $sysroot;
 #    $o->{'useCurrentDict'} = 0;

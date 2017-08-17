@@ -9,22 +9,52 @@ use Text::TogoAnnotator;
 use Data::Dumper;
 use Mojo::mysql;
 
-my $port = $ENV{HYP_PORT} // 5001;
-app->config(hypnotoad => {listen => ['http://*:'.$port], heartbeat_timeout => 1200});
-app->mode('production');
+#my $port = $ENV{HYP_PORT} // 5001;
+my $config = plugin 'JSONConfig';
+
+#$ENV{'TA_DICT_NO'}
+#$ENV{'TA_DICT_NAME'}
+my $env = $ENV{'TA_ENV'} || 'production';
+my @dicts =  sort {$config->{$a}->{'port'} <=> $config->{$b}->{'port'}} grep { !/_default/ } keys %$config;
+my $dict = '';
+if(my $no = $ENV{'TA_DICT_NO'}){
+  $dict = $dicts[$no];
+}elsif($ENV{'TA_DICT_NAME'}){
+  $dict = $ENV{'TA_DICT_NAME'};
+}else{
+  #$dict = '_default'; #$dicts[0]; 
+}
+unless ($config->{$dict}){
+  warn 'ERROR: $ENV["TA_DICT_NO"]="',$ENV{'TA_DICT_NO'} || '',"\"\n";
+  warn 'ERROR: $ENV["TA_DICT_NAME"]="',$ENV{'TA_DICT_NAME'} ||'',"\"\n";
+  warn "The server can be run with one of the following commands.\n";
+  while ( my( $no, $name ) = each @dicts ) {
+    warn "(export TA_DICT_NO=$no;hypnotoad -f ./annotation.pl) or (export TA_DICT_NAME=$name;hypnotoad -f ./annotation.pl)\n";      
+  }
+  exit;
+}
+my $config_dict = $config->{$dict};
+
+app->config(hypnotoad => {listen => ['http://*:'.$config_dict->{'port'}], heartbeat_timeout => 1200});
+#app->mode('production');
+app->mode($env);
+
+#print "conf:". Dumper $config_dict;
+while (my($k, $v) =  each %$config_dict){
+  print $k,":\n  ",$v,"\n";
+}
 #app->mode('development');
-
 #$prefork->heartbeat_timeout(120);
-
 #plugin 'PODRenderer';
 plugin 'CORS';
 plugin 'JSONConfig';
 
 my $sysroot = "$Bin/..";
-print "port:", $port, "\n";
+#print "dictionary:", $dict,"\n";
+#print "port:", $config_dict->{'port'}, "\n";
 print "sysroot:", $sysroot, "\n";
-our ($opt_t, $opt_m) = (0.6, 5);
-Text::TogoAnnotator->init($opt_t, 30, $opt_m, 3, $sysroot, "dict_cyanobacteria_20151120.txt", "dict_cyanobacteria_curated.txt", 1);
+our ($opt_t, $opt_m) = ($config_dict->{'cos_threshold'}, $config_dict->{'cs_max'});
+Text::TogoAnnotator->init($opt_t, $config_dict->{'e_threashold'}, $opt_m, $config_dict->{'n_gram'}, $sysroot, $config_dict->{'niteAll'}, $config_dict->{'curatedDict'}, 1);
 print "Server ready.\n";
 
 # sub match{
