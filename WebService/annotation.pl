@@ -14,7 +14,7 @@ my $config = plugin 'JSONConfig';
 
 #$ENV{'TA_DICT_NO'}
 #$ENV{'TA_DICT_NAME'}
-my $env = $ENV{'TA_ENV'} || 'production';
+$ENV{'TA_ENV'} ||= 'production';
 my @dicts =  sort {$config->{$a}->{'port'} <=> $config->{$b}->{'port'}} grep { !/_default/ } keys %$config;
 my $dict = '';
 if(my $no = $ENV{'TA_DICT_NO'}){
@@ -25,9 +25,13 @@ if(my $no = $ENV{'TA_DICT_NO'}){
   #$dict = '_default'; #$dicts[0]; 
 }
 
+print "### Environment variables\n"; 
+print 'TA_ENV: ',$ENV{'TA_ENV'},"\n";
+print 'TA_DICT_NO: ', $ENV{'TA_DICT_NO'} ||'' ,"\n";
+print 'TA_DICT_NAME: ', $ENV{'TA_DICT_NAME'} ||'',"\n";
+print "\n";
+
 unless ($config->{$dict}){
-  warn 'ERROR: $ENV["TA_DICT_NO"]="',$ENV{'TA_DICT_NO'} || '',"\"\n";
-  warn 'ERROR: $ENV["TA_DICT_NAME"]="',$ENV{'TA_DICT_NAME'} ||'',"\"\n";
   warn "The server can be run with one of the following commands.\n";
   while ( my( $no, $name ) = each @dicts ) {
     warn "[$no] $name: export TA_DICT_NO=$no;hypnotoad ./annotation.pl\" or \"export TA_DICT_NAME=$name;hypnotoad ./annotation.p\"\n";      
@@ -37,7 +41,7 @@ unless ($config->{$dict}){
 
 my $config_dict = $config->{$dict};
 app->config(hypnotoad => {listen => ['http://*:'.$config_dict->{'port'}], heartbeat_timeout => 1200});
-app->mode($env);
+app->mode($ENV{'TA_ENV'});
 
 my $sysroot = "$Bin/..";
 $config_dict->{'sysroot'} = $sysroot;
