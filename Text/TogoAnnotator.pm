@@ -152,8 +152,6 @@ sub readDict {
     # 類似度計算用辞書構築の準備
     #my $dictdir = 'dictionary/cdb_nite_ALL';
     (my $dname = basename $niteAll) =~ s/\..*$//;
-print $dname."\n";
-print $niteAll."\n";
     my $dictdir = 'dictionary/'.$dname;
     $md5dname = md5_hex($dname);
 
@@ -163,10 +161,12 @@ print $niteAll."\n";
     $nitealldb_after_name = $sysroot.'/'.$dictdir.'/after';   # After
     $nitealldb_before_name = $sysroot.'/'.$dictdir.'/before'; # Before
 
+    print "### Text::Annotation\n";
     print "dictdir: $dictdir\n";
     print "md5name: $md5dname\n";
 
     unless( $useCurrentDict ){
+        print "Prepare: Dictionary.\n";
 	if (!-d  $sysroot.'/'.$dictdir){
 	    mkpath($sysroot.'/'.$dictdir);
 	}
@@ -180,6 +180,8 @@ print $niteAll."\n";
 
 	$niteall_after_db = simstring::writer->new($nitealldb_after_name, $n_gram);
 	$niteall_before_db = simstring::writer->new($nitealldb_before_name, $n_gram);
+    }else{
+       print "Unprepare: Dictionary is reused. [TODO: checking whether or not the dictionary is present.]\n";
     }
 
     print "Prepare: Curated Dictionary.\n";

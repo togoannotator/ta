@@ -24,37 +24,38 @@ if(my $no = $ENV{'TA_DICT_NO'}){
 }else{
   #$dict = '_default'; #$dicts[0]; 
 }
+
 unless ($config->{$dict}){
   warn 'ERROR: $ENV["TA_DICT_NO"]="',$ENV{'TA_DICT_NO'} || '',"\"\n";
   warn 'ERROR: $ENV["TA_DICT_NAME"]="',$ENV{'TA_DICT_NAME'} ||'',"\"\n";
   warn "The server can be run with one of the following commands.\n";
   while ( my( $no, $name ) = each @dicts ) {
-    warn "(export TA_DICT_NO=$no;hypnotoad -f ./annotation.pl) or (export TA_DICT_NAME=$name;hypnotoad -f ./annotation.pl)\n";      
+    warn "[$no] $name: export TA_DICT_NO=$no;hypnotoad ./annotation.pl\" or \"export TA_DICT_NAME=$name;hypnotoad ./annotation.p\"\n";      
   }
   exit;
 }
-my $config_dict = $config->{$dict};
 
+my $config_dict = $config->{$dict};
 app->config(hypnotoad => {listen => ['http://*:'.$config_dict->{'port'}], heartbeat_timeout => 1200});
-#app->mode('production');
 app->mode($env);
 
-#print "conf:". Dumper $config_dict;
+my $sysroot = "$Bin/..";
+$config_dict->{'sysroot'} = $sysroot;
+print "### Server settings\n";
 while (my($k, $v) =  each %$config_dict){
-  print $k,":\n  ",$v,"\n";
+  printf("%- 14s %s\n","$k:", $v);
 }
-#app->mode('development');
-#$prefork->heartbeat_timeout(120);
+print "\n";
+
 #plugin 'PODRenderer';
 plugin 'CORS';
-plugin 'JSONConfig';
+#plugin 'JSONConfig';
 
-my $sysroot = "$Bin/..";
-#print "dictionary:", $dict,"\n";
-#print "port:", $config_dict->{'port'}, "\n";
-print "sysroot:", $sysroot, "\n";
 our ($opt_t, $opt_m) = ($config_dict->{'cos_threshold'}, $config_dict->{'cs_max'});
 Text::TogoAnnotator->init($opt_t, $config_dict->{'e_threashold'}, $opt_m, $config_dict->{'n_gram'}, $sysroot, $config_dict->{'niteAll'}, $config_dict->{'curatedDict'}, 1);
+
+print "\n";
+print "### Server\n";
 print "Server ready.\n";
 
 # sub match{
