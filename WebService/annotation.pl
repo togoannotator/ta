@@ -40,7 +40,8 @@ unless ($config->{$dict}){
 }
 
 my $config_dict = $config->{$dict};
-app->config(hypnotoad => {listen => ['http://*:'.$config_dict->{'port'}], heartbeat_timeout => 1200});
+app->config(hypnotoad => {listen => ['http://*:'.$config_dict->{'port'}], heartbeat_timeout => 1200, pid_file => './hypnotoad'. $config_dict->{'port'}.'.pid'});
+#app->config(hypnotoad => {listen => ['http://*:'.$config_dict->{'port'}], heartbeat_timeout => 1200});
 app->mode($ENV{'TA_ENV'});
 
 my $sysroot = "$Bin/..";
