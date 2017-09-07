@@ -68,6 +68,7 @@ my ($nitealldb_after_name, $nitealldb_before_name);
 my ($niteall_after_cs_db, $niteall_before_cs_db);
 my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars, $locustag_prefix_matcher, $embl_locustag_matcher, $gene_symbol_matcher, $family_name_matcher);
 my ($histogram, $useCurrentDict, $md5dname);
+my ($namespace);
 
 my (
     @sp_words, # マッチ対象から外すが、マッチ処理後は元に戻して結果に表示させる語群。
@@ -92,6 +93,7 @@ sub init {
     $niteAll       = shift; # 辞書名
     $curatedDict   = shift; # curated辞書名（形式は同一）
     $useCurrentDict= shift; # 既に内部利用辞書ファイルがある場合には、それを削除して改めて構築するか否か
+    $namespace     = shift; # 辞書のネームスペースを指定
 
     $enzymeDict = "enzyme/enzyme_accepted_names.txt";
     $locustag_prefix_name = "locus_tag_prefix.txt";
@@ -370,6 +372,8 @@ sub readDict {
 }
 
 sub loadEsearch {
+    print "Delete Elasticsearch index: dict_$md5dname \n";
+    $esearch->indices->delete(index=> "dict_".$md5dname) or print "No exist index dict_$md5dname\n";
     print "Loading some dictionaries to Elasticsearch.\n";
     for my $type (qw/convtable correct_definitions wospconvtableD wospconvtableE/) {
 	my $id = 0;
@@ -387,6 +391,9 @@ sub loadEsearch {
 	}
     }
     print "Done.\n";
+    ### create alias
+    print "Create Aliase $namespace.\n";
+    $esearch->indices->create(index=>"dict_".$md5dname , body=>{ aliases=> $namespace});
 }
 
 sub openDicts {

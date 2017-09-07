@@ -1,5 +1,6 @@
 {
   "_default": {
+    "namespace": "bacteria",
     "cos_threshold": 0.6,
     "cs_max": 5,
     "curatedDict": "",
@@ -9,6 +10,7 @@
     "port": 5001
   },
   "dict_cyanobacteria_20151120_with_cyanobase": {
+    "namespace": "cyanobacteria",
     "cos_threshold": 0.6,
     "cs_max": 5,
     "curatedDict": "/opt/services2/togoannot/togoannotator_tf/data/dict_cyanobacteria_curated.txt",
@@ -18,6 +20,7 @@
     "port": 5002
   },
   "dict_dfast_eco": {
+    "namespace": "ecoli",
     "cos_threshold": 0.6,
     "cs_max": 5,
     "curatedDict": "",
@@ -27,6 +30,7 @@
     "port": 5003
   },
   "dict_dfast_lab": {
+    "namespace": "lab",
     "cos_threshold": 0.6,
     "cs_max": 5,
     "curatedDict": "",
@@ -36,6 +40,7 @@
     "port": 5004
   },
   "dict_uniprot_dictionary_20161215": {
+    "namespace": "bacteria",
     "cos_threshold": 0.6,
     "cs_max": 5,
     "curatedDict": "",

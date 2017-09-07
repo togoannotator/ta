@@ -9,8 +9,28 @@ use FindBin qw($Bin);
 use lib "$Bin/..";
 use Text::TogoAnnotator;
 use JSON;
+use JSON::Parse 'json_file_to_perl';
 
 my $sysroot = "$Bin/..";
+my $dicts = json_file_to_perl ("$sysroot/conf/dictionary.json");
+while( my ($k,$o) = each %$dicts){
+  #print Dumper $o;
+  $o->{'sysroot'} = $sysroot;
+  $o->{'useCurrentDict'} = 0;
+  Text::TogoAnnotator->init(
+        $o->{'cos_threshold'},
+        $o->{'e_threashold'},
+        $o->{'cs_max'},
+        $o->{'n_gram'},
+        $o->{'sysroot'},
+        $o->{'niteAll'},
+        $o->{'curatedDict'},
+        $o->{'useCurrentDict'},
+        $o->{'namespace'}
+  );
+}
+exit;
+
 #print "sysroot:", $sysroot, "\n";
 #our ($opt_t, $opt_m) = (0.6, 5);
 
