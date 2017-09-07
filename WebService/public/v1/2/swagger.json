@@ -1,0 +1,437 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "TogoAnnotator API",
+    "description": "TogoAnnotator has APIs available in several methods focused on refinement of gene annotation. When you input a query string or a file describing the gene product/description, you can retrieve the JSON representation of output by TogoAnnotator. Below you can find technical details of our service.<br>Note that Safari does not work properly if you upload a file.",
+    "version": "1.2"
+  },
+  "host": "togoannotator.dbcls.jp",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "basePath": "/",
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/{dictionary}/gene/{product}": {
+      "get": {
+        "tags": [
+          "Gene Annotation"
+        ],
+        "description": "Input gene product/description and Return a result output by TogoAnnotator.",
+        "operationId": "gene",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "product",
+            "description": "Input gene product/description.",
+            "required": true,
+            "type": "string",
+            "default": "PsbA"
+          },
+          {
+            "$ref": "#/parameters/dictionary"
+          },
+          {
+            "name": "curated_dictionary",
+            "in": "query",
+            "description": "Set the URL of curated_dictionary.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit the number of items in result_array",
+            "required": false,
+            "default": 10,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Result"
+            }
+          },
+          "400": {
+            "description": "Bad request. Invalid input query.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/{dictionary}/genes/": {
+      "post": {
+        "tags": [
+          "Gene Annotation"
+        ],
+        "description": "Upload a line-delimited text file contains gene product/description and Return all results output by TogoAnnotator.",
+        "operationId": "genes",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/upload"
+          },
+          {
+            "$ref": "#/parameters/dictionary"
+          },
+          {
+            "$ref": "#/parameters/curated_dictionary"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "schema": {
+              "$ref": "#/definitions/Results"
+            }
+          },
+          "400": {
+            "description": "Bad Request. Invalid input file supplied.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/{dictionary}/ddbj/": {
+      "post": {
+        "tags": [
+          "Gene Annotation"
+        ],
+        "description": "Upload a DDBJ submission file and Return all results corresponding to product qualifier value soutput by TogoAnnotator.",
+        "operationId": "ddbj",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/upload"
+          },
+          {
+            "$ref": "#/parameters/dictionary"
+          },
+          {
+            "$ref": "#/parameters/curated_dictionary"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Results"
+            }
+          },
+          "400": {
+            "description": "Bad request. Invalid input file supplied.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/{dictionary}/genbank/": {
+      "post": {
+        "tags": [
+          "Gene Annotation"
+        ],
+        "description": "Upload a GenBank format file and Return all results corresponding to product qualifier value soutput by TogoAnnotator.",
+        "operationId": "genbank",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/upload"
+          },
+          {
+            "$ref": "#/parameters/dictionary"
+          },
+          {
+            "$ref": "#/parameters/curated_dictionary"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Results"
+            }
+          },
+          "400": {
+            "description": "Bad request. Invalid input file supplied.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/{dictionary}/blast/": {
+      "post": {
+        "tags": [
+          "Gene Annotation"
+        ],
+        "description": "Upload a BLAST report file and Return all results corresponding to product qualifier value soutput by TogoAnnotator.",
+        "operationId": "blast",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/upload"
+          },
+          {
+            "$ref": "#/parameters/dictionary"
+          },
+          {
+            "$ref": "#/parameters/curated_dictionary"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Results"
+            }
+          },
+          "400": {
+            "description": "Bad request. Invalid input file supplied.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/{dictionary}/fasta/": {
+      "post": {
+        "tags": [
+          "Gene Annotation"
+        ],
+        "description": "Upload a FASTA format file and Return all results corresponding to header description soutput by TogoAnnotator.",
+        "operationId": "fasta",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/upload"
+          },
+          {
+            "$ref": "#/parameters/dictionary"
+          },
+          {
+            "$ref": "#/parameters/curated_dictionary"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Results"
+            }
+          },
+          "400": {
+            "description": "Bad request. Invalid input file supplied.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/{dictionary}/gff/": {
+      "post": {
+        "tags": [
+          "Gene Annotation"
+        ],
+        "description": "Upload a GFF3 format file and Return all results corresponding to attribute/product tag value soutput by TogoAnnotator.",
+        "operationId": "gff",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/upload"
+          },
+          {
+            "$ref": "#/parameters/dictionary"
+          },
+          {
+            "$ref": "#/parameters/curated_dictionary"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Results"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/ErrorResponse400Standard"
+          }
+        }
+      }
+    }
+  },
+  "parameters": {
+    "upload": {
+      "name": "upload",
+      "in": "formData",
+      "description": "The uploaded file data",
+      "required": true,
+      "type": "file"
+    },
+    "dictionary": {
+      "name": "dictionary",
+      "in": "path",
+      "description": "Select a TogoAnnotator dictionary",
+      "required": true,
+      "type": "string",
+      "enum": [
+        "bacteria",
+        "cyanobacteria",
+        "ecoli",
+        "lab"
+      ],
+      "default": "cyanobacteria"
+    },
+    "curated_dictionary": {
+      "name": "curated_dictionary",
+      "in": "formData",
+      "description": "Set the URL of curated_dictionary.",
+      "required": false,
+      "type": "string"
+    },
+    "limit": {
+      "name": "limit",
+      "in": "formData",
+      "description": "Limit the number of items in result_array",
+      "required": false,
+      "default": 10,
+      "type": "integer"
+    }
+  },
+  "definitions": {
+    "Result": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "a provided query."
+        },
+        "result": {
+          "type": "string",
+          "description": "a recommended annotation."
+        },
+        "match": {
+          "type": "string",
+          "description": "a match type. (ex, cs, bcs, no_hit)."
+        },
+        "info": {
+          "type": "string",
+          "description": "additional information."
+        },
+        "result_array": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "result"
+          },
+          "description": "recommended annotation candidates."
+        }
+      },
+      "example": {
+        "query": "Ammonium transport",
+        "result": "Ammonium transporter",
+        "match": "cs",
+        "info": "Ammonium transporter [-1:ammonium] @@ ammonium transporter AmtB [-1:ammonium] @@ ammonium transport protein [-1:ammonium] @@ Ammonium transporter family [-1:ammonium] @@ ammonium transporter sll1017 [-1:ammonium]",
+        "result_array": [
+          "Ammonium transporter",
+          "ammonium transporter AmtB",
+          "ammonium transport protein",
+          "Ammonium transporter family",
+          "ammonium transporter sll1017"
+        ]
+      }
+    },
+    "Results": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Result"
+      }
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "responses": {
+    "ErrorResponse400Standard": {
+      "description": "Bad request. Invalid input file supplied.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    }
+  }
+}

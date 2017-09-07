@@ -446,7 +446,7 @@ __DATA__
       if (url && url.length > 1) {
         url = decodeURIComponent(url[1]);
       } else {
-        url = "/v1/1/swagger.json";
+        url = "/v1/2/swagger.json";
       }
 
       hljs.configure({
