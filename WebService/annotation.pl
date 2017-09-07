@@ -8,6 +8,7 @@ use lib "$Bin/..";
 use Text::TogoAnnotator;
 use Data::Dumper;
 use Mojo::mysql;
+use Search::Elasticsearch;
 
 #my $port = $ENV{HYP_PORT} // 5001;
 my $config = plugin 'JSONConfig';
@@ -218,7 +219,7 @@ get '/' => sub {
 };
 
 
-#post '/annotate' => sub {
+#post '/' => sub {
 #    my $self = shift;
 #    my $o = $self->openapi->valid_input or return;
 #    my $data = { body => $o->validation->param("body")};
@@ -227,7 +228,7 @@ get '/' => sub {
 #    #$self->render(template => 'apidoc');
 #};
 
-get '/annotate/gene/*definition' => sub {
+get '/gene/*definition' => sub {
     my $self = shift;
 
     my $defs = $self->param('definition');
@@ -244,7 +245,7 @@ get '/annotate/gene/*definition' => sub {
    );
 };
 
-post '/annotate/genes' => sub {
+post '/genes' => sub {
     my $self = shift;
 
     my $upload = $self->param('upload');
@@ -268,7 +269,7 @@ post '/annotate/genes' => sub {
     }
 };
 
-post '/annotate/ddbj' => sub {
+post '/ddbj' => sub {
     my $self = shift;
 
     my $upload = $self->param('upload');
@@ -292,7 +293,7 @@ post '/annotate/ddbj' => sub {
     }
 };
 
-post '/annotate/genbank' => sub {
+post '/genbank' => sub {
     my $self = shift;
 
     my $upload = $self->param('upload');
@@ -317,7 +318,7 @@ post '/annotate/genbank' => sub {
     }
 };
 
-post '/annotate/fasta' => sub {
+post '/fasta' => sub {
     my $self = shift;
 
     my $upload = $self->param('upload');
@@ -342,7 +343,7 @@ post '/annotate/fasta' => sub {
 };
 
 
-post '/annotate/blast' => sub {
+post '/blast' => sub {
    my $self = shift;
 
    my $upload = $self->param('upload');
@@ -367,7 +368,7 @@ post '/annotate/blast' => sub {
     }
 };
 
-post '/annotate/gff' => sub {
+post '/gff' => sub {
    my $self = shift;
 
    my $upload = $self->param('upload');
@@ -578,47 +579,47 @@ body { padding-top: 40px; }
             <h2>1. Input "DnaA" query</h2>
 <pre class="prettyprint">
 #!sh
-$ curl -s 'http://togoannotator.dbcls.jp/annotate/gene/DnaA' | jq
+$ curl -s 'http://togoannotator.dbcls.jp/gene/DnaA' | jq
 </pre>
 
             <h2>2. Input <a href="/annotation_list.txt">annotation_list.txt</a></h2>
 <pre class="prettyprint">
 #!sh
-$ curl -s http://togoannotator.dbcls.jp/annotation_list.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/genes' | jq
+$ curl -s http://togoannotator.dbcls.jp/annotation_list.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/genes' | jq
 
 </pre>
 
             <h2>3. Input <a href="/ddbj_submission.txt">ddbj_submission.txt</a></h2>
 <pre class="prettyprint">
 #!sh
-$ curl -s http://togoannotator.dbcls.jp/ddbj_submission.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/ddbj' | jq
+$ curl -s http://togoannotator.dbcls.jp/ddbj_submission.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/ddbj' | jq
 
 </pre>
 
             <h2>4. Input GenBank format file <a href="http://togows.dbcls.jp/entry/nucleotide/BA000022.gb">BA000022.gb</a></h2>
 <pre class="prettyprint">
 #!sh
-$ curl -s http://togows.dbcls.jp/entry/nucleotide/BA000022.gb | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/genbank'  |jq
+$ curl -s http://togows.dbcls.jp/entry/nucleotide/BA000022.gb | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/genbank' | jq
 
 </pre>
 
             <h2>5. Input BLAST report file <a href="/7XS7A95B015-Alignment.txt">7XS7A95B015-Alignment.txt</a></h2>
 <pre class="prettyprint">
 #!sh
-$ curl -s http://togoannotator.dbcls.jp/7XS7A95B015-Alignment.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/blast'  |jq
+$ curl -s http://togoannotator.dbcls.jp/7XS7A95B015-Alignment.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/blast' | jq
 
 </pre>
 
             <h2>6. Input GFF3 format file <a href="http://togows.dbcls.jp/entry/nucleotide/BA000022.gff">BA000022.gff</a></h2>
 <pre class="prettyprint">
 #!sh
-$ curl -s http://togows.dbcls.jp/entry/nucleotide/BA000022.gff | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/gff'
+$ curl -s http://togows.dbcls.jp/entry/nucleotide/BA000022.gff | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/gff'
 </pre>
 
             <h2>7. Input FASTA format file <a href="http://togows.dbcls.jp/entry/nucleotide/ABA25090.1.fasta">ABA25090.1.fasta</a></h2>
 <pre class="prettyprint">
 #!sh
-$ curl -s http://togows.dbcls.jp/entry/nucleotide/ABA25090.1.fasta | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/annotate/fasta'   |jq
+$ curl -s http://togows.dbcls.jp/entry/nucleotide/ABA25090.1.fasta | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/fasta' | jq
 </pre>
 
 
