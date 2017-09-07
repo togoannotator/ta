@@ -34,7 +34,7 @@ print "\n";
 unless ($config->{$dict}){
   warn "The server can be run with one of the following commands.\n";
   while ( my( $no, $name ) = each @dicts ) {
-    warn "[$no] $name: export TA_DICT_NO=$no;hypnotoad ./annotation.pl\" or \"export TA_DICT_NAME=$name;hypnotoad ./annotation.p\"\n";      
+    warn "[$no] $name: export TA_DICT_NO=$no;hypnotoad ./annotation.pl\" or \"export TA_DICT_NAME=$name;hypnotoad ./annotation.pl\"\n";      
   }
   exit;
 }

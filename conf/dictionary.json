@@ -5,16 +5,16 @@
     "curatedDict": "",
     "e_threashold": 30,
     "n_gram": 3,
-    "niteAll": "/opt/services2/togoannot/togoannotator/bin/../data/dict_uniprot_dictionary_20161215.txt.gz",
+    "niteAll": "/opt/services2/togoannot/togoannotator/data/dict_uniprot_dictionary_20161215.txt.gz",
     "port": 5001
   },
   "dict_cyanobacteria_20151120_with_cyanobase": {
     "cos_threshold": 0.6,
     "cs_max": 5,
-    "curatedDict": "/opt/services2/togoannot/togoannotator_tf/bin/../data/dict_cyanobacteria_curated.txt",
+    "curatedDict": "/opt/services2/togoannot/togoannotator_tf/data/dict_cyanobacteria_curated.txt",
     "e_threashold": 30,
     "n_gram": 3,
-    "niteAll": "/opt/services2/togoannot/togoannotator/bin/../data/dict_cyanobacteria_20151120_with_cyanobase.txt.gz",
+    "niteAll": "/opt/services2/togoannot/togoannotator/data/dict_cyanobacteria_20151120_with_cyanobase.txt.gz",
     "port": 5002
   },
   "dict_dfast_eco": {
@@ -23,7 +23,7 @@
     "curatedDict": "",
     "e_threashold": 30,
     "n_gram": 3,
-    "niteAll": "/opt/services2/togoannot/togoannotator/bin/../data/dict_dfast_eco.txt.gz",
+    "niteAll": "/opt/services2/togoannot/togoannotator/data/dict_dfast_eco.txt.gz",
     "port": 5003
   },
   "dict_dfast_lab": {
@@ -32,7 +32,7 @@
     "curatedDict": "",
     "e_threashold": 30,
     "n_gram": 3,
-    "niteAll": "/opt/services2/togoannot/togoannotator/bin/../data/dict_dfast_lab.txt.gz",
+    "niteAll": "/opt/services2/togoannot/togoannotator/data/dict_dfast_lab.txt.gz",
     "port": 5004
   },
   "dict_uniprot_dictionary_20161215": {
@@ -41,7 +41,7 @@
     "curatedDict": "",
     "e_threashold": 30,
     "n_gram": 3,
-    "niteAll": "/opt/services2/togoannot/togoannotator/bin/../data/dict_uniprot_dictionary_20161215.txt.gz",
+    "niteAll": "/opt/services2/togoannot/togoannotator/data/dict_uniprot_dictionary_20161215.txt.gz",
     "port": 5001
   }
 }
