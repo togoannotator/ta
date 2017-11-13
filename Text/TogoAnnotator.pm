@@ -372,8 +372,15 @@ sub readDict {
 }
 
 sub loadEsearch {
-    print "Delete Elasticsearch index: dict_$md5dname \n";
-    $esearch->indices->delete(index=> "dict_".$md5dname) or print "No exist index dict_$md5dname\n";
+    eval{ $esearch->get(index=> "dict_".$md5dname, type=> "convtable", id=> 1); };
+    if(!$@){
+	print "Already exits: dict_$md5dname \n";
+        #$esearch->indices->put_alias(index => "dict_".$md5dname , name => $namespace);
+	return;
+
+	print "Delete Elasticsearch index: dict_$md5dname \n";
+	$esearch->indices->delete(index=> "dict_".$md5dname) or print "No exist index dict_$md5dname\n";
+    }
     print "Loading some dictionaries to Elasticsearch.\n";
     for my $type (qw/convtable correct_definitions wospconvtableD wospconvtableE/) {
 	my $id = 0;
@@ -392,8 +399,9 @@ sub loadEsearch {
     }
     print "Done.\n";
     ### create alias
-    print "Create Aliase $namespace.\n";
-    $esearch->indices->create(index=>"dict_".$md5dname , body=>{ aliases=> $namespace});
+    print "Create Aliase $namespace w/ $md5dname.\n";
+    # $esearch->indices->create(index=>"dict_".$md5dname , body=>{aliases=> $namespace});
+    $esearch->indices->put_alias(index => "dict_".$md5dname , name => $namespace);
 }
 
 sub openDicts {

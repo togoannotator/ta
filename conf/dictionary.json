@@ -1,14 +1,4 @@
 {
-  "_default": {
-    "namespace": "bacteria",
-    "cos_threshold": 0.6,
-    "cs_max": 5,
-    "curatedDict": "",
-    "e_threashold": 30,
-    "n_gram": 3,
-    "niteAll": "/opt/services2/togoannot/togoannotator/data/dict_uniprot_dictionary_20161215.txt.gz",
-    "port": 5001
-  },
   "dict_cyanobacteria_20151120_with_cyanobase": {
     "namespace": "cyanobacteria",
     "cos_threshold": 0.6,
@@ -39,14 +29,14 @@
     "niteAll": "/opt/services2/togoannot/togoannotator/data/dict_dfast_lab.txt.gz",
     "port": 5004
   },
-  "dict_uniprot_dictionary_20161215": {
+  "UniProtLeeModified": {
     "namespace": "bacteria",
     "cos_threshold": 0.6,
     "cs_max": 5,
     "curatedDict": "",
     "e_threashold": 30,
     "n_gram": 3,
-    "niteAll": "/opt/services2/togoannot/togoannotator/data/dict_uniprot_dictionary_20161215.txt.gz",
+    "niteAll": "/opt/services2/togoannot/togoannotator/data/UniProtLeeCurated.txt.gz",
     "port": 5001
   }
 }

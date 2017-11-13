@@ -15,6 +15,11 @@ my $sysroot = "$Bin/..";
 my $dicts = json_file_to_perl ("$sysroot/conf/dictionary.json");
 while( my ($k,$o) = each %$dicts){
   #print Dumper $o;
+  next unless $o->{'namespace'} eq 'lab';
+  #next unless $o->{'namespace'} eq 'ecoli';
+  #next unless $o->{'namespace'} eq 'cyanobacteria';
+  #next unless $o->{'namespace'} eq 'bacteria';
+  print Dumper $o;
   $o->{'sysroot'} = $sysroot;
   $o->{'useCurrentDict'} = 0;
   Text::TogoAnnotator->init(

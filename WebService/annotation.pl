@@ -5,10 +5,10 @@ use utf8;
 use Encode qw/encode decode/;
 use FindBin qw($Bin);
 use lib "$Bin/..";
+use Search::Elasticsearch;
 use Text::TogoAnnotator;
 use Data::Dumper;
 use Mojo::mysql;
-use Search::Elasticsearch;
 
 #my $port = $ENV{HYP_PORT} // 5001;
 my $config = plugin 'JSONConfig';
@@ -396,6 +396,14 @@ post '/gff' => sub {
 
 #plugin OpenAPI => {url => app->home->rel_file("public/swagger.json")};
 app->log->level('debug');
+#app->hook('before_dispatch' => sub {
+#    my $self = shift;
+#    if ($self->req->headers->header('X-Forwarded-Host')) {
+#      #Proxy Path setting
+#      my $path = shift @{$self->req->url->path->parts};
+#      push @{$self->req->url->base->path->parts}, $path;
+#    }
+#});
 app->start;
 
 __DATA__
