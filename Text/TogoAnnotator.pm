@@ -167,7 +167,9 @@ sub readDict {
     print "dictdir: $dictdir\n";
     print "md5name: $md5dname\n";
 
-    unless( $useCurrentDict ){
+    if( $useCurrentDict ){
+        print "Unprepare: Dictionary is reused. [TODO: checking whether or not the dictionary is present.]\n";
+    }else{
         print "Prepare: Dictionary.\n";
 	if (!-d  $sysroot.'/'.$dictdir){
 	    mkpath($sysroot.'/'.$dictdir);
@@ -182,8 +184,6 @@ sub readDict {
 
 	$niteall_after_db = simstring::writer->new($nitealldb_after_name, $n_gram);
 	$niteall_before_db = simstring::writer->new($nitealldb_before_name, $n_gram);
-    }else{
-       print "Unprepare: Dictionary is reused. [TODO: checking whether or not the dictionary is present.]\n";
     }
 
     print "Prepare: Curated Dictionary.\n";
@@ -672,24 +672,30 @@ sub retrieve {
 	}
     }
     # print "\n";
+    my %annotations;
     if($enzymeHash{lc($result)}){
 	$info .= " [Enzyme name]";
+	$annotations{"Enzyme"} = [ $result ];
     }
     for (split " ", lc($result)){
 	if($embl_locustag_matcher->exact_match($_)){
 	    $info .= " [Locus tag]";
+	    push @{ $annotations{"Locus tag"} }, $_;
 	}elsif($locustag_prefix_matcher->match_at($_, 0)){
 	    $info .= " [Locus prefix]";
+	    push @{ $annotations{"Locus prefix"} }, $_;
 	}
     }
     if($gene_symbol_matcher->exact_match($lc_query)){
 	$info .= " [Gene symbol]";
+	$annotations{"Gene symbol"} = [ $lc_query ];
     }
     if($family_name_matcher->exact_match($lc_query)){
 	$info .= " [Family name]";
+	$annotations{"Family name"} = [ $lc_query ];
     }
     $result = b2a($result);
-    return({'query'=> $oq, 'result' => $result, 'match' => $match, 'info' => $info, 'result_array' => \@results});
+    return({'query'=> $oq, 'result' => $result, 'match' => $match, 'info' => $info, 'result_array' => \@results, 'annotation' => \%annotations});
 }
 
 sub by_priority {

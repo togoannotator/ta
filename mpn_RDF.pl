@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/bin/env perl
 
 # Text::TogoAnnotatorを利用したバージョン
 # yayamamo 2014/06/12

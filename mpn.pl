@@ -8,6 +8,7 @@ use warnings;
 use strict;
 use Fatal qw/open/;
 use Getopt::Std;
+use JSON::XS;
 #use lib qw(/opt/services2/togoannot/togoannotator);
 #use lib qw(/home/tga/togoannotator /home/tga/simstring-1.0/swig/perl);
 use FindBin qw($Bin);
