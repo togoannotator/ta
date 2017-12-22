@@ -62,6 +62,7 @@ use Digest::MD5 qw/md5_hex/;
 use Sereal::Encoder qw/sereal_encode_with_object/;
 use Sereal::Decoder qw/sereal_decode_with_object/;
 use File::Slurp;
+use Encode;
 
 my ($sysroot, $niteAll, $curatedDict, $enzymeDict, $locustag_prefix_name, $embl_locustag_name, $gene_symbol_name, $family_name, $esearch);
 my ($nitealldb_after_name, $nitealldb_before_name);
@@ -94,6 +95,10 @@ sub init {
     $curatedDict   = shift; # curated辞書名（形式は同一）
     $useCurrentDict= shift; # 既に内部利用辞書ファイルがある場合には、それを削除して改めて構築するか否か
     $namespace     = shift; # 辞書のネームスペースを指定
+
+    if(not defined($namespace)){
+        die encode_utf8("初期化エラー: namespaceを指定してください。\n");
+    }
 
     $enzymeDict = "enzyme/enzyme_accepted_names.txt";
     $locustag_prefix_name = "locus_tag_prefix.txt";
