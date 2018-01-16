@@ -43,6 +43,8 @@ package Text::TogoAnnotator;
 # * 2017.5.18
 # Elasticsearchへのデータのロード用ルーチン追加
 # histogramのストアとロード対応（Sereal::Encoder/Decoderを利用）
+# * 2018.1.16
+# Locusタグ等にマッチさせる対象を$resultから$oqへ。
 
 use warnings;
 use strict;
@@ -562,7 +564,6 @@ sub retrieve {
 	$results[0] = $result;
     }elsif( (my $cd = get_correct_definitions( $query )) ne "" ){ # 続いてafterに完全マッチするか
     #}elsif( $correct_definitions{$query} ){ # 続いてafterに完全マッチするか
-	# print "\tex\t", $prfx. $correct_definitions{$query}, "\tin_dictionary: ", $query;
         $match ='ex';
 	$result = $oq;
         # $result = $prfx. $cd;
@@ -571,7 +572,6 @@ sub retrieve {
 	$results[0] = $result;
     }elsif( my @chkconvtbla_set = @{ chk_convtable_a( $query ) } ){ # そしてbeforeに完全マッチするか
     #}elsif( $convtable{$query} ){ # そしてbeforeに完全マッチするか
-	# print "\tex\t", $prfx. $convtable{$query}, "\tconvert_from: ", $query;
 	if( chk_convtable_b( $query ) ){
 	#if($convtable{$query}{'__DEL__'}){
 	    my @others = grep {$_->{"_source"}->{"name"} ne '__DEL__'} @chkconvtbla_set;
@@ -592,7 +592,6 @@ sub retrieve {
 	    $avoidcsFlag = ($query =~ m,\b$_$,);
 	    last if $avoidcsFlag;
 	}
-
 	#全ての空白を取り除く処理をした場合への対応
 	#my $retr = $niteall_after_cs_db->retrieve($query);
 	(my $qwosp = $query) =~ s/ //g;
@@ -612,7 +611,6 @@ sub retrieve {
 	    #my @out = sort by_priority grep {$cache{$_}++; $cache{$_} == 1} map { keys %{$wospconvtableD{$_}} } @$retr;
 	    #####
 	    my $le = (@out > $cs_max)?($cs_max-1):$#out;
-	    # print "\tcs\t", join(" @@ ", (map {$prfx.$correct_definitions{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
 	    if($avoidcsFlag && $minfreq->{$out[0]} == -1 && $negative_min_words{$minword->{$out[0]}}){
 		$match ='no_hit';
 		$result = $oq;
@@ -641,7 +639,6 @@ sub retrieve {
 		my %cache;
 		my @out = sort by_priority grep {$cache{$_}++; $cache{$_} == 1 && $minfreq->{$_} < $e_threashold} @hits;
 		my $le = (@out > $cs_max)?($cs_max-1):$#out;
-		# print "\tbcs\t", join(" % ", (map {$prfx.$convtable{$_}.' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
 		if(defined $out[0] && $avoidcsFlag && $minfreq->{$out[0]} == -1 && $negative_min_words{$minword->{$out[0]}}){
 		    $match ='no_hit';
 		    $result = $oq;
@@ -658,31 +655,20 @@ sub retrieve {
 			$result = join(" @@ ", @{ $conv_result{$out[0]} } );
 			$info   = join(" % ", (map {join(" @@ ", map { $_ } @{ $conv_result{$_} } ).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
 		    }
-
-		    # $result = defined $out[0] ? join(" @@ ", map {$prfx. $_->{"_source"}->{"name"} } @{ chk_convtable_a( $out[0] ) } ) : $oq;
-		    # # $result = defined $out[0] ? join(" @@ ", map {$prfx. $_} keys %{$convtable{$out[0]}}) : $oq;
-		    # if(defined $out[0]){
-		    # 	$info   = join(" % ", (map {join(" @@ ", map {$prfx. $_->{"_source"}->{"name"} } @{ chk_convtable_a( $_ ) } ).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
-		    # 	# $info   = join(" % ", (map {join(" @@ ", map {$prfx. $_} keys %{$convtable{$_}}).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
-		    # }else{
-		    # 	$info   = "Cosine_Sim_To:".join(" % ", @$retr_e);
-		    # }
-
 		}
 	    } else {
-		# print "\tno_hit\t";
 		$match  = 'no_hit';
 		$result = $oq;
 	    }
 	}
     }
-    # print "\n";
+
     my %annotations;
-    if($enzymeHash{lc($result)}){
+    if($enzymeHash{lc($oq)}){
 	$info .= " [Enzyme name]";
-	$annotations{"Enzyme"} = [ $result ];
+	$annotations{"Enzyme"} = [ $oq ];
     }
-    for (split " ", lc($result)){
+    for (split " ", lc($oq)){
 	if($embl_locustag_matcher->exact_match($_)){
 	    $info .= " [Locus tag]";
 	    push @{ $annotations{"Locus tag"} }, $_;
@@ -691,13 +677,13 @@ sub retrieve {
 	    push @{ $annotations{"Locus prefix"} }, $_;
 	}
     }
-    if($gene_symbol_matcher->exact_match($lc_query)){
+    if($gene_symbol_matcher->exact_match($oq)){
 	$info .= " [Gene symbol]";
-	$annotations{"Gene symbol"} = [ $lc_query ];
+	$annotations{"Gene symbol"} = [ $oq ];
     }
-    if($family_name_matcher->exact_match($lc_query)){
+    if($family_name_matcher->exact_match($oq)){
 	$info .= " [Family name]";
-	$annotations{"Family name"} = [ $lc_query ];
+	$annotations{"Family name"} = [ $oq ];
     }
     $result = b2a($result);
     return({'query'=> $oq, 'result' => $result, 'match' => $match, 'info' => $info, 'result_array' => \@results, 'annotation' => \%annotations});
