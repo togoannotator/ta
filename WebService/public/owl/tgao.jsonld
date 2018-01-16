@@ -21,10 +21,10 @@
         "@id": "tgao:ec",
         "@nest": "annotation"
       },
-      "ex": "tgao:ExactMatch",
-      "cs": "tgao:ApproximateMatchToAfterReplacementTerm",
-      "bcs": "tgao:ApproximateMatchToBeforeReplacementTerm",
-      "no_hit": "tgao:NoHitMatch"
+      "ex": "tgao:exactMatch",
+      "cs": "tgao:approximateMatchToAfterReplacementTerm",
+      "bcs": "tgao:approximateMatchToBeforeReplacementTerm",
+      "no_hit": "tgao:noHitMatch"
     }
   ]
 }
