@@ -13,12 +13,24 @@
         "@container": "@list"
       },
       "annotation": "@nest",
+      "locus_tag": {
+        "@id": "tgao:locus_tag",
+        "@nest": "annotation"
+      },
+      "locus_tag_prefix": {
+        "@id": "tgao:locus_tag_prefix",
+        "@nest": "annotation"
+      },
       "gene_symbol": {
         "@id": "tgao:gene_symbol",
         "@nest": "annotation"
       },
-      "ec": {
-        "@id": "tgao:ec",
+      "family_name": {
+        "@id": "tgao:famly_name",
+        "@nest": "annotation"
+      },
+      "enzyme_name": {
+        "@id": "tgao:enzyme_name",
         "@nest": "annotation"
       },
       "ex": "tgao:exactMatch",
