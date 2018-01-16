@@ -37,9 +37,35 @@
 #    Data properties
 #################################################################
 
+###  http://purl.jp/bio/10/tgao#enzyme_name
+:enzyme_name rdf:type owl:DatatypeProperty ;
+             rdfs:label "Enzyme name"^^xsd:string .
+
+
+###  http://purl.jp/bio/10/tgao#family_name
+:family_name rdf:type owl:DatatypeProperty ;
+             rdfs:label "Family name"^^xsd:string .
+
+
+###  http://purl.jp/bio/10/tgao#gene_symbol
+:gene_symbol rdf:type owl:DatatypeProperty ;
+             rdfs:label "Gene symbol"^^xsd:string .
+
+
 ###  http://purl.jp/bio/10/tgao#info
 :info rdf:type owl:DatatypeProperty ;
       rdfs:label "info"^^xsd:string .
+
+
+###  http://purl.jp/bio/10/tgao#locus_tag
+:locus_tag rdf:type owl:DatatypeProperty ;
+           rdfs:label "Locus tag"^^xsd:string .
+
+
+###  http://purl.jp/bio/10/tgao#locus_tag_prefix
+:locus_tag_prefix rdf:type owl:DatatypeProperty ;
+                  rdfs:subPropertyOf owl:topDataProperty ;
+                  rdfs:label "Locus prefix"^^xsd:string .
 
 
 ###  http://purl.jp/bio/10/tgao#query
