@@ -1,0 +1,30 @@
+{
+  "@context": [
+    "http://www.w3.org/ns/anno.jsonld",
+    {
+      "tgao": "http://purl.jp/bio/10/togoannotator/owl/tgao#",
+      "info": "tgao:info",
+      "match": "tgao:match",
+      "query": "tgao:query",
+      "result": "tgao:result",
+      "result_array": "tgao:result_array",
+      "result_array_t": {
+        "@id": "result_array",
+        "@container": "@list"
+      },
+      "annotation": "@nest",
+      "gene_symbol": {
+        "@id": "tgao:gene_symbol",
+        "@nest": "annotation"
+      },
+      "ec": {
+        "@id": "tgao:ec",
+        "@nest": "annotation"
+      },
+      "ex": "tgao:ExactMatch",
+      "cs": "tgao:ApproximateMatchToAfterReplacementTerm",
+      "bcs": "tgao:ApproximateMatchToBeforeReplacementTerm",
+      "no_hit": "tgao:NoHitMatch"
+    }
+  ]
+}
