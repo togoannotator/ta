@@ -4,81 +4,81 @@
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@base <http://purl.jp/bio/10/tgao> .
+@base <http://purl.jp/bio/10/togoannotator/owl/tgao> .
 
-<http://purl.jp/bio/10/tgao> rdf:type owl:Ontology ;
-                              <http://purl.org/dc/elements/1.1/creator> "Takatomo Fujisawa" ;
-                              owl:versionInfo "1.0.0"@en ;
-                              <http://purl.org/dc/elements/1.1/creator> "Yasunori Yamamoto"@en ;
-                              <http://purl.org/dc/elements/1.1/description> "Application ontology for describing resources in the TogoAnnotator Web application."@en ;
-                              <http://purl.org/dc/elements/1.1/title> "TogoAnnotator Ontology"@en ;
-                              <http://purl.org/dc/elements/1.1/publisher> "http://dbcls.rois.ac.jp" .
+<http://purl.jp/bio/10/togoannotator/owl/tgao> rdf:type owl:Ontology ;
+                                                <http://purl.org/dc/elements/1.1/creator> "Takatomo Fujisawa" ;
+                                                owl:versionInfo "1.0.0"@en ;
+                                                <http://purl.org/dc/elements/1.1/creator> "Yasunori Yamamoto"@en ;
+                                                <http://purl.org/dc/elements/1.1/description> "Application ontology for describing resources in the TogoAnnotator Web application."@en ;
+                                                <http://purl.org/dc/elements/1.1/title> "TogoAnnotator Ontology"@en ;
+                                                <http://purl.org/dc/elements/1.1/publisher> "http://dbcls.rois.ac.jp" .
 
 #################################################################
 #    Object Properties
 #################################################################
 
-###  http://purl.jp/bio/10/tgao#match
+###  http://purl.jp/bio/10/togoannotator/owl/tgao#match
 :match rdf:type owl:ObjectProperty ;
        rdfs:range :Match ;
        rdfs:label "match"^^xsd:string .
 
 
-###  http://purl.jp/bio/10/tgao/replacedBy
-<http://purl.jp/bio/10/tgao/replacedBy> rdf:type owl:ObjectProperty ;
-                                        rdfs:subPropertyOf owl:topObjectProperty ;
-                                        rdf:type owl:TransitiveProperty ;
-                                        rdfs:domain <http://purl.jp/bio/10/tgao/ReplacementTerm> ;
-                                        rdfs:range <http://purl.jp/bio/10/tgao/ReplacementTerm> ;
-                                        rdfs:label "replacedBy"^^xsd:string .
+###  http://purl.jp/bio/10/togoannotator/owl/tgao#replacedBy
+:replacedBy rdf:type owl:ObjectProperty ;
+            rdfs:subPropertyOf owl:topObjectProperty ;
+            rdf:type owl:TransitiveProperty ;
+            rdfs:domain :ReplacementTerm ;
+            rdfs:range :ReplacementTerm ;
+            rdfs:label "replacedBy"^^xsd:string .
 
 
 #################################################################
 #    Data properties
 #################################################################
 
-###  http://purl.jp/bio/10/tgao#enzyme_name
+###  http://purl.jp/bio/10/togoannotator/owl/tgao#enzyme_name
 :enzyme_name rdf:type owl:DatatypeProperty ;
              rdfs:label "Enzyme name"^^xsd:string .
 
 
-###  http://purl.jp/bio/10/tgao#family_name
+###  http://purl.jp/bio/10/togoannotator/owl/tgao#family_name
 :family_name rdf:type owl:DatatypeProperty ;
              rdfs:label "Family name"^^xsd:string .
 
 
-###  http://purl.jp/bio/10/tgao#gene_symbol
+###  http://purl.jp/bio/10/togoannotator/owl/tgao#gene_symbol
 :gene_symbol rdf:type owl:DatatypeProperty ;
              rdfs:label "Gene symbol"^^xsd:string .
 
 
-###  http://purl.jp/bio/10/tgao#info
+###  http://purl.jp/bio/10/togoannotator/owl/tgao#info
 :info rdf:type owl:DatatypeProperty ;
       rdfs:label "info"^^xsd:string .
 
 
-###  http://purl.jp/bio/10/tgao#locus_tag
+###  http://purl.jp/bio/10/togoannotator/owl/tgao#locus_tag
 :locus_tag rdf:type owl:DatatypeProperty ;
            rdfs:label "Locus tag"^^xsd:string .
 
 
-###  http://purl.jp/bio/10/tgao#locus_tag_prefix
+###  http://purl.jp/bio/10/togoannotator/owl/tgao#locus_tag_prefix
 :locus_tag_prefix rdf:type owl:DatatypeProperty ;
                   rdfs:subPropertyOf owl:topDataProperty ;
                   rdfs:label "Locus prefix"^^xsd:string .
 
 
-###  http://purl.jp/bio/10/tgao#query
+###  http://purl.jp/bio/10/togoannotator/owl/tgao#query
 :query rdf:type owl:DatatypeProperty ;
        rdfs:label "query"^^xsd:string .
 
 
-###  http://purl.jp/bio/10/tgao#result
+###  http://purl.jp/bio/10/togoannotator/owl/tgao#result
 :result rdf:type owl:DatatypeProperty ;
         rdfs:label "result"^^xsd:string .
 
 
-###  http://purl.jp/bio/10/tgao#result_array
+###  http://purl.jp/bio/10/togoannotator/owl/tgao#result_array
 :result_array rdf:type owl:DatatypeProperty ;
               rdfs:label "result_array"^^xsd:string .
 
@@ -87,58 +87,58 @@
 #    Classes
 #################################################################
 
-###  http://purl.jp/bio/10/tgao#Match
+###  http://purl.jp/bio/10/togoannotator/owl/tgao#AfterReplacementTerm
+:AfterReplacementTerm rdf:type owl:Class ;
+                      rdfs:subClassOf :ReplacementTerm ;
+                      rdfs:label "AfterReplacementTerm" .
+
+
+###  http://purl.jp/bio/10/togoannotator/owl/tgao#BeforeReplacementTerm
+:BeforeReplacementTerm rdf:type owl:Class ;
+                       rdfs:subClassOf :ReplacementTerm ;
+                       rdfs:label "BeforeReplacementTerm" .
+
+
+###  http://purl.jp/bio/10/togoannotator/owl/tgao#CuratedReplacementTerm
+:CuratedReplacementTerm rdf:type owl:Class ;
+                        rdfs:subClassOf :ReplacementTerm ;
+                        rdfs:label "CuratedReplacementTerm" .
+
+
+###  http://purl.jp/bio/10/togoannotator/owl/tgao#Match
 :Match rdf:type owl:Class ;
        rdfs:label "Match" .
 
 
-###  http://purl.jp/bio/10/tgao/AfterReplacementTerm
-<http://purl.jp/bio/10/tgao/AfterReplacementTerm> rdf:type owl:Class ;
-                                                  rdfs:subClassOf <http://purl.jp/bio/10/tgao/ReplacementTerm> ;
-                                                  rdfs:label "AfterReplacementTerm" .
-
-
-###  http://purl.jp/bio/10/tgao/BeforeReplacementTerm
-<http://purl.jp/bio/10/tgao/BeforeReplacementTerm> rdf:type owl:Class ;
-                                                   rdfs:subClassOf <http://purl.jp/bio/10/tgao/ReplacementTerm> ;
-                                                   rdfs:label "BeforeReplacementTerm" .
-
-
-###  http://purl.jp/bio/10/tgao/CuratedReplacementTerm
-<http://purl.jp/bio/10/tgao/CuratedReplacementTerm> rdf:type owl:Class ;
-                                                    rdfs:subClassOf <http://purl.jp/bio/10/tgao/ReplacementTerm> ;
-                                                    rdfs:label "CuratedReplacementTerm" .
-
-
-###  http://purl.jp/bio/10/tgao/ReplacementTerm
-<http://purl.jp/bio/10/tgao/ReplacementTerm> rdf:type owl:Class ;
-                                             rdfs:subClassOf owl:Thing ;
-                                             rdfs:label "ReplacementTerm" .
+###  http://purl.jp/bio/10/togoannotator/owl/tgao#ReplacementTerm
+:ReplacementTerm rdf:type owl:Class ;
+                 rdfs:subClassOf owl:Thing ;
+                 rdfs:label "ReplacementTerm" .
 
 
 #################################################################
 #    Individuals
 #################################################################
 
-###  http://purl.jp/bio/10/tgao#approximateMatchToAfterReplacementTerm
+###  http://purl.jp/bio/10/togoannotator/owl/tgao#approximateMatchToAfterReplacementTerm
 :approximateMatchToAfterReplacementTerm rdf:type owl:NamedIndividual ,
                                                  :Match ;
                                         rdfs:label "cs"^^xsd:string .
 
 
-###  http://purl.jp/bio/10/tgao#approximateMatchToBeforeReplacementTerm
+###  http://purl.jp/bio/10/togoannotator/owl/tgao#approximateMatchToBeforeReplacementTerm
 :approximateMatchToBeforeReplacementTerm rdf:type owl:NamedIndividual ,
                                                   :Match ;
                                          rdfs:label "bcs"^^xsd:string .
 
 
-###  http://purl.jp/bio/10/tgao#exactMatch
+###  http://purl.jp/bio/10/togoannotator/owl/tgao#exactMatch
 :exactMatch rdf:type owl:NamedIndividual ,
                      :Match ;
             rdfs:label "ex"^^xsd:string .
 
 
-###  http://purl.jp/bio/10/tgao#noHitMatch
+###  http://purl.jp/bio/10/togoannotator/owl/tgao#noHitMatch
 :noHitMatch rdf:type owl:NamedIndividual ,
                      :Match ;
             rdfs:label "no_hit"^^xsd:string .
