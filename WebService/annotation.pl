@@ -64,47 +64,6 @@ print "\n";
 print "### Server\n";
 print "Server ready.\n";
 
-# sub match{
-#   my @queries = @_;
-#   my @out = ();
-#   foreach my $q (@queries){
-#     my $r = Text::TogoAnnotator->retrieve($q);
-#     my $json = JSON::XS->new->utf8(0)->encode($r);
-#     push @out, $json;
-#   }
-#   return "[".join(",",@out)."]";
-# }
-
-=head
-sub file2queries {
-   my $path = shift;
-   my @queries = ();
-   open(my $LIST, $path);
-   while(<$LIST>){
-      chomp;
-      next if /^#/;
-      push @queries, $_;
-   }
-   close($LIST);
-   return @queries;
-}
-=cut
-
-=head
-sub ddbjfile2queries {
-    my $path = shift;
-    my @queries = ();
-    open(my $LIST, $path);
-    while(<$LIST>){
-      chomp;
-      my @a = split "\t",$_;
-      if($a[3] eq 'product'){
-        push @queries, $a[4];
-      }
-    }
-    return @queries;
-}
-=cut
 sub file2queries {
     my @queries = ();
 
@@ -218,28 +177,42 @@ get '/' => sub {
    $self->render(template => 'index');
 };
 
+app->types->type(jsonld => 'application/ld+json');
 
-#post '/' => sub {
-#    my $self = shift;
-#    my $o = $self->openapi->valid_input or return;
-#    my $data = { body => $o->validation->param("body")};
-#    my $html = $o->render(openapi => $data);
-#    $self->stash( apidoc=> $html);
-#    #$self->render(template => 'apidoc');
-#};
+app->helper(
+  retrieve => sub {
+    my ($self, $defs) = @_;
+    Text::TogoAnnotator->openDicts;
+    my $r = Text::TogoAnnotator->retrieve($defs);
+    Text::TogoAnnotator->closeDicts;
+    return $r;
+  });
+
+app->helper(
+  retrieve_array => sub {
+    my ($self, $queries) = @_;
+    Text::TogoAnnotator->openDicts;
+    my @out = ();
+    foreach my $q (@$queries){
+       my $r = Text::TogoAnnotator->retrieve($q);
+       push @out, $r;
+    }
+    Text::TogoAnnotator->closeDicts;
+    return @out;
+  }
+);
 
 get '/gene/*definition' => sub {
     my $self = shift;
 
     my $defs = $self->param('definition');
-    Text::TogoAnnotator->openDicts;
-    my $r = Text::TogoAnnotator->retrieve($defs);
-    Text::TogoAnnotator->closeDicts;
+    my $r = $self->retrieve($defs);
 
    #return $self->render(json => $r);
    $self->respond_to(
      json => {json => $r},
      html => sub {$self->render(json => $r)},
+     jsonld => { json => $r },
      #html => {template => 'gene', message => 'world'},
      any  => {text => 'Invalid format. Available formats are json or html.', status => 204}
    );
@@ -250,44 +223,23 @@ post '/genes' => sub {
 
     my $upload = $self->param('upload');
     if (ref $upload eq 'Mojo::Upload') {
-
 	my $file_type = $upload->headers->content_type;
 	#my %valid_types = map {$_ => 1} qw(image/gif image/jpeg image/png);
-
-	Text::TogoAnnotator->openDicts;
 	my $queries = file2queries($upload->slurp);
-	my @out = ();
-	foreach my $q (@$queries){
-	    my $r = Text::TogoAnnotator->retrieve($q);
-	    push @out, $r;
-	}
-	Text::TogoAnnotator->closeDicts;
+        my @out = $self->retrieve_array($queries);
 	return $self->render(json => \@out);
-
     }else{
-      $self->redirect_to('index');
+        $self->redirect_to('index');
     }
 };
 
 post '/ddbj' => sub {
     my $self = shift;
-
     my $upload = $self->param('upload');
     if (ref $upload eq 'Mojo::Upload') {
-
 	my $file_type = $upload->headers->content_type;
-	#my %valid_types = map {$_ => 1} qw(image/gif image/jpeg image/png);
-
-	Text::TogoAnnotator->openDicts;
-	my $queries = ddbjfile2queries($upload->slurp);
-	my @out = ();
-	foreach my $q (@$queries){
-	    my $r = Text::TogoAnnotator->retrieve($q);
-	    push @out, $r;
-	}
-	Text::TogoAnnotator->closeDicts;
+        my @out = $self->retrieve_array($queries);
 	return $self->render(json => \@out);
-
     }else{
 	$self->redirect_to('index');
     }
@@ -295,104 +247,55 @@ post '/ddbj' => sub {
 
 post '/genbank' => sub {
     my $self = shift;
-
     my $upload = $self->param('upload');
     if (ref $upload eq 'Mojo::Upload') {
-
-  my $file_type = $upload->headers->content_type;
-  #my %valid_types = map {$_ => 1} qw(image/gif image/jpeg image/png);
-
-  Text::TogoAnnotator->openDicts;
-  my $queries = bioseqio2queries($upload->slurp);
-  #my $queries = bioseqio2queries($upload->filename);
-  my @out = ();
-  foreach my $q (@$queries){
-      my $r = Text::TogoAnnotator->retrieve($q);
-      push @out, $r;
-  }
-  Text::TogoAnnotator->closeDicts;
-  return $self->render(json => \@out);
-
+        my $file_type = $upload->headers->content_type;
+        my $queries = bioseqio2queries($upload->slurp);
+        my @out = $self->retrieve_array($queries);
+        return $self->render(json => \@out);
     }else{
-  $self->redirect_to('index');
+        $self->redirect_to('index');
     }
 };
 
 post '/fasta' => sub {
     my $self = shift;
-
     my $upload = $self->param('upload');
     if (ref $upload eq 'Mojo::Upload') {
-
-  my $file_type = $upload->headers->content_type;
-  #my %valid_types = map {$_ => 1} qw(image/gif image/jpeg image/png);
-
-  Text::TogoAnnotator->openDicts;
-  my $queries = fasta2queries($upload->slurp);
-  my @out = ();
-  foreach my $q (@$queries){
-      my $r = Text::TogoAnnotator->retrieve($q);
-      push @out, $r;
-  }
-  Text::TogoAnnotator->closeDicts;
-  return $self->render(json => \@out);
-
+        my $file_type = $upload->headers->content_type;
+        my $queries = fasta2queries($upload->slurp);
+        my @out = $self->retrieve_array($queries);
+        return $self->render(json => \@out);
     }else{
-  $self->redirect_to('index');
+        $self->redirect_to('index');
     }
 };
 
-
 post '/blast' => sub {
-   my $self = shift;
-
-   my $upload = $self->param('upload');
-   if (ref $upload eq 'Mojo::Upload') {
-
-  my $file_type = $upload->headers->content_type;
-  #my %valid_types = map {$_ => 1} qw(image/gif image/jpeg image/png);
-
-  Text::TogoAnnotator->openDicts;
-  my $queries = biosearchio2queries($upload->slurp);
-  #my $queries = bioseqio2queries($upload->filename);
-  my @out = ();
-  foreach my $q (@$queries){
-      my $r = Text::TogoAnnotator->retrieve($q);
-      push @out, $r;
-  }
-  Text::TogoAnnotator->closeDicts;
-  return $self->render(json => \@out);
-
+    my $self = shift;
+    my $upload = $self->param('upload');
+    if (ref $upload eq 'Mojo::Upload') {
+        my $file_type = $upload->headers->content_type;
+        my $queries = biosearchio2queries($upload->slurp);
+        my @out = $self->retrieve_array($queries);
+        return $self->render(json => \@out);
     }else{
-  $self->redirect_to('index');
+        $self->redirect_to('index');
     }
 };
 
 post '/gff' => sub {
-   my $self = shift;
-
-   my $upload = $self->param('upload');
-   if (ref $upload eq 'Mojo::Upload') {
-
-  my $file_type = $upload->headers->content_type;
-  #my %valid_types = map {$_ => 1} qw(image/gif image/jpeg image/png);
-
-  Text::TogoAnnotator->openDicts;
-  my $queries = gff2queries($upload->slurp);
-  #my $queries = bioseqio2queries($upload->filename);
-  my @out = ();
-  foreach my $q (@$queries){
-      my $r = Text::TogoAnnotator->retrieve($q);
-      push @out, $r;
-  }
-  Text::TogoAnnotator->closeDicts;
-  return $self->render(json => \@out);
-
+    my $self = shift;
+    my $upload = $self->param('upload');
+    if (ref $upload eq 'Mojo::Upload') {
+        my $file_type = $upload->headers->content_type;
+        my $queries = gff2queries($upload->slurp);
+        my @out = $self->retrieve_array($queries);
+        return $self->render(json => \@out);
     }else{
-  $self->redirect_to('index');
+        $self->redirect_to('index');
     }
 };
-
 
 #plugin OpenAPI => {url => app->home->rel_file("public/swagger.json")};
 app->log->level('debug');
