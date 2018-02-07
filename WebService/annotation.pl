@@ -202,6 +202,34 @@ app->helper(
   }
 );
 
+sub json2ld{
+  my $r = shift;
+  my $dict = shift;
+  $r->{'@context'} = "http://purl.jp/bio/10/togoannotator/owl/tgao.jsonld";
+  $r->{'id'} = "http://purl.jp/bio/10/togoannotator/".$dict.$r->{'query'};
+  $r->{'type'} = "Annotation";
+  return $r;
+}
+=pod
+  {
+  "@context": "https://togoannotator.dbcls.jp/owl/tgao.jsonld",
+  "annotation": {
+    "ec": "IUBMB protein",
+    "gene_symbol": "pubsA"
+  },
+  "id": "https://togoannotator.dbcls.jp/cyanobaciteria/PsbA",
+  "info": "convert_from dictionary [Gene symbol]",
+  "match": "ex",
+  "query": "PsbA",
+  "result": "PsbA protein",
+  "result_array": [
+    "PsbA protein 2",
+    "PsbA protein"
+  ],
+  "type": "Annotation"
+}
+=cut
+
 get '/gene/*definition' => sub {
     my $self = shift;
 
@@ -209,12 +237,16 @@ get '/gene/*definition' => sub {
     my $r = $self->retrieve($defs);
 
    #return $self->render(json => $r);
+   $self->stash(record => $r);
    $self->respond_to(
      json => {json => $r},
-     html => sub {$self->render(json => $r)},
-     jsonld => { json => $r },
-     #html => {template => 'gene', message => 'world'},
-     any  => {text => 'Invalid format. Available formats are json or html.', status => 204}
+     jsonld => { json => json2ld($r) },
+     #html => sub {
+     #    $self->render(template => 'retrieve')
+     #},
+     #html => sub {$self->render(json => $r)},
+     html => {json => $r},
+     any  => {text => 'Invalid format. Available formats are json, jsonld or html.', status => 204}
    );
 };
 
@@ -238,6 +270,7 @@ post '/ddbj' => sub {
     my $upload = $self->param('upload');
     if (ref $upload eq 'Mojo::Upload') {
 	my $file_type = $upload->headers->content_type;
+	my $queries = ddbjfile2queries($upload->slurp);
         my @out = $self->retrieve_array($queries);
 	return $self->render(json => \@out);
     }else{
@@ -560,3 +593,8 @@ $ curl -s http://togows.dbcls.jp/entry/nucleotide/ABA25090.1.fasta | curl -s -F 
 @@ index.html.ep
 % layout 'default';
 %= content;
+
+@@ retrieve.html.ep
+<table>
+</table>
+<%= dumper $record %>
