@@ -71,7 +71,7 @@ my ($nitealldb_after_name, $nitealldb_before_name);
 my ($niteall_after_cs_db, $niteall_before_cs_db);
 my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars, $locustag_prefix_matcher, $embl_locustag_matcher, $gene_symbol_matcher, $family_name_matcher);
 my ($histogram, $useCurrentDict, $md5dname);
-my ($namespace);
+my ($namespace, $eslogfh);
 
 my (
     @sp_words, # マッチ対象から外すが、マッチ処理後は元に戻して結果に表示させる語群。
@@ -421,15 +421,18 @@ sub openDicts {
     $niteall_before_cs_db->swig_measure_set($simstring::cosine);
     $niteall_before_cs_db->swig_threshold_set($cos_threshold);
     print "Done.\n";
+    open($eslogfh, ">>:utf8", "eslog_".$namespace.".log");
 }
 
 sub closeDicts {
     $niteall_after_cs_db->close;
     $niteall_before_cs_db->close;
+    close($eslogfh);
 }
 
 sub chk_convtable_a_all {
     my @terms = map { {"term" => {"normalized_name.keyword" => $_}} } @{$_[0]};
+    print $eslogfh join("|", ('index:dict_'. $md5dname, "type:convtable", "body:query:bool:should:@terms", "size:500")), "\n";
     my $results = $esearch->search(
 	index => 'dict_'. $md5dname,
 	type => 'convtable',
@@ -444,6 +447,7 @@ sub chk_convtable_a_all {
 }
 
 sub chk_convtable_a {
+    print $eslogfh join("|", ('index:dict_'. $md5dname, "type:convtable", "body:query:term:normalized_name.keyword:".$_[0])), "\n";
     my $results = $esearch->search(
 	index => 'dict_'. $md5dname,
 	type => 'convtable',
@@ -457,6 +461,7 @@ sub chk_convtable_a {
 
 sub mget_wospconv {
     my @terms = map { {"term" => {"normalized_name.keyword" => $_}} } @{$_[1]};
+    print $eslogfh join("|", ('index:dict_'. $md5dname, "type:wospconvtable".$_[0], "body:query:bool:should:@terms", "size:0", "aggs:distinct:terms:{field:name.keyword,size:1000}")), "\n";
     my $results = $esearch->search(
 	index => 'dict_'.$md5dname,
 	type => 'wospconvtable'.$_[0], # "D" or "E"
@@ -479,6 +484,7 @@ sub mget_wospconv {
 
 sub get_all_wospconv {
     my @terms = map { {"term" => {"normalized_name.keyword" => $_}} } @{$_[1]};
+    print $eslogfh join("|", ('index:dict_'. $md5dname, "type:wospconvtable".$_[0], "body:query:bool:should:@terms", "size:500")), "\n";
     my $results = $esearch->search(
 	index => 'dict_'.$md5dname,
 	type => 'wospconvtable'.$_[0], # "D" or "E"
@@ -493,6 +499,7 @@ sub get_all_wospconv {
 }
 
 sub chk_convtable_b {
+    print $eslogfh join("|", ('index:dict_'. $md5dname, "type:convtable", "body:query:bool:must:{term:normalized_name.keyword:$_[0],term:name.keyword:__DEL__}")), "\n";
     my $results = $esearch->search(
 	index => 'dict_'. $md5dname,
 	type => 'convtable',
@@ -513,6 +520,7 @@ sub chk_convtable_b {
 }
 
 sub get_correct_definitions {
+    print $eslogfh join("|", ('index:dict_'. $md5dname, "type:correct_definitions", "body:query:term:normalized_name.keyword:$_[0]", "size:1")), "\n";
     my $results = $esearch->search(
 	index => 'dict_'.$md5dname,
 	type => 'correct_definitions',
@@ -728,7 +736,6 @@ sub guideline_penalty {
 #17. アクセント、ウムラウトなどの発音区別記号を使用しない。多くのコンピュータシステムは、ASCII文字しか判別できない。 
  $idx++ if $result =~/(\p{Mn})/;
 
-
 #3. 理想的には命名する遺伝子名（タンパク質名）はユニークであり、すべてのオルソログに同じ名前がついているとよい。
 #4. タンパク質名に、タンパク質の特定の特徴を入れない。 例えば、タンパク質の機能、細胞内局在、ドメイン構造、分子量やその起源の種名はノートに記述する。
 #6. タンパク質名は、対応する遺伝子と同じ表記を用いる。ただし，語頭を大文字にする。
@@ -741,7 +748,6 @@ sub guideline_penalty {
 #19 機能未知タンパク質のうち既知のドメインまたはモチーフを含む場合、ドメイン名を付して名前を付けてもよい。例えば "PAS domain-containing protein 5" など。
  return $idx;
 }
-
 
 sub getScore {
     my $retr = shift;
