@@ -485,7 +485,8 @@ sub mget_wospconv {
 
 sub get_all_wospconv {
     my @terms = map { {"term" => {"normalized_name.keyword" => $_}} } @{$_[1]};
-    print $eslogfh join("|", ('index:dict_'. $md5dname, "type:wospconvtable".$_[0], "body:query:bool:should:@terms", "size:500")), "\n";
+    my $termkeywords = join(",", map {values(%{$_})} @terms);
+    print $eslogfh join("|", ('index:dict_'. $md5dname, "type:wospconvtable".$_[0], "body:query:bool:should:term=>".$termkeywords, "size:500")), "\n";
     my $results = $esearch->search(
 	index => 'dict_'.$md5dname,
 	type => 'wospconvtable'.$_[0], # "D" or "E"
