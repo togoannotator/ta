@@ -432,7 +432,7 @@ sub closeDicts {
 
 sub chk_convtable_a_all {
     my @terms = map { {"term" => {"normalized_name.keyword" => $_}} } @{$_[0]};
-    my $termkeywords = join(",", map {values(%{$_{"term"}})} @terms);
+    my $termkeywords = join(",", map {values(%{$_->{"term"}})} @terms);
     print $eslogfh join("|", ('index:dict_'. $md5dname, "type:convtable", "body:query:bool:should:term=>".$termkeywords, "size:500")), "\n";
     my $results = $esearch->search(
 	index => 'dict_'. $md5dname,
@@ -462,7 +462,7 @@ sub chk_convtable_a {
 
 sub mget_wospconv {
     my @terms = map { {"term" => {"normalized_name.keyword" => $_}} } @{$_[1]};
-    my $termkeywords = join(",", map {values(%{$_{"term"}})} @terms);
+    my $termkeywords = join(",", map {values(%{$_->{"term"}})} @terms);
     print $eslogfh join("|", ('index:dict_'. $md5dname, "type:wospconvtable".$_[0], "body:query:bool:should:term=>".$termkeywords, "size:0", "aggs:distinct:terms:{field:name.keyword,size:1000}")), "\n";
     my $results = $esearch->search(
 	index => 'dict_'.$md5dname,
@@ -486,7 +486,7 @@ sub mget_wospconv {
 
 sub get_all_wospconv {
     my @terms = map { {"term" => {"normalized_name.keyword" => $_}} } @{$_[1]};
-    my $termkeywords = join(",", map {values(%{$_{"term"}})} @terms);
+    my $termkeywords = join(",", map {values(%{$_->{"term"}})} @terms);
     print $eslogfh join("|", ('index:dict_'. $md5dname, "type:wospconvtable".$_[0], "body:query:bool:should:term=>".$termkeywords, "size:500")), "\n";
     my $results = $esearch->search(
 	index => 'dict_'.$md5dname,
