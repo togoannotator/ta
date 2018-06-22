@@ -3,9 +3,9 @@
     "namespace": "cyanobacteria",
     "cos_threshold": 0.6,
     "cs_max": 5,
-    "curatedDict": "/opt/services2/togoannot/togoannotator_tf/data/dict_cyanobacteria_curated.txt",
+    "curatedDict": "/opt/services2/togoannot/togoannotator/data/dict_cyanobacteria_curated.txt",
     "e_threashold": 30,
-    "n_gram": 3,
+   "n_gram": 3,
     "niteAll": "/opt/services2/togoannot/togoannotator/data/dict_cyanobacteria_20151120_with_cyanobase.txt.gz",
     "port": 5002
   },
