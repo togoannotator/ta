@@ -36,7 +36,7 @@ our ($opt_t, $opt_m) = (0.6, 5);
 getopt('tm'); # -tm take arg.  Sets $opt_t, $opt_m as a side effect.
 
 print "#th:", $opt_t, ", dm:", $opt_m, "\n";
-Text::TogoAnnotator->init($opt_t, 30, $opt_m, 3, $sysroot, "nite_dictionary_140519mod2_trailSpaceRemoved.txt", undef, 1);
+Text::TogoAnnotator->init($opt_t, 30, $opt_m, 3, $sysroot, "nite_dictionary_140519mod2_trailSpaceRemoved.txt", undef, 1, "d");
 #Text::TogoAnnotator->init($opt_t, 30, $opt_m, 3, $sysroot, "nite_ALL_1305_99.txt");
 Text::TogoAnnotator->openDicts;
 match();

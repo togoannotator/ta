@@ -236,17 +236,17 @@ get '/gene/*definition' => sub {
     my $defs = $self->param('definition');
     my $r = $self->retrieve($defs);
 
-   #return $self->render(json => $r);
+   return $self->render(json => $r);
    $self->stash(record => $r);
    $self->respond_to(
      json => {json => $r},
-     jsonld => { json => json2ld($r) },
+#     jsonld => { json => json2ld($r) },
      #html => sub {
      #    $self->render(template => 'retrieve')
      #},
      #html => sub {$self->render(json => $r)},
-     html => {json => $r},
-     any  => {text => 'Invalid format. Available formats are json, jsonld or html.', status => 204}
+#     html => {json => $r},
+#     any  => {text => 'Invalid format. Available formats are json, jsonld or html.', status => 204}
    );
 };
 

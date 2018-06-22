@@ -82,7 +82,7 @@ print '@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix prov: <http://www.w3.org/ns/prov#> .
 '."\n";
 
-Text::TogoAnnotator->init($cos_threshold, $e_threashold, $cs_max, $n_gram, $sysroot, $ta_dictionary);
+Text::TogoAnnotator->init($cos_threshold, $e_threashold, $cs_max, $n_gram, $sysroot, $ta_dictionary, "", 1, "nite_ALL_130517");
 Text::TogoAnnotator->openDicts;
 
 ### input ###
