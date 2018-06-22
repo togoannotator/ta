@@ -8,7 +8,7 @@ use lib "$Bin/..";
 use Search::Elasticsearch;
 use Text::TogoAnnotator;
 use Data::Dumper;
-use Mojo::mysql;
+#use Mojo::mysql;
 
 #my $port = $ENV{HYP_PORT} // 5001;
 my $config = plugin 'JSONConfig';
