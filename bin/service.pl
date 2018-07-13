@@ -10,7 +10,7 @@ my $this = basename $0;
 
 my $arg = ($this eq "start_service.pl")? "" :($this eq "stop_service.pl")? "-s":"";
 
-foreach my $idx (0..3){
+foreach my $idx (0..4){
 #foreach my $idx (1..3){
   print $idx,"\n";
   $ENV{'TA_DICT_NO'} = $idx;
