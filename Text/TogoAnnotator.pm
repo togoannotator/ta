@@ -726,11 +726,11 @@ sub retrieve {
 	$info .= " [Family name]";
 	$annotations{"Family name"} = [ $oq ];
     }
-    if($white_list_matcher->exact_match(' '.$oq.' ')){
+    if($white_list_matcher->match(' '.$oq.' ')){
 	$info .= " [Whilte list]";
 	$annotations{"White list"} = [ $oq ];
     }
-    if($black_list_matcher->exact_match(' '.$oq.' ')){
+    if($black_list_matcher->match(' '.$oq.' ')){
 	$info .= " [Black list]";
 	$annotations{"Black list"} = [ $oq ];
     }
