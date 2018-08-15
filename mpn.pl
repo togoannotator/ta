@@ -63,8 +63,12 @@ sub match{
 	my @vals = split /\t/;
 	print join("\t", ("AKUZ", @vals[0..6]));
 	my $r = Text::TogoAnnotator->retrieve($vals[6]);
-	print "\t", join("\t", (@$r{'match','result','info'})), "\n";
-	print ">>>", join(" | ", @{$r->{'result_array'}}), "\n";
+	my $annotation = "";
+	if($r->{'annotation'}->{'White list unmatched'}){
+		$annotation = "Not in the white list: ".join(",", @{$r->{'annotation'}->{'White list unmatched'}});
+	}
+	print "\t", join("\t", (@$r{'match','result','info'}, $annotation)), "\n";
+	#print ">>>", join(" | ", @{$r->{'result_array'}}), "\n";
     }
     close($AKUZ);
 
