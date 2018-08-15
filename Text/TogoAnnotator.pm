@@ -45,6 +45,8 @@ package Text::TogoAnnotator;
 # histogramのストアとロード対応（Sereal::Encoder/Decoderを利用）
 # * 2018.1.16
 # Locusタグ等にマッチさせる対象を$resultから$oqへ。
+# * 2018.8.15
+# White/Black List対応
 
 use warnings;
 use strict;
@@ -69,7 +71,8 @@ use Encode;
 my ($sysroot, $niteAll, $curatedDict, $enzymeDict, $locustag_prefix_name, $embl_locustag_name, $gene_symbol_name, $family_name, $esearch);
 my ($nitealldb_after_name, $nitealldb_before_name);
 my ($niteall_after_cs_db, $niteall_before_cs_db);
-my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars, $locustag_prefix_matcher, $embl_locustag_matcher, $gene_symbol_matcher, $family_name_matcher);
+my ($white_list, $black_list);
+my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars, $locustag_prefix_matcher, $embl_locustag_matcher, $gene_symbol_matcher, $family_name_matcher, $white_list_matcher, $black_list_matcher);
 my ($histogram, $useCurrentDict, $md5dname);
 my ($namespace, $eslogfh);
 
@@ -107,6 +110,8 @@ sub init {
     $embl_locustag_name = "uniprot_evaluation/Embl2LocusTag.txt";
     $gene_symbol_name = "UniProtPrefGeneSymbols.txt";
     $family_name = "pfam-ac.txt";
+    $white_list = 'ValidationWhiteDictionary.txt';
+    $black_list = 'ValidationBlackDictionary.txt';
 
     @sp_words = qw/putative probable possible/;
     @avoid_cs_terms = (
@@ -279,6 +284,31 @@ sub readDict {
     }
     close($pfam_family);
     $family_name_matcher = Text::Match::FastAlternatives->new( @pfam_family_array );
+
+    # White Listのロード
+    print "Prepare: Whilte List.\n";
+    my @white_list_array;
+    open(my $white_list_fh, $sysroot.'/'.$white_list);
+    while(<$white_list_fh>){
+	chomp;
+	trim( $_ );
+	push @white_list_array, lc(' '.$_.' ');
+    }
+    close($white_list_fh);
+    $white_list_matcher = Text::Match::FastAlternatives->new( @white_list_array );
+
+    # Black Listのロード
+    print "Prepare: Black List.\n";
+    my @black_list_array;
+    open(my $black_list_fh, $sysroot.'/'.$black_list);
+    while(<$black_list_fh>){
+	chomp;
+	trim( $_ );
+	push @black_list_array, lc(' '.$_.' ');
+    }
+    close($black_list_fh);
+    $black_list_matcher = Text::Match::FastAlternatives->new( @black_list_array );
+
     print "Prepare: Done.\n";
 
     # 辞書を構築しない場合は以下の分岐内でreturnする
@@ -695,6 +725,14 @@ sub retrieve {
     if($family_name_matcher->exact_match($oq)){
 	$info .= " [Family name]";
 	$annotations{"Family name"} = [ $oq ];
+    }
+    if($white_list_matcher->exact_match(' '.$oq.' ')){
+	$info .= " [Whilte list]";
+	$annotations{"White list"} = [ $oq ];
+    }
+    if($black_list_matcher->exact_match(' '.$oq.' ')){
+	$info .= " [Black list]";
+	$annotations{"Black list"} = [ $oq ];
     }
     $result = b2a($result);
     return({'query'=> $oq, 'result' => $result, 'match' => $match, 'info' => $info, 'result_array' => \@results, 'annotation' => \%annotations});
