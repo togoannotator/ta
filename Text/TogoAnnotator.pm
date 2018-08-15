@@ -728,7 +728,18 @@ sub retrieve {
     }
     if($white_list_matcher->match(' '.$oq.' ')){
 	$info .= " [White list]";
-	$annotations{"White list"} = [ $oq ];
+	my @unmatched;
+	(my $fm = $oq) =~ y|-()[]/,| |;
+	$fm =~ s/\'/ /g;
+	$fm =~ s/  +/ /g;
+	trim( $fm );
+	for ( split / /, $fm ){
+	    if( $white_list_matcher->exact_match(lc $_) ){
+	    } else {
+		push @unmatched, $_;
+	    }
+	}
+	$annotations{"White list unmatched"} = \@unmatched;
     }else{
 	$info .= " [Not in the white list]";
     }
