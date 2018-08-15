@@ -286,7 +286,7 @@ sub readDict {
     $family_name_matcher = Text::Match::FastAlternatives->new( @pfam_family_array );
 
     # White Listのロード
-    print "Prepare: Whilte List.\n";
+    print "Prepare: White List.\n";
     my @white_list_array;
     open(my $white_list_fh, $sysroot.'/'.$white_list);
     while(<$white_list_fh>){
@@ -727,8 +727,10 @@ sub retrieve {
 	$annotations{"Family name"} = [ $oq ];
     }
     if($white_list_matcher->match(' '.$oq.' ')){
-	$info .= " [Whilte list]";
+	$info .= " [White list]";
 	$annotations{"White list"} = [ $oq ];
+    }else{
+	$info .= " [Not in the white list]";
     }
     if($black_list_matcher->match(' '.$oq.' ')){
 	$info .= " [Black list]";
