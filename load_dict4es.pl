@@ -20,7 +20,7 @@ foreach my $file (@files){
     #last if $i++ >= 1000;
     chomp;
     my $name ='';
-    my $frequencey = 0;
+    my $frequency = 0;
     my ($id, $tkey, $tvalue, $dictionary) =split /\t/;
     next if $tkey eq 'tkey';
     if( $tvalue =~/^\{(.+)\:\s+(.+)\}$/){
