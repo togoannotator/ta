@@ -58,7 +58,7 @@ my ($niteall_after_cs_db, $niteall_before_cs_db);
 my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars, $locustag_prefix_matcher, $embl_locustag_matcher, $gene_symbol_matcher, $family_name_matcher);
 
 my (
-    @sp_words, # マッチ対象から外すが、マッチ処理後は元に戻して結果に表示させる語群。
+    @sp_words,      # マッチ対象から外すが、マッチ処理後は元に戻して結果に表示させる語群。
     @avoid_cs_terms # コサイン距離を用いた類似マッチの対象にはしない文字列群。種々の辞書に完全一致しない場合はno_hitとする。
     );
 my (
@@ -66,7 +66,7 @@ my (
     %histogram,
     %convtable,           # 書換辞書の書換前後の対応表。小文字化したクエリが、同じく小文字化した書換え前の語に一致した場合は対応する書換後の語を一致させて出力する。
     %negative_min_words,  # コサイン距離を用いた類似マッチではクエリと辞書中のエントリで文字列としては類似していても、両者の間に共通に出現する語が無い場合がある。
-    # その場合、共通に出現する語がある辞書中エントリを優先させる処理をしているが、本処理が逆効果となってしまう語がここに含まれる。
+    			  # その場合、共通に出現する語がある辞書中エントリを優先させる処理をしているが、本処理が逆効果となってしまう語がここに含まれる。
     %wospconvtableD, %wospconvtableE, # 全空白文字除去前後の対応表。書換え前と後用それぞれ。
     %name_provenance,     # 変換後デフィニションの由来。
     %curatedHash,         # curated辞書のエントリ（キーは小文字化する）
@@ -230,6 +230,16 @@ sub readDict {
     $family_name_matcher = Text::Match::FastAlternatives->new( @pfam_family_array );
 
     # 類似度計算用および変換用辞書の構築
+=head
+    $name  : 変換後デフィニション
+    $b4name: 変換前デフィニション
+
+    基本的な処理は、入力された文字列に対して変換後デフィニションとマッチするかを調べる。
+    マッチすれば当該文字列は望ましいものなので、そのまま出力して終了。
+    続いて、変換前デフィニションにマッチするか調べる。
+    マッチすれば当該文字列は、対応する変換後デフィニションに書き換えることが望ましいので、当該変換後デフィニションを出力して終了。
+    続いて、類似マッチアルゴリズムを用いて同様の処理を行う。
+=cut
     my $total = 0;
     my $nite_all;
     if($niteAll =~ /\.gz$/){
@@ -279,7 +289,7 @@ sub readDict {
 	    $convtable{$lcb4name}{$name}++;
 
 	    # $niteall_before_db->insert($lcb4name);
-	    (my $wosplcb4name = $lcb4name) =~ s/ //g;   #### 全ての空白を取り除く
+	    (my $wosplcb4name = $lcb4name) =~ s/ //g;   #### 全ての空白を取り除く（wosplc=WithOut SPace Lower Case）
 	    $niteall_before_db->insert($wosplcb4name);
 	    $wospconvtableE{$wosplcb4name}{$lcb4name}++;
 
@@ -321,6 +331,11 @@ sub closeDicts {
 }
 
 sub retrieve {
+=head
+    オリジナルのクエリは $oq に格納される
+    マッチ用に小文字化し、記号類を全て空白にする
+    連続した空白は空白一文字にする
+=cut
     shift;
     ($minfreq, $minword, $ifhit, $cosdist) = undef;
     my $query = my $oq = shift;
@@ -464,18 +479,18 @@ sub retrieve {
 }
 
 sub by_priority {
-  #my $minfreq = shift;
-  #    my $cosdist = shift;
-      
-      #  $minfreq->{$a} <=> $minfreq->{$b} || $cosdist->{$b} <=> $cosdist->{$a} || $a =~ y/ / / <=> $b =~ y/ / /
-      ## $cosdist->{$b} <=> $cosdist->{$a} || $minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /
-        guideline_penalty($a) <=> guideline_penalty($b)
-         or 
-        $minfreq->{$a} <=> $minfreq->{$b}
-         or 
-        $cosdist->{$b} <=> $cosdist->{$a}
-         or 
-        $a =~ y/ / / <=> $b =~ y/ / /
+    #my $minfreq = shift;
+    #my $cosdist = shift;
+
+    #  $minfreq->{$a} <=> $minfreq->{$b} || $cosdist->{$b} <=> $cosdist->{$a} || $a =~ y/ / / <=> $b =~ y/ / /
+    ## $cosdist->{$b} <=> $cosdist->{$a} || $minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /
+    guideline_penalty($a) <=> guideline_penalty($b)
+    or 
+    $minfreq->{$a} <=> $minfreq->{$b}
+    or 
+    $cosdist->{$b} <=> $cosdist->{$a}
+    or 
+    $a =~ y/ / / <=> $b =~ y/ / /
 }
 
 sub guideline_penalty {
