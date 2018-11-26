@@ -47,6 +47,8 @@ package Text::TogoAnnotator;
 # Locusタグ等にマッチさせる対象を$resultから$oqへ。
 # * 2018.8.15
 # White/Black List対応
+# * 2018.11.26
+# 変数名について、小文字化した$queryを$lcqueryに、$lc_queryを$lcb4queryに。
 
 use warnings;
 use strict;
@@ -591,72 +593,74 @@ sub retrieve {
     ($minfreq, $minword, $ifhit, $cosdist) = undef;
     my $query = my $oq = shift;
     # $query ||= 'hypothetical protein';
-    my $lc_query = $query = lc($query);
-    $lc_query =~ s/^"\s*//;
-    $lc_query =~ s/\s*"\s*$//;
+    my $lcquery4curation_dictionary = $lcquery = lc($query);
+    $lcquery4curation_dictionary =~ s/^"\s*//;
+    $lcquery4curation_dictionary =~ s/\s*"\s*$//;
 
-    $query =~ s{$ignore_chars}{ }g;
-    $query =~ s/^"\s*//;
-    $query =~ s/\s*"\s*$//;
-    $query =~ s/\s+\[\w+\]$//;
-    $query =~ s/\s*"$//;
-    $query =~ s/  +/ /g;
-    $query = trim($query);
+    $lcquery =~ s{$ignore_chars}{ }g;
+    $lcquery =~ s/^"\s*//;
+    $lcquery =~ s/\s*"\s*$//;
+    $lcquery =~ s/\s+\[\w+\]$//;
+    $lcquery =~ s/\s*"$//;
+    $lcquery =~ s/  +/ /g;
+    $lcquery = trim($lcquery);
 
     my $prfx = '';
     my ($match, $result, $info) = ('') x 3;
     my @results;
     for ( @sp_words ){
-        if(index($query, $_) == 0){
-            $query =~ s/^$_\s+//;
+        if(index($lcquery, $_) == 0){
+            $lcquery =~ s/^$_\s+//;
 	    $prfx = $_. ' ';
 	    last;
         }
     }
-    if( $curatedHash{$lc_query} ){ # 最初にcurateにマッチするか
+    if( $curatedHash{$lcquery4curation_dictionary} ){ # 最初にcurateにマッチするか
         $match ='ex';
-        $result = $curatedHash{$lc_query};
+        $result = $curatedHash{$lcquery4curation_dictionary};
 	$info = 'in_curated_dictionary (before)';
 	$results[0] = $result;
-    }elsif( (my $cd = get_correct_definitions( $query )) ne "" ){ # 続いてafterに完全マッチするか
-    #}elsif( $correct_definitions{$query} ){ # 続いてafterに完全マッチするか
+    }elsif( (my $cd = get_correct_definitions( $lcquery )) ne "" ){ # 続いてafterに完全マッチするか
+    #}elsif( $correct_definitions{$lcquery} ){ # 続いてafterに完全マッチするか
         $match ='ex';
 	$result = $oq;
         # $result = $prfx. $cd;
-        # $result = $prfx. $correct_definitions{$query};
+        # $result = $prfx. $correct_definitions{$lcquery};
 	$info = 'in_dictionary'. ($prfx?" (prefix=${prfx})":"");
 	$results[0] = $result;
-    }elsif( my @chkconvtbla_set = @{ chk_convtable_a( $query ) } ){ # そしてbeforeに完全マッチするか
-    #}elsif( $convtable{$query} ){ # そしてbeforeに完全マッチするか
-	if( chk_convtable_b( $query ) ){
-	#if($convtable{$query}{'__DEL__'}){
+    }elsif( my @chkconvtbla_set = @{ chk_convtable_a( $lcquery ) } ){ # そしてbeforeに完全マッチするか
+    #}elsif( $convtable{$lcquery} ){ # そしてbeforeに完全マッチするか
+	if( chk_convtable_b( $lcquery ) ){
+	#if($convtable{$lcquery}{'__DEL__'}){
 	    my @others = grep {$_->{"_source"}->{"name"} ne '__DEL__'} @chkconvtbla_set;
-	    # my @others = grep {$_ ne '__DEL__'} keys %{$convtable{$query}};
+	    # my @others = grep {$_ ne '__DEL__'} keys %{$convtable{$lcquery}};
 	    $match = 'del';
-	    $result = $query;
+	    $result = $lcquery;
 	    $info = 'Human check preferable (other entries with the same "before" entry: '.join(" @@ ", @others).')';
 	}else{
 	    $match = 'ex';
 	    $result = join(" @@ ", map {$prfx. ($_->{"_source"}->{"name"}) } @chkconvtbla_set );
-	    # $result = join(" @@ ", map {$prfx. $_} keys %{$convtable{$query}});
+	    # $result = join(" @@ ", map {$prfx. $_} keys %{$convtable{$lcquery}});
 	    $info = 'convert_from dictionary'. ($prfx?" (prefix=${prfx})":"");
 	    $results[0] = $result;
 	}
     }else{ # そして類似マッチへ
+	# Afterの場合は、%wospconvtableDの、simstringで得られた$wosplcnameに対応する$lcnameをすべて取得する(mget_wospconv)のに対し、
+	# Beforeの場合は、%wospconvtableEの、同じくsimstringで得られた$wosplcb4nameに対する$lcb4nameのうち、クエリを構成する単語が含まれるものだけに絞っている。
 	my $avoidcsFlag = 0;
 	for ( @avoid_cs_terms ){
-	    $avoidcsFlag = ($query =~ m,\b$_$,);
+	    $avoidcsFlag = ($lcquery =~ m,\b$_$,);
 	    last if $avoidcsFlag;
 	}
 	#全ての空白を取り除く処理をした場合への対応
-	#my $retr = $niteall_after_cs_db->retrieve($query);
-	(my $qwosp = $query) =~ s/ //g;
+	#my $retr = $niteall_after_cs_db->retrieve($lcquery);
+	(my $qwosp = $lcquery) =~ s/ //g;
 	my $retr = [ "" ];
 	if(defined($qwosp)){
 	    $retr = $niteall_after_cs_db->retrieve($qwosp);
 	}
 	#####
-	my %qtms = map {$_ => 1} grep {s/\W+$//;$histogram->{$_}} (split " ", $query);
+	my %qtms = map {$_ => 1} grep {s/\W+$//;$histogram->{$_}} (split " ", $lcquery);
 	if($retr->[0]){
 	    ($minfreq, $minword, $ifhit, $cosdist) = getScore($retr, \%qtms, 1, $qwosp);
 	    #my %cache;
@@ -683,7 +687,7 @@ sub retrieve {
 	    }
 	}else{
 	    #全ての空白を取り除く処理をした場合への対応
-	    #my $retr_e = $niteall_before_cs_db->retrieve($query);
+	    #my $retr_e = $niteall_before_cs_db->retrieve($lcquery);
 	    my $retr_e = [ "" ];
 	    if(defined($qwosp)){
 		$retr_e = $niteall_before_cs_db->retrieve($qwosp);
