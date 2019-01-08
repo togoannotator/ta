@@ -151,6 +151,11 @@ get '/' => sub {
    $self->render(template => 'index');
 };
 
+get '/api' => sub {
+  my $self = shift;
+  $self->render('swagger3');
+};
+
 app->types->type(jsonld => 'application/ld+json');
 
 app->helper(
@@ -324,6 +329,71 @@ app->log->level('debug');
 app->start;
 
 __DATA__
+
+@@ swagger3.html.ep
+<!-- HTML for static distribution bundle build -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Swagger UI</title>
+    <link rel="stylesheet" type="text/css" href="/dist/swagger-ui.css" >
+    <link rel="icon" type="image/png" href="/dist/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/dist/favicon-16x16.png" sizes="16x16" />
+    <style>
+      html
+      {
+        box-sizing: border-box;
+        overflow: -moz-scrollbars-vertical;
+        overflow-y: scroll;
+      }
+
+      *,
+      *:before,
+      *:after
+      {
+        box-sizing: inherit;
+      }
+
+      body
+      {
+        margin:0;
+        background: #fafafa;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="swagger-ui"></div>
+
+    <script src="/dist/swagger-ui-bundle.js"> </script>
+    <script src="/dist/swagger-ui-standalone-preset.js"> </script>
+    <script>
+    window.onload = function() {
+      // Begin Swagger UI call region
+      const ui = SwaggerUIBundle({
+        //url: "https://petstore.swagger.io/v2/swagger.json",
+        url: "/v1/2/swagger.json",
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        plugins: [
+          SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: "StandaloneLayout"
+      })
+      // End Swagger UI call region
+
+      window.ui = ui
+    }
+  </script>
+  </body>
+</html>
+
+
 
 @@ layouts/default.html.ep
 <html lang="en">
