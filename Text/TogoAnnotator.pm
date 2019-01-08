@@ -84,7 +84,7 @@ my (
     );
 my (
     %negative_min_words,  # コサイン距離を用いた類似マッチではクエリと辞書中のエントリで文字列としては類似していても、両者の間に共通に出現する語が無い場合がある。
-			  # その場合、共通に出現する語がある辞書中エントリを優先させる処理をしているが、本処理が逆効果となってしまう語がここに含まれる。
+                          # その場合、共通に出現する語がある辞書中エントリを優先させる処理をしているが、本処理が逆効果となってしまう語がここに含まれる。
     %name_provenance,     # 変換後デフィニションの由来。
     %curatedHash,         # curated辞書のエントリ（キーは小文字化する）
     %enzymeHash           # 酵素辞書のエントリ（小文字化する）
@@ -107,6 +107,7 @@ sub init {
         die encode_utf8("初期化エラー: namespaceを指定してください。\n");
     }
 
+    #立ち上げ時に必要なファイルリスト
     $enzymeDict = "enzyme/enzyme_accepted_names.txt";
     $locustag_prefix_name = "locus_tag_prefix.txt";
     $embl_locustag_name = "uniprot_evaluation/Embl2LocusTag.txt";
@@ -144,11 +145,11 @@ sub init {
 }
 
 =head
-類似度計算用辞書およびマッチ（完全一致）用辞書の構築
-  類似度計算は simstring
+    類似度計算用辞書およびマッチ（完全一致）用辞書の構築
+    類似度計算は simstring
     類似度計算用辞書の見出し語は全て空白文字を除去し、小文字化したもの
     書換前後の語群それぞれを独立した辞書にしている
-  完全一致はハッシュ
+    完全一致はハッシュ
     ハッシュは書換用辞書とキュレーテッド
     更に書換用辞書についてはconvtableとcorrect_definition
     convtableのキーは書換前の語に対して特殊文字を除去し、小文字化したもの
@@ -188,14 +189,12 @@ sub readDict {
 	if (!-d  $sysroot.'/'.$dictdir){
 	    mkpath($sysroot.'/'.$dictdir);
 	}
-
 	for my $f ( <${sysroot}/${dictdir}/after*> ){
 	    unlink $f;
 	}
 	for my $f ( <${sysroot}/${dictdir}/before*> ){
 	    unlink $f;
 	}
-
 	$niteall_after_db = simstring::writer->new($nitealldb_after_name, $n_gram);
 	$niteall_before_db = simstring::writer->new($nitealldb_before_name, $n_gram);
     }
@@ -227,9 +226,9 @@ sub readDict {
     print "Prepare: Enzyme Dictionary.\n";
     open(my $enzyme_dict, $sysroot.'/'.$enzymeDict);
     while(<$enzyme_dict>){
-    	chomp;
-    	trim( $_ );
-    	$enzymeHash{lc($_)} = $_;
+	chomp;
+	trim( $_ );
+	$enzymeHash{lc($_)} = $_;
     }
     close($enzyme_dict);
 
@@ -322,11 +321,11 @@ sub readDict {
 	return;
     }
 
-    #
-    # useCurrentDictがFalseのときのみ以下のコードが実行される
-    #
+#
+# useCurrentDictがFalseのときのみ以下のコードが実行される
+#
 
-    # 類似度計算用および変換用辞書の構築
+# 類似度計算用および変換用辞書の構築
 =head
     $name  : 変換後デフィニション
     $b4name: 変換前デフィニション
