@@ -1,4 +1,4 @@
-package Text::TogoAnnotator;
+package Text::TogoAnnotatorES;
 
 # Yasunori Yamamoto / Database Center for Life Science
 # -- 変更履歴 --
@@ -60,7 +60,7 @@ use File::Path 'mkpath';
 use File::Basename;
 use Bag::Similarity::Cosine;
 use String::Trim;
-use simstring;
+#use simstring;
 use PerlIO::gzip;
 use Lingua::EN::ABC qw/b2a/;
 use Text::Match::FastAlternatives;
