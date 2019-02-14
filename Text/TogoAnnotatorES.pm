@@ -70,6 +70,7 @@ use Sereal::Encoder qw/sereal_encode_with_object/;
 use Sereal::Decoder qw/sereal_decode_with_object/;
 use File::Slurp;
 use Encode;
+use WWW::Curl::Easy;
 
 my ($sysroot, $niteAll, $curatedDict, $enzymeDict, $locustag_prefix_name, $embl_locustag_name, $gene_symbol_name, $family_name, $esearch);
 my ($nitealldb_after_name, $nitealldb_before_name);
@@ -590,39 +591,46 @@ sub retrieve {
     マッチ用に小文字化し、記号類を全て空白にする
     連続した空白は空白一文字にする
 =cut
-    shift;
-    ($minfreq, $minword, $ifhit, $cosdist) = undef;
-    my $query = my $oq = shift;
-    # $query ||= 'hypothetical protein';
-    my $lcquery = lc($query);
+  shift;
+  ($minfreq, $minword, $ifhit, $cosdist) = undef;
+  my $query = my $oq = shift;
+  # $query ||= 'hypothetical protein';
+  my $lcquery = lc($query);
 
-    $lcquery =~ s{$ignore_chars}{ }g;
-    $lcquery =~ s/^"\s*//;
-    $lcquery =~ s/\s*"\s*$//;
-    $lcquery =~ s/\s+\[\w+\]$//;
-    $lcquery =~ s/\s*"$//;
-    $lcquery =~ s/  +/ /g;
-    $lcquery = trim($lcquery);
+  $lcquery =~ s{$ignore_chars}{ }g;
+  $lcquery =~ s/^"\s*//;
+  $lcquery =~ s/\s*"\s*$//;
+  $lcquery =~ s/\s+\[\w+\]$//;
+  $lcquery =~ s/\s*"$//;
+  $lcquery =~ s/  +/ /g;
+  $lcquery = trim($lcquery);
 
-    my $prfx = '';
-    my ($match, $result, $info) = ('') x 3;
-    my @results;
-    for ( @sp_words ){
-        if(index($lcquery, $_) == 0){
-            $lcquery =~ s/^$_\s+//;
+  my $prfx = '';
+  my ($match, $result, $info) = ('') x 3;
+  my @results;
+  for ( @sp_words ){
+    if(index($lcquery, $_) == 0){
+      $lcquery =~ s/^$_\s+//;
 	    $prfx = $_. ' ';
 	    last;
-        }
     }
+  }
 
-    my $INDEX_NAME = "tm_".$md5dname;
-    my $KEY_WORD = $lcquery;
-    my $MAX_QUERY_TERMS = 100;
-    my $MINIMUM_SHOULD_MATCH = "30%";
-    my $MIN_TERM_FREQ = 0;
-    my $MIN_WORD_LENGTH = 0;
-    my $MAX_WORD_LENGTH = 0;
-    my $query2es =<<"QUERY";
+  my $curl = WWW::Curl::Easy->new();
+  my $response_body;
+  my $INDEX_NAME = "tm_".$md5dname;
+  $curl->setopt(CURLOPT_URL, "http://localhost:9200/${INDEX_NAME}/_search");
+  $curl->setopt(CURLOPT_POST, 1);
+  $curl->setopt(CURLOPT_HTTPHEADER, [
+  	"Content-Type: application/json",
+  ]);
+  my $KEY_WORD = $lcquery;
+  my $MAX_QUERY_TERMS = 100;
+  my $MINIMUM_SHOULD_MATCH = "30%";
+  my $MIN_TERM_FREQ = 0;
+  my $MIN_WORD_LENGTH = 0;
+  my $MAX_WORD_LENGTH = 0;
+  my $query2es =<<"QUERY";
 {
   "query": {
     "bool": {
@@ -733,6 +741,18 @@ sub retrieve {
   }
 }
 QUERY
+
+  $curl->setopt(CURLOPT_POSTFIELDS, $query2es);
+  open (my $fileb, ">", \$response_body);
+  $curl->setopt(CURLOPT_WRITEDATA,$fileb);
+  my $retcode = $curl->perform;
+ 
+  if ($retcode == 0) {
+    my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
+
+  } else {
+    warn("An error happened: ".$curl->strerror($retcode)." ($retcode)\n");
+  }
 
 =head
     if( (my $cd = get_correct_definitions( $lcquery )) ne "" ){ # 続いてafterに完全マッチするか
