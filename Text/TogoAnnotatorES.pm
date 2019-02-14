@@ -615,6 +615,125 @@ sub retrieve {
         }
     }
 
+    my $INDEX_NAME = "tm_".$md5dname;
+    my $KEY_WORD = $lcquery;
+    my $MAX_QUERY_TERMS = 100;
+    my $MINIMUM_SHOULD_MATCH = "30%";
+    my $MIN_TERM_FREQ = 0;
+    my $MIN_WORD_LENGTH = 0;
+    my $MAX_WORD_LENGTH = 0;
+    my $query2es =<<"QUERY";
+{
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "bool": {
+            "must": [
+              {
+                "term": {
+                  "query_type": "term_before"
+                }
+              },
+              {
+                "match": {
+                  "normalized_name.term": {
+                    "query": "${KEY_WORD}"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "bool": {
+            "must": [
+              {
+                "term": {
+                  "query_type": "term_after"
+                }
+              },
+              {
+                "match": {
+                  "normalized_name.term": {
+                    "query": "${KEY_WORD}"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "bool": {
+            "must": [
+              {
+                "term": {
+                  "query_type": "mlt_before"
+                }
+              },
+              {
+                "more_like_this": {
+                  "fields": [
+                    "normalized_name.mlt"
+                  ],
+                  "like": "${KEY_WORD}",
+                  "max_query_terms": ${MAX_QUERY_TERMS},
+                  "minimum_should_match": "${MINIMUM_SHOULD_MATCH}",
+                  "min_term_freq": ${MIN_TERM_FREQ},
+                  "min_word_length": ${MIN_WORD_LENGTH},
+                  "max_word_length":  ${MAX_WORD_LENGTH}
+                }
+              }
+            ]
+          }
+        },
+        {
+          "bool": {
+            "must": [
+              {
+                "term": {
+                  "query_type": "mlt_after"
+                }
+              },
+              {
+                "more_like_this": {
+                  "fields": [
+                    "normalized_name.mlt"
+                  ],
+                  "like": "${KEY_WORD}",
+                  "max_query_terms": ${MAX_QUERY_TERMS},
+                  "minimum_should_match": "${MINIMUM_SHOULD_MATCH}",
+                  "min_term_freq": ${MIN_TERM_FREQ},
+                  "min_word_length": ${MIN_WORD_LENGTH},
+                  "max_word_length": ${MAX_WORD_LENGTH}
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+ },
+  "size": 0, 
+  "aggs": {  },
+  "aggs": {
+    "tags": {
+      "terms": {
+        "field": "query_type",
+        "size": 4
+      },
+      "aggs":{
+        "top_tag_hits":{
+          "top_hits": {
+            "size": 15
+          }
+        }
+      }
+    }
+  }
+}
+QUERY
+
 =head
     if( (my $cd = get_correct_definitions( $lcquery )) ne "" ){ # 続いてafterに完全マッチするか
         $match ='ex';
