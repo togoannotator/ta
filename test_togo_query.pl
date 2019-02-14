@@ -9,7 +9,7 @@ my $curl = WWW::Curl::Easy->new();
 my $response_body;
 my $lcquery = "3 oxoacyl acyl carrier protein reductase like";
 my $INDEX_NAME = "tm_53a186f8c95c329d6bddd8bc3d3b4189";
-$curl->setopt(CURLOPT_URL, "http://localhost:9200/${INDEX_NAME}/_search");
+$curl->setopt(CURLOPT_URL, "http://172.18.8.190:9200/${INDEX_NAME}/_search");
 $curl->setopt(CURLOPT_POST, 1);
 $curl->setopt(CURLOPT_HTTPHEADER, [
 	"Content-Type: application/json",

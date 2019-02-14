@@ -144,7 +144,7 @@ cat json.txt | jq .
 echo ""
 
 
-curl -sS --noproxy localhost -X GET "http://localhost:9200/${INDEX_NAME}/_search" -H 'Content-Type: application/json' -d@json.txt > result.txt
+curl -sS --noproxy localhost -X GET "http://172.18.8.190:9200/${INDEX_NAME}/_search" -H 'Content-Type: application/json' -d@json.txt > result.txt
 if [ -z "$8" ]; then
 echo "===== All results ====="
 cat result.txt | jq

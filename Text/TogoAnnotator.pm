@@ -591,6 +591,7 @@ sub retrieve {
     shift;
     ($minfreq, $minword, $ifhit, $cosdist) = undef;
     my $query = my $oq = shift;
+    my $dict = shift || $namespace;
     # $query ||= 'hypothetical protein';
     my $lcquery4curation_dictionary = my $lcquery = lc($query);
     $lcquery4curation_dictionary =~ s/^"\s*//;
