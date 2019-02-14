@@ -132,7 +132,7 @@ my $query2es =<<"QUERY";
 }
 QUERY
 
-print $query2es;
+#print $query2es;
 $curl->setopt(CURLOPT_POSTFIELDS, $query2es);
 
 # NOTE - do not use a typeglob here. A reference to a typeglob is okay though.
@@ -144,10 +144,11 @@ my $retcode = $curl->perform;
  
 # Looking at the results...
 if ($retcode == 0) {
-        print("Transfer went ok\n");
+#        print("Transfer went ok\n");
         my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
         # judge result and next action based on $response_code
-        print("Received response: $response_body\n");
+#        print("Received response: $response_body\n");
+        print $response_body, "\n";
 } else {
-        print("An error happened: ".$curl->strerror($retcode)." ($retcode)\n");
+        warn("An error happened: ".$curl->strerror($retcode)." ($retcode)\n");
 }
