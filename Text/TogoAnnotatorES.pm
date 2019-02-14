@@ -594,6 +594,7 @@ sub retrieve {
     ($minfreq, $minword, $ifhit, $cosdist) = undef;
     my $query = my $oq = shift;
     # $query ||= 'hypothetical protein';
+    my $lcquery = lc($query);
 
     $lcquery =~ s{$ignore_chars}{ }g;
     $lcquery =~ s/^"\s*//;
