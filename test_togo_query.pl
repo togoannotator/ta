@@ -3,11 +3,14 @@
 use strict;
 use warnings;
 use WWW::Curl::Easy;
+use JSON::XS;
+use Data::Dump qw(dump);
  
 # Setting the options
 my $curl = WWW::Curl::Easy->new();
 my $response_body;
-my $lcquery = "3 oxoacyl acyl carrier protein reductase like";
+#my $lcquery = "3 oxoacyl acyl carrier protein reductase like";
+my $lcquery = "oxoacyl carrier protein reductase";
 my $INDEX_NAME = "tm_53a186f8c95c329d6bddd8bc3d3b4189";
 $curl->setopt(CURLOPT_URL, "http://172.18.8.190:9200/${INDEX_NAME}/_search");
 $curl->setopt(CURLOPT_POST, 1);
@@ -148,7 +151,26 @@ if ($retcode == 0) {
         my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
         # judge result and next action based on $response_code
 #        print("Received response: $response_body\n");
-        print $response_body, "\n";
+#        print $response_body, "\n";
+	my $result = decode_json $response_body;
+	print dump($result), "\n";
+	print "-----\n";
+	print "Time-Out:", $result->{"timed_out"}, "\n";
+	print "Query:$lcquery\n";
+	my $array_ptr = $result->{"aggregations"}->{"tags"}->{"buckets"};
+	print "====\n";
+	for ( @$array_ptr ){
+	    print $_->{"doc_count"}, "\n";
+	    print $_->{"key"}, "\n";
+	    my $eachdocs_ptr = $_->{"top_tag_hits"}->{"hits"}->{"hits"};
+	    for ( @$eachdocs_ptr ){
+		print $_->{"_score"}, "\n";
+		print "\t", $_->{"_source"}->{"name"}, "\n";
+		print "\t", $_->{"_source"}->{"normalized_name"}, "\n";
+	    }
+	    print ".\n";
+	}
+	print "-----\n";
 } else {
         warn("An error happened: ".$curl->strerror($retcode)." ($retcode)\n");
 }
