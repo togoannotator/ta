@@ -742,14 +742,39 @@ sub retrieve {
 }
 QUERY
 
+  my %matchtype_map = (
+      "term_after", "ex",
+      "term_before", "ex",
+      "mlt_after", "cs",
+      "mlt_before", "bcs",
+    );
+  my %info_map = (
+      "term_after", "in_dictionary",
+      "term_before", "convert_from dictionary",
+      "mlt_after", "",
+      "mlt_before", "",
+    );
   $curl->setopt(CURLOPT_POSTFIELDS, $query2es);
   open (my $fileb, ">", \$response_body);
   $curl->setopt(CURLOPT_WRITEDATA,$fileb);
   my $retcode = $curl->perform;
- 
   if ($retcode == 0) {
-    my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
-
+      my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
+      my $result = decode_json $response_body;
+      my $array_ptr = $result->{"aggregations"}->{"tags"}->{"buckets"};
+      my %group_by_key;
+      for ( @$array_ptr ){
+	  $group_by_key{$_->{"key"}}->{"doc_count"} = $_->{"doc_count"};
+	  $group_by_key{$_->{"key"}}->{"top_tag_hits"} = $_->{"top_tag_hits"};
+      }
+      for my $_key (qw/term_after term_before mlt_after mlt_before/){
+	  if($group_by_key{$_key}){
+	      $results[0] = $group_by_key{$_key}->{"top_tag_hits"}->{"hits"}->{"hits"}->[0]->{"_source"}->{"name"}, "\n";
+	      $match = $matchtype_map{$_key};
+	      $info = $info_map{$_key};
+	      last;
+	  }
+      }
   } else {
     warn("An error happened: ".$curl->strerror($retcode)." ($retcode)\n");
   }

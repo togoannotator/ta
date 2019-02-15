@@ -159,16 +159,26 @@ if ($retcode == 0) {
 	print "Query:$lcquery\n";
 	my $array_ptr = $result->{"aggregations"}->{"tags"}->{"buckets"};
 	print "====\n";
+	my %group_by_key;
 	for ( @$array_ptr ){
-	    print $_->{"doc_count"}, "\n";
-	    print $_->{"key"}, "\n";
-	    my $eachdocs_ptr = $_->{"top_tag_hits"}->{"hits"}->{"hits"};
-	    for ( @$eachdocs_ptr ){
-		print $_->{"_score"}, "\n";
-		print "\t", $_->{"_source"}->{"name"}, "\n";
-		print "\t", $_->{"_source"}->{"normalized_name"}, "\n";
+	    $group_by_key{$_->{"key"}}->{"doc_count"} = $_->{"doc_count"};
+	    $group_by_key{$_->{"key"}}->{"top_tag_hits"} = $_->{"top_tag_hits"};
+	    # print $_->{"doc_count"}, "\n";
+	    # print $_->{"key"}, "\n";
+	    # my $eachdocs_ptr = $_->{"top_tag_hits"}->{"hits"}->{"hits"};
+	    # for ( @$eachdocs_ptr ){
+	    # 	print $_->{"_score"}, "\n";
+	    # 	print "\t", $_->{"_source"}->{"name"}, "\n";
+	    # 	print "\t", $_->{"_source"}->{"normalized_name"}, "\n";
+	    # }
+	    # print ".\n";
+	}
+	for my $_key (qw/term_after term_before mlt_after mlt_before/){
+	    print ">", $_key, "\n";
+	    if($group_by_key{$_key}){
+		print $group_by_key{$_key}->{"doc_count"}, "\n";
+		print $group_by_key{$_key}->{"top_tag_hits"}->{"hits"}->{"hits"}->[0]->{"_source"}->{"name"}, "\n";
 	    }
-	    print ".\n";
 	}
 	print "-----\n";
 } else {
