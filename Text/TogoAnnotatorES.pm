@@ -760,23 +760,41 @@ QUERY
   my $retcode = $curl->perform;
   if ($retcode == 0) {
       my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
-      my $result = decode_json $response_body;
-      my $array_ptr = $result->{"aggregations"}->{"tags"}->{"buckets"};
+      my $response_json = decode_json $response_body;
+      my $array_ptr = $response_json->{"aggregations"}->{"tags"}->{"buckets"};
       my %group_by_key;
       for ( @$array_ptr ){
 	  $group_by_key{$_->{"key"}}->{"doc_count"} = $_->{"doc_count"};
 	  $group_by_key{$_->{"key"}}->{"top_tag_hits"} = $_->{"top_tag_hits"};
       }
+      my $avoidcsFlag = 0;
+      for ( @avoid_cs_terms ){
+	  $avoidcsFlag = ($lcquery =~ m,\b$_$,);
+	  last if $avoidcsFlag;
+      }
       for my $_key (qw/term_after term_before mlt_after mlt_before/){
+	  $match = "no_hit";
+	  $result = $oq;
 	  if($group_by_key{$_key}){
-	      $results[0] = $group_by_key{$_key}->{"top_tag_hits"}->{"hits"}->{"hits"}->[0]->{"_source"}->{"name"}, "\n";
+	      my @_results;
+	      for ( @{ $group_by_key{$_key}->{"top_tag_hits"}->{"hits"}->{"hits"} } ){
+		  push @_results, $_->{"_source"}->{"name"}, "\n";
+	      }
+	      $result = join(" @@ ", map {$prfx. ($_->{"_source"}->{"name"}) } @_results);
+	      $results[0] = $result;
 	      $match = $matchtype_map{$_key};
 	      $info = $info_map{$_key};
+	      my @out;
+	      if($_key =~ m/^term/){
+		  $info .= ($prfx?" (prefix=${prfx})":"");
+	      }elsif($_key eq 'mlt_after'){
+		  @out = sort by_priority @_results;
+	      }
 	      last;
 	  }
       }
   } else {
-    warn("An error happened: ".$curl->strerror($retcode)." ($retcode)\n");
+      warn("An error happened: ".$curl->strerror($retcode)." ($retcode)\n");
   }
 
 =head
