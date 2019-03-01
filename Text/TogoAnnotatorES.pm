@@ -57,26 +57,21 @@ use strict;
 use utf8;
 use Fatal qw/open/;
 use open qw/:utf8/;
-use File::Path 'mkpath';
 use File::Basename;
 use String::Trim;
-use PerlIO::gzip;
 use Lingua::EN::ABC qw/b2a/;
 use Text::Match::FastAlternatives;
 use Search::Elasticsearch;
 use Digest::MD5 qw/md5_hex/;
-use File::Slurp;
 use Encode;
 use WWW::Curl::Easy;
 use JSON::XS;
 
 my ($sysroot, $niteAll, $curatedDict, $enzymeDict, $locustag_prefix_name, $embl_locustag_name, $gene_symbol_name, $family_name, $esearch);
-my ($nitealldb_after_name, $nitealldb_before_name);
-my ($niteall_after_cs_db, $niteall_before_cs_db);
 my ($white_list, $black_list);
 my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars, $locustag_prefix_matcher, $embl_locustag_matcher, $gene_symbol_matcher, $family_name_matcher, $white_list_matcher, $black_list_matcher);
-my ($histogram, $useCurrentDict, $md5dname);
-my ($namespace, $eslogfh);
+my ($useCurrentDict, $md5dname);
+my ($namespace);
 
 my (
     @sp_words,      # マッチ対象から外すが、マッチ処理後は元に戻して結果に表示させる語群。
@@ -135,11 +130,7 @@ sub init {
     $cs_max //= 5;
     $n_gram //= 3;
     $ignore_chars = qr{[-/,:+()]};
-
-    #$cosine_object = Bag::Similarity::Cosine->new;
-    $esearch = Search::Elasticsearch->new();
-    #$esearch = Search::Elasticsearch->new(serializer => 'JSON::XS');
-    #$esearch = Search::Elasticsearch->new(cxn_pool => 'Sniff');
+    #$esearch = Search::Elasticsearch->new();
 
     readDict();
 }
@@ -469,7 +460,7 @@ QUERY
 		my @out;
 		if($_key =~ m/^term/){
 		    $info .= ($prfx?" (prefix=${prfx})":"");
-		}elsif($_key eq 'mlt_after'){
+		}elsif($_key =~ m/^mlt/){
 		    @out = sort by_priority @_results;
 		}
 		last;
@@ -480,7 +471,6 @@ QUERY
     }
 
     $result = b2a($result);
-
     my %annotations;
     getAnnotations($oq, \$info, \%annotations);
     return({'query'=> $oq, 'result' => $result, 'match' => $match, 'info' => $info, 'result_array' => \@results, 'annotation' => \%annotations});
