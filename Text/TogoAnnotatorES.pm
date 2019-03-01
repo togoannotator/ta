@@ -49,7 +49,6 @@ package Text::TogoAnnotatorES;
 # White/Black List対応
 # * 2018.11.26
 # 変数名について、小文字化した$queryを$lcqueryに、$lc_queryを$lcb4queryに。
-#
 
 use warnings;
 use strict;
@@ -58,16 +57,12 @@ use Fatal qw/open/;
 use open qw/:utf8/;
 use File::Path 'mkpath';
 use File::Basename;
-use Bag::Similarity::Cosine;
 use String::Trim;
-#use simstring;
 use PerlIO::gzip;
 use Lingua::EN::ABC qw/b2a/;
 use Text::Match::FastAlternatives;
 use Search::Elasticsearch;
 use Digest::MD5 qw/md5_hex/;
-use Sereal::Encoder qw/sereal_encode_with_object/;
-use Sereal::Decoder qw/sereal_decode_with_object/;
 use File::Slurp;
 use Encode;
 use WWW::Curl::Easy;
@@ -86,7 +81,7 @@ my (
     );
 my (
     %negative_min_words,  # コサイン距離を用いた類似マッチではクエリと辞書中のエントリで文字列としては類似していても、両者の間に共通に出現する語が無い場合がある。
-                          # その場合、共通に出現する語がある辞書中エントリを優先させる処理をしているが、本処理が逆効果となってしまう語がここに含まれる。
+    # その場合、共通に出現する語がある辞書中エントリを優先させる処理をしているが、本処理が逆効果となってしまう語がここに含まれる。
     %name_provenance,     # 変換後デフィニションの由来。
     %curatedHash,         # curated辞書のエントリ（キーは小文字化する）
     %enzymeHash           # 酵素辞書のエントリ（小文字化する）
@@ -162,68 +157,15 @@ sub init {
 
 sub readDict {
 
-    # our (
-    # 	%correct_definitions, # マッチ用内部辞書には全エントリが小文字化されて入るが、同じく小文字化したクエリが完全一致した場合には辞書に既にあるとして処理する。
-    # 	%convtable,           # 書換辞書の書換前後の対応表。小文字化したクエリが、同じく小文字化した書換え前の語に一致した場合は対応する書換後の語を一致させて出力する。
-    # 	%wospconvtableD, %wospconvtableE, # 全空白文字除去前後の対応表。書換え前と後用それぞれ。
-    # 	);
-
     # 類似度計算用辞書構築の準備
     #my $dictdir = 'dictionary/cdb_nite_ALL';
     (my $dname = basename $niteAll) =~ s/\..*$//;
     my $dictdir = 'dictionary/'.$dname;
     $md5dname = md5_hex($dname);
 
-    # my $niteall_after_db;
-    # my $niteall_before_db;
-
-    # $nitealldb_after_name = $sysroot.'/'.$dictdir.'/after';   # After
-    # $nitealldb_before_name = $sysroot.'/'.$dictdir.'/before'; # Before
-
     print "### Text::Annotation\n";
     print "dictdir: $dictdir\n";
     print "md5name: $md5dname\n";
-
-    # if( $useCurrentDict ){
-    #     print "Unprepare: Dictionary is reused. [TODO: checking whether or not the dictionary is present.]\n";
-    # }else{
-    #     print "Prepare: Dictionary.\n";
-    # 	if (!-d  $sysroot.'/'.$dictdir){
-    # 	    mkpath($sysroot.'/'.$dictdir);
-    # 	}
-    # 	for my $f ( <${sysroot}/${dictdir}/after*> ){
-    # 	    unlink $f;
-    # 	}
-    # 	for my $f ( <${sysroot}/${dictdir}/before*> ){
-    # 	    unlink $f;
-    # 	}
-
-    # 	$niteall_after_db = simstring::writer->new($nitealldb_after_name, $n_gram);
-    # 	$niteall_before_db = simstring::writer->new($nitealldb_before_name, $n_gram);
-    # }
-
-    # print "Prepare: Curated Dictionary.\n";
-    # # キュレーテッド辞書の構築
-    # if($curatedDict){
-    # 	#open(my $curated_dict, $sysroot.'/'.$curatedDict);
-    # 	open(my $curated_dict, $curatedDict);
-    # 	while(<$curated_dict>){
-    # 	    chomp;
-    # 	    my (undef, undef, undef, undef, $name, undef, $curated, $note) = split /\t/;
-    # 	    $name //= "";
-    # 	    trim( $name );
-    # 	    trim( $curated );
-    # 	    $name =~ s/^"\s*//;
-    # 	    $name =~ s/\s*"$//;
-    # 	    $curated =~ s/^"\s*//;
-    # 	    $curated =~ s/\s*"$//;
-
-    # 	    if($curated){
-    # 		$curatedHash{lc($name)} = $curated;
-    # 	    }
-    # 	}
-    # 	close($curated_dict);
-    # }
 
     # 酵素辞書の構築
     print "Prepare: Enzyme Dictionary.\n";
@@ -314,582 +256,226 @@ sub readDict {
     $black_list_matcher = Text::Match::FastAlternatives->new( @black_list_array );
 
     print "Prepare: Done.\n";
-
-    # # 辞書を構築しない場合は以下の分岐内でreturnする
-    # if( $useCurrentDict ){
-    # 	print "Reading histogram.\n";
-    # 	my $decoder = Sereal::Decoder->new();
-    # 	$histogram = sereal_decode_with_object($decoder, read_file($sysroot.'/'.$dictdir.'/histogram'));
-    # 	print "Done.\n";
-    # 	return;
-    # }
-
-#
-# useCurrentDictがFalseのときのみ以下のコードが実行される
-#
-
-# 類似度計算用および変換用辞書の構築
-=head
-    $name  : 変換後デフィニション
-    $b4name: 変換前デフィニション
-
-    基本的な処理は、入力された文字列に対して変換後デフィニションとマッチするかを調べる。
-    マッチすれば当該文字列は望ましいものなので、そのまま出力して終了。
-    続いて、変換前デフィニションにマッチするか調べる。
-    マッチすれば当該文字列は、対応する変換後デフィニションに書き換えることが望ましいので、当該変換後デフィニションを出力して終了。
-    続いて、類似マッチアルゴリズムを用いて同様の処理を行う。
-=cut
-    # my $total = 0;
-    # my $nite_all;
-    # if($niteAll =~ /\.gz$/){
-    # 	#open($nite_all, "<:gzip", $sysroot.'/'.$niteAll);
-    # 	open($nite_all, "<:gzip", $niteAll);
-    # }else{
-    # 	#open($nite_all, $sysroot.'/'.$niteAll);
-    # 	open($nite_all, $niteAll);
-    # }
-    # while(<$nite_all>){
-    # 	chomp;
-    # 	my (undef, $sno, $chk, undef, $name, $b4name, undef) = split /\t/;
-    # 	next if $chk eq 'RNA' or $chk eq 'OK';
-    # 	# next if $chk eq 'RNA' or $chk eq 'del' or $chk eq 'OK';
-
-    # 	$name //= "";   # $chk が "del" のときは $name が空。
-    # 	trim( $name );
-    # 	trim( $b4name );
-    # 	$name =~ s/^"\s*//;
-    # 	$name =~ s/\s*"$//;
-    # 	$b4name =~ s/^"\s*//;
-    # 	$b4name =~ s/\s*"$//;
-
-    # 	$name_provenance{$name} = "dictionary";
-    # 	if($curatedHash{lc($name)}){
-    # 	    my $_name = lc($name);
-    # 	    $name = $curatedHash{$_name};
-    # 	    $name_provenance{$name} = "curated (after)";
-    # 	    # print "#Curated (after): ", $_name, "->", $name, "\n";
-    # 	}else{
-    # 	    for ( @sp_words ){
-    # 		$name =~ s/^$_\s+//i;
-    # 	    }
-    # 	}
-
-    # 	my $lcb4name = lc($b4name);
-    # 	$lcb4name =~ s{$ignore_chars}{ }g;
-    # 	$lcb4name = trim($lcb4name);
-    # 	$lcb4name =~ s/  +/ /g;
-    # 	for ( @sp_words ){
-    # 	    if(index($lcb4name, $_) == 0){
-    # 		$lcb4name =~ s/^$_\s+//;
-    # 	    }
-    # 	}
-
-    # 	if($chk eq 'del'){
-    # 	    $convtable{$lcb4name}{'__DEL__'}++;
-    # 	}else{
-    # 	    $convtable{$lcb4name}{$name}++;
-
-    # 	    # $niteall_before_db->insert($lcb4name);
-    # 	    (my $wosplcb4name = $lcb4name) =~ s/ //g;   #### 全ての空白を取り除く（wosplc=WithOut SPace Lower Case）
-    # 	    $niteall_before_db->insert($wosplcb4name);
-    # 	    $wospconvtableE{$wosplcb4name}{$lcb4name}++;
-
-    # 	    my $lcname = lc($name);
-    # 	    $lcname =~ s{$ignore_chars}{ }g;
-    # 	    $lcname = trim($lcname);
-    # 	    $lcname =~ s/  +/ /g;
-    # 	    next if $correct_definitions{$lcname};
-    # 	    $correct_definitions{$lcname} = $name;
-    # 	    for ( split " ", $lcname ){
-    # 		s/\W+$//;
-    # 		$histogram->{$_}++;
-    # 		$total++;
-    # 	    }
-    # 	    #$niteall_after_db->insert($lcname);
-    # 	    (my $wosplcname = $lcname) =~ s/ //g;   #### 全ての空白を取り除く
-    # 	    $niteall_after_db->insert($wosplcname);
-    # 	    $wospconvtableD{$wosplcname}{$lcname}++;
-    # 	}
-    # }
-    # close($nite_all);
-
-    # $niteall_after_db->close;
-    # $niteall_before_db->close;
-
-    # my $encoder = Sereal::Encoder->new();
-    # write_file($sysroot.'/'.$dictdir.'/histogram', sereal_encode_with_object($encoder, $histogram));
-    # loadEsearch();
-
 }
 
-# sub loadEsearch {
-#     eval{ $esearch->get(index=> "dict_".$md5dname, type=> "convtable", id=> 1); };
-#     if(!$@){
-# 	print "Already exits: dict_$md5dname \n";
-#         #$esearch->indices->put_alias(index => "dict_".$md5dname , name => $namespace);
-# 	return;
-
-# 	print "Delete Elasticsearch index: dict_$md5dname \n";
-# 	$esearch->indices->delete(index=> "dict_".$md5dname) or print "No exist index dict_$md5dname\n";
-#     }
-#     print "Loading some dictionaries to Elasticsearch.\n";
-#     for my $type (qw/convtable correct_definitions wospconvtableD wospconvtableE/) {
-# 	my $id = 0;
-# 	print $type,"\n";
-# 	no strict "refs";
-# 	while(my ($tkey, $tvalue) = each %{$type}){
-# 	    $id++;
-# 	    if($type eq "correct_definitions"){
-# 		$esearch->index( index => "dict_".$md5dname, type => $type, id => $id, body => { name => $tvalue, normalized_name => $tkey, frequency => 0 });
-# 	    }else{
-# 		while(my ($name, $frequency) = each %$tvalue){
-# 		    $esearch->index( index => "dict_".$md5dname, type => $type, id => $id, body => { name => $name, normalized_name => $tkey, frequency => $frequency });
-# 		}
-# 	    }
-# 	}
-#     }
-#     print "Done.\n";
-#     ### create alias
-#     print "Create Aliase $namespace w/ $md5dname.\n";
-#     # $esearch->indices->create(index=>"dict_".$md5dname , body=>{aliases=> $namespace});
-#     $esearch->indices->put_alias(index => "dict_".$md5dname , name => $namespace);
-# }
-
-# sub openDicts {
-#     print "Open: $nitealldb_after_name\n";
-#     print "Open: $nitealldb_before_name\n";
-#     $niteall_after_cs_db = simstring::reader->new($nitealldb_after_name);
-#     $niteall_after_cs_db->swig_measure_set($simstring::cosine);
-#     $niteall_after_cs_db->swig_threshold_set($cos_threshold);
-#     $niteall_before_cs_db = simstring::reader->new($nitealldb_before_name);
-#     $niteall_before_cs_db->swig_measure_set($simstring::cosine);
-#     $niteall_before_cs_db->swig_threshold_set($cos_threshold);
-#     print "Done.\n";
-#     open($eslogfh, ">>:utf8", "eslog_".$namespace.".log");
-# }
-
-# sub closeDicts {
-#     $niteall_after_cs_db->close;
-#     $niteall_before_cs_db->close;
-#     close($eslogfh);
-# }
-
-# sub chk_convtable_a_all {
-#     my @terms = map { {"term" => {"normalized_name.keyword" => $_}} } @{$_[0]};
-#     my $termkeywords = join(",", map {values(%{$_->{"term"}})} @terms);
-#     print $eslogfh join("|", ('index:dict_'. $md5dname, "type:convtable", "body:query:bool:should:term=>".$termkeywords, "size:500")), "\n";
-#     my $results = $esearch->search(
-# 	index => 'dict_'. $md5dname,
-# 	type => 'convtable',
-# 	body => {
-# 	    query => {
-# 		bool => {
-# 		    should => \@terms,
-# 		}},
-# 	    size => 500
-# 	});
-#     return $results->{"hits"}->{"hits"}; # the ref to an array
-# }
-
-# sub chk_convtable_a {
-#     print $eslogfh join("|", ('index:dict_'. $md5dname, "type:convtable", "body:query:term:normalized_name.keyword:".$_[0])), "\n";
-#     my $results = $esearch->search(
-# 	index => 'dict_'. $md5dname,
-# 	type => 'convtable',
-# 	body => {
-# 	    query => {
-# 		term => { "normalized_name.keyword" => $_[0] }
-# 	    }}
-# 	);
-#     return $results->{"hits"}->{"hits"}; # the ref to an array
-# }
-
-# sub mget_wospconv {
-#     my @terms = map { {"term" => {"normalized_name.keyword" => $_}} } @{$_[1]};
-#     my $termkeywords = join(",", map {values(%{$_->{"term"}})} @terms);
-#     print $eslogfh join("|", ('index:dict_'. $md5dname, "type:wospconvtable".$_[0], "body:query:bool:should:term=>".$termkeywords, "size:0", "aggs:distinct:terms:{field:name.keyword,size:1000}")), "\n";
-#     my $results = $esearch->search(
-# 	index => 'dict_'.$md5dname,
-# 	type => 'wospconvtable'.$_[0], # "D" or "E"
-# 	body => {
-# 	    query => {
-# 		bool => {
-# 		    should => \@terms,
-# 		}},
-# 	    size => 0,
-# 	    aggs => {
-# 		distinct => {
-# 		    terms => {
-# 			field => "name.keyword",
-# 			size => 1000
-# 		    }
-# 		}}
-# 	});
-#     return $results->{"aggregations"}->{"distinct"}->{"buckets"}; # the ref to an array
-# }
-
-# sub get_all_wospconv {
-#     my @terms = map { {"term" => {"normalized_name.keyword" => $_}} } @{$_[1]};
-#     my $termkeywords = join(",", map {values(%{$_->{"term"}})} @terms);
-#     print $eslogfh join("|", ('index:dict_'. $md5dname, "type:wospconvtable".$_[0], "body:query:bool:should:term=>".$termkeywords, "size:500")), "\n";
-#     my $results = $esearch->search(
-# 	index => 'dict_'.$md5dname,
-# 	type => 'wospconvtable'.$_[0], # "D" or "E"
-# 	body => {
-# 	    query => {
-# 		bool => {
-# 		    should => \@terms,
-# 		}},
-# 	    size => 500
-# 	});
-#     return $results->{"hits"}->{"hits"}; # the ref to an array
-# }
-
-# sub chk_convtable_b {
-#     print $eslogfh join("|", ('index:dict_'. $md5dname, "type:convtable", "body:query:bool:must:{term:normalized_name.keyword:$_[0],term:name.keyword:__DEL__}")), "\n";
-#     my $results = $esearch->search(
-# 	index => 'dict_'. $md5dname,
-# 	type => 'convtable',
-# 	body => {
-# 	    query => {
-# 		bool => {
-# 		    must => [
-# 			{ term =>
-# 			  {
-# 			      "normalized_name.keyword" => $_[0],
-# 			  }},
-# 			{ term =>
-# 			  {
-# 			      "name.keyword" => '__DEL__',
-# 			  }}],
-# 		}}});
-#     return $results->{"hits"}->{"total"}; # # of hits
-# }
-
-# sub get_correct_definitions {
-#     print $eslogfh join("|", ('index:dict_'. $md5dname, "type:correct_definitions", "body:query:term:normalized_name.keyword:$_[0]", "size:1")), "\n";
-#     my $results = $esearch->search(
-# 	index => 'dict_'.$md5dname,
-# 	type => 'correct_definitions',
-# 	body => {
-# 	    query => {
-# 		term => { "normalized_name.keyword" => $_[0] }
-# 	    },
-# 	    size => 1
-# 	});
-#     my $ptr = $results->{"hits"}->{"hits"};
-#     if(@$ptr){
-# 	return $ptr->[0]->{"_source"}->{"name"};
-#     }else{
-# 	return "";
-#     }
-# }
-
-sub retrieve {
 =head
-    オリジナルのクエリは $oq に格納される
-    マッチ用に小文字化し、記号類を全て空白にする
-    連続した空白は空白一文字にする
+	オリジナルのクエリは $oq に格納される
+	マッチ用に小文字化し、記号類を全て空白にする
+	連続した空白は空白一文字にする
 =cut
-  shift;
-  ($minfreq, $minword, $ifhit, $cosdist) = undef;
-  my $query = my $oq = shift;
-  # $query ||= 'hypothetical protein';
-  my $lcquery = lc($query);
+sub retrieve {
+    shift;
+    ($minfreq, $minword, $ifhit, $cosdist) = undef;
+    my $query = my $oq = shift;
+    # $query ||= 'hypothetical protein';
+    my $lcquery = lc($query);
 
-  $lcquery =~ s{$ignore_chars}{ }g;
-  $lcquery =~ s/^"\s*//;
-  $lcquery =~ s/\s*"\s*$//;
-  $lcquery =~ s/\s+\[\w+\]$//;
-  $lcquery =~ s/\s*"$//;
-  $lcquery =~ s/  +/ /g;
-  $lcquery = trim($lcquery);
+    $lcquery =~ s{$ignore_chars}{ }g;
+    $lcquery =~ s/^"\s*//;
+    $lcquery =~ s/\s*"\s*$//;
+    $lcquery =~ s/\s+\[\w+\]$//;
+    $lcquery =~ s/\s*"$//;
+    $lcquery =~ s/  +/ /g;
+    $lcquery = trim($lcquery);
 
-  my $prfx = '';
-  my ($match, $result, $info) = ('') x 3;
-  my @results;
-  for ( @sp_words ){
-    if(index($lcquery, $_) == 0){
-      $lcquery =~ s/^$_\s+//;
+    my $prfx = '';
+    my ($match, $result, $info) = ('') x 3;
+    my @results;
+    for ( @sp_words ){
+	if(index($lcquery, $_) == 0){
+	    $lcquery =~ s/^$_\s+//;
 	    $prfx = $_. ' ';
 	    last;
+	}
     }
-  }
 
-  my $curl = WWW::Curl::Easy->new();
-  my $response_body;
-  my $INDEX_NAME = "tm_".$md5dname;
-  $curl->setopt(CURLOPT_URL, "http://localhost:9200/${INDEX_NAME}/_search");
-  $curl->setopt(CURLOPT_POST, 1);
-  $curl->setopt(CURLOPT_HTTPHEADER, [
-  	"Content-Type: application/json",
-  ]);
-  my $KEY_WORD = $lcquery;
-  my $MAX_QUERY_TERMS = 100;
-  my $MINIMUM_SHOULD_MATCH = "30%";
-  my $MIN_TERM_FREQ = 0;
-  my $MIN_WORD_LENGTH = 0;
-  my $MAX_WORD_LENGTH = 0;
-  my $query2es =<<"QUERY";
+    my $curl = WWW::Curl::Easy->new();
+    my $response_body;
+    my $INDEX_NAME = "tm_".$md5dname;
+    $curl->setopt(CURLOPT_URL, "http://localhost:9200/${INDEX_NAME}/_search");
+    $curl->setopt(CURLOPT_POST, 1);
+    $curl->setopt(CURLOPT_HTTPHEADER, [
+		      "Content-Type: application/json",
+		  ]);
+    my $KEY_WORD = $lcquery;
+    my $MAX_QUERY_TERMS = 100;
+    my $MINIMUM_SHOULD_MATCH = "30%";
+    my $MIN_TERM_FREQ = 0;
+    my $MIN_WORD_LENGTH = 0;
+    my $MAX_WORD_LENGTH = 0;
+    my $query2es =<<"QUERY";
 {
-  "query": {
-    "bool": {
-      "should": [
-        {
-          "bool": {
-            "must": [
-              {
-                "term": {
-                  "query_type": "term_before"
-                }
-              },
-              {
-                "match": {
-                  "normalized_name.term": {
-                    "query": "${KEY_WORD}"
-                  }
-                }
-              }
-            ]
-          }
-        },
-        {
-          "bool": {
-            "must": [
-              {
-                "term": {
-                  "query_type": "term_after"
-                }
-              },
-              {
-                "match": {
-                  "normalized_name.term": {
-                    "query": "${KEY_WORD}"
-                  }
-                }
-              }
-            ]
-          }
-        },
-        {
-          "bool": {
-            "must": [
-              {
-                "term": {
-                  "query_type": "mlt_before"
-                }
-              },
-              {
-                "more_like_this": {
-                  "fields": [
-                    "normalized_name.mlt"
-                  ],
-                  "like": "${KEY_WORD}",
-                  "max_query_terms": ${MAX_QUERY_TERMS},
-                  "minimum_should_match": "${MINIMUM_SHOULD_MATCH}",
-                  "min_term_freq": ${MIN_TERM_FREQ},
-                  "min_word_length": ${MIN_WORD_LENGTH},
-                  "max_word_length":  ${MAX_WORD_LENGTH}
-                }
-              }
-            ]
-          }
-        },
-        {
-          "bool": {
-            "must": [
-              {
-                "term": {
-                  "query_type": "mlt_after"
-                }
-              },
-              {
-                "more_like_this": {
-                  "fields": [
-                    "normalized_name.mlt"
-                  ],
-                  "like": "${KEY_WORD}",
-                  "max_query_terms": ${MAX_QUERY_TERMS},
-                  "minimum_should_match": "${MINIMUM_SHOULD_MATCH}",
-                  "min_term_freq": ${MIN_TERM_FREQ},
-                  "min_word_length": ${MIN_WORD_LENGTH},
-                  "max_word_length": ${MAX_WORD_LENGTH}
-                }
-              }
-            ]
-          }
-        }
-      ]
+    "query": {
+	"bool": {
+	    "should": [
+		{
+		    "bool": {
+			"must": [
+			    {
+				"term": {
+				    "query_type": "term_before"
+				}
+			    },
+			    {
+				"match": {
+				    "normalized_name.term": {
+					"query": "${KEY_WORD}"
+				    }
+				}
+			    }
+			    ]
+		    }
+		},
+		{
+		    "bool": {
+			"must": [
+			    {
+				"term": {
+				    "query_type": "term_after"
+				}
+			    },
+			    {
+				"match": {
+				    "normalized_name.term": {
+					"query": "${KEY_WORD}"
+				    }
+				}
+			    }
+			    ]
+		    }
+		},
+		{
+		    "bool": {
+			"must": [
+			    {
+				"term": {
+				    "query_type": "mlt_before"
+				}
+			    },
+			    {
+				"more_like_this": {
+				    "fields": [
+					"normalized_name.mlt"
+					],
+					"like": "${KEY_WORD}",
+					"max_query_terms": ${MAX_QUERY_TERMS},
+					"minimum_should_match": "${MINIMUM_SHOULD_MATCH}",
+					"min_term_freq": ${MIN_TERM_FREQ},
+					"min_word_length": ${MIN_WORD_LENGTH},
+					"max_word_length":  ${MAX_WORD_LENGTH}
+				}
+			    }
+			    ]
+		    }
+		},
+		{
+		    "bool": {
+			"must": [
+			    {
+				"term": {
+				    "query_type": "mlt_after"
+				}
+			    },
+			    {
+				"more_like_this": {
+				    "fields": [
+					"normalized_name.mlt"
+					],
+					"like": "${KEY_WORD}",
+					"max_query_terms": ${MAX_QUERY_TERMS},
+					"minimum_should_match": "${MINIMUM_SHOULD_MATCH}",
+					"min_term_freq": ${MIN_TERM_FREQ},
+					"min_word_length": ${MIN_WORD_LENGTH},
+					"max_word_length": ${MAX_WORD_LENGTH}
+				}
+			    }
+			    ]
+		    }
+		}
+		]
+	}
+    },
+    "size": 0, 
+    "aggs": {  },
+    "aggs": {
+	"tags": {
+	    "terms": {
+		"field": "query_type",
+		"size": 4
+	    },
+		    "aggs":{
+			"top_tag_hits":{
+			    "top_hits": {
+				"size": 15
+			    }
+			}
+		}
+	}
     }
- },
-  "size": 0, 
-  "aggs": {  },
-  "aggs": {
-    "tags": {
-      "terms": {
-        "field": "query_type",
-        "size": 4
-      },
-      "aggs":{
-        "top_tag_hits":{
-          "top_hits": {
-            "size": 15
-          }
-        }
-      }
-    }
-  }
 }
 QUERY
 
-  my %matchtype_map = (
-      "term_after", "ex",
-      "term_before", "ex",
-      "mlt_after", "cs",
-      "mlt_before", "bcs",
+    my %matchtype_map = (
+	"term_after", "ex",
+	"term_before", "ex",
+	"mlt_after", "cs",
+	"mlt_before", "bcs",
     );
-  my %info_map = (
-      "term_after", "in_dictionary",
-      "term_before", "convert_from dictionary",
-      "mlt_after", "",
-      "mlt_before", "",
+    my %info_map = (
+	"term_after", "in_dictionary",
+	"term_before", "convert_from dictionary",
+	"mlt_after", "",
+	"mlt_before", "",
     );
-  $curl->setopt(CURLOPT_POSTFIELDS, $query2es);
-  open (my $fileb, ">", \$response_body);
-  $curl->setopt(CURLOPT_WRITEDATA,$fileb);
-  my $retcode = $curl->perform;
-  if ($retcode == 0) {
-      my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
-      my $response_json = decode_json $response_body;
-      my $array_ptr = $response_json->{"aggregations"}->{"tags"}->{"buckets"};
-      my %group_by_key;
-      for ( @$array_ptr ){
-	  $group_by_key{$_->{"key"}}->{"doc_count"} = $_->{"doc_count"};
-	  $group_by_key{$_->{"key"}}->{"top_tag_hits"} = $_->{"top_tag_hits"};
-      }
-      my $avoidcsFlag = 0;
-      for ( @avoid_cs_terms ){
-	  $avoidcsFlag = ($lcquery =~ m,\b$_$,);
-	  last if $avoidcsFlag;
-      }
-      for my $_key (qw/term_after term_before mlt_after mlt_before/){
-	  $match = "no_hit";
-	  $result = $oq;
-	  if($group_by_key{$_key}){
-	      my @_results;
-	      for ( @{ $group_by_key{$_key}->{"top_tag_hits"}->{"hits"}->{"hits"} } ){
-		  push @_results, $_->{"_source"}->{"name"}, "\n";
-	      }
-	      $result = join(" @@ ", map {$prfx. ($_->{"_source"}->{"name"}) } @_results);
-	      $results[0] = $result;
-	      $match = $matchtype_map{$_key};
-	      $info = $info_map{$_key};
-	      my @out;
-	      if($_key =~ m/^term/){
-		  $info .= ($prfx?" (prefix=${prfx})":"");
-	      }elsif($_key eq 'mlt_after'){
-		  @out = sort by_priority @_results;
-	      }
-	      last;
-	  }
-      }
-  } else {
-      warn("An error happened: ".$curl->strerror($retcode)." ($retcode)\n");
-  }
-
-=head
-    if( (my $cd = get_correct_definitions( $lcquery )) ne "" ){ # 続いてafterに完全マッチするか
-        $match ='ex';
-	$result = $oq;
-	$info = 'in_dictionary'. ($prfx?" (prefix=${prfx})":"");
-	$results[0] = $result;
-    }elsif( my @chkconvtbla_set = @{ chk_convtable_a( $lcquery ) } ){ # そしてbeforeに完全マッチするか
-	if( chk_convtable_b( $lcquery ) ){
-	    my @others = grep {$_->{"_source"}->{"name"} ne '__DEL__'} @chkconvtbla_set;
-	    $match = 'del';
-	    $result = $lcquery;
-	    $info = 'Human check preferable (other entries with the same "before" entry: '.join(" @@ ", @others).')';
-	}else{
-	    $match = 'ex';
-	    $result = join(" @@ ", map {$prfx. ($_->{"_source"}->{"name"}) } @chkconvtbla_set );
-	    $info = 'convert_from dictionary'. ($prfx?" (prefix=${prfx})":"");
-	    $results[0] = $result;
+    $curl->setopt(CURLOPT_POSTFIELDS, $query2es);
+    open (my $fileb, ">", \$response_body);
+    $curl->setopt(CURLOPT_WRITEDATA,$fileb);
+    my $retcode = $curl->perform;
+    if ($retcode == 0) {
+	my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
+	my $response_json = decode_json $response_body;
+	my $array_ptr = $response_json->{"aggregations"}->{"tags"}->{"buckets"};
+	my %group_by_key;
+	for ( @$array_ptr ){
+	    $group_by_key{$_->{"key"}}->{"doc_count"} = $_->{"doc_count"};
+	    $group_by_key{$_->{"key"}}->{"top_tag_hits"} = $_->{"top_tag_hits"};
 	}
-    }else{ # そして類似マッチへ
-	# Afterの場合は、%wospconvtableDの、simstringで得られた$wosplcnameに対応する$lcnameをすべて取得する(mget_wospconv)のに対し、
-	# Beforeの場合は、%wospconvtableEの、同じくsimstringで得られた$wosplcb4nameに対する$lcb4nameのうち、クエリを構成する単語が含まれるものだけに絞っている。
 	my $avoidcsFlag = 0;
 	for ( @avoid_cs_terms ){
 	    $avoidcsFlag = ($lcquery =~ m,\b$_$,);
 	    last if $avoidcsFlag;
 	}
-	#全ての空白を取り除く処理をした場合への対応
-	(my $qwosp = $lcquery) =~ s/ //g;
-	my $retr = [ "" ];
-	if(defined($qwosp)){
-	    $retr = $niteall_after_cs_db->retrieve($qwosp);
-	}
-	#####
-	my %qtms = map {$_ => 1} grep {s/\W+$//;$histogram->{$_}} (split " ", $lcquery);
-	if($retr->[0]){
-	    ($minfreq, $minword, $ifhit, $cosdist) = getScore($retr, \%qtms, 1, $qwosp);
-	    #my %cache;
-	    #全ての空白を取り除く処理をした場合には検索結果の文字列を復元する必要があるため、下記部分をコメントアウトしている。
-	    #my @out = sort {$minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /} grep {$cache{$_}++; $cache{$_} == 1} @$retr;
-	    my @out = sort by_priority map { $_->{"key"} } @{ mget_wospconv("D", $retr) };
-	    #その代わり以下のコードが必要。
-	    #my @out = sort by_priority grep {$cache{$_}++; $cache{$_} == 1} map { keys %{$wospconvtableD{$_}} } @$retr;
-	    #####
-	    my $le = (@out > $cs_max)?($cs_max-1):$#out;
-	    if($avoidcsFlag && $minfreq->{$out[0]} == -1 && $negative_min_words{$minword->{$out[0]}}){
-		$match ='no_hit';
-		$result = $oq;
-		$info = 'cs_avoidance';
-	    }else{
-		$match = 'cs';
-		my @result_set = map { get_correct_definitions( $_ ) } @out[0..$le];
-		$result = $prfx.( $result_set[0] );
-		$info   = join(" @@ ", (map {$prfx.( $result_set[$_] ).' ['.$minfreq->{$out[$_]}.':'.$minword->{$out[$_]}.']'} (0..$le) ));
-		@results = map { $prfx.$_ } @result_set;
-	    }
-	}else{
-	    #全ての空白を取り除く処理をした場合への対応
-	    #my $retr_e = $niteall_before_cs_db->retrieve($lcquery);
-	    my $retr_e = [ "" ];
-	    if(defined($qwosp)){
-		$retr_e = $niteall_before_cs_db->retrieve($qwosp);
-	    }
-	    #####
-	    if($retr_e->[0]){
-		($minfreq, $minword, $ifhit, $cosdist) = getScore($retr_e, \%qtms, 0, $qwosp);
-		my @hits = keys %$ifhit;
-		my %cache;
-		my @out = sort by_priority grep {$cache{$_}++; $cache{$_} == 1 && $minfreq->{$_} < $e_threashold} @hits;
-		my $le = (@out > $cs_max)?($cs_max-1):$#out;
-		if(defined $out[0] && $avoidcsFlag && $minfreq->{$out[0]} == -1 && $negative_min_words{$minword->{$out[0]}}){
-		    $match ='no_hit';
-		    $result = $oq;
-		    $info = 'bcs_avoidance';
-		}else{
-		    $match = 'bcs';
-		    $result = $oq;
-		    $info = "Cosine_Sim_To:".join(" % ", @$retr_e);
-		    if( defined $out[0] ){
-			my %conv_result;
-			for ( @{ chk_convtable_a_all( [ @out[0..$le] ] ) } ){
-			    push @{ $conv_result{$_->{"_source"}->{"normalized_name"}} }, $prfx. $_->{"_source"}->{"name"};
-			}
-			$result = join(" @@ ", @{ $conv_result{$out[0]} } );
-			$info   = join(" % ", (map {join(" @@ ", map { $_ } @{ $conv_result{$_} } ).' ['.$minfreq->{$_}.':'.$minword->{$_}.']'} @out[0..$le]));
-		    }
+	for my $_key (qw/term_after term_before mlt_after mlt_before/){
+	    $match = "no_hit";
+	    $result = $oq;
+	    if($group_by_key{$_key}){
+		my @_results;
+		for ( @{ $group_by_key{$_key}->{"top_tag_hits"}->{"hits"}->{"hits"} } ){
+		    push @_results, $_->{"_source"}->{"name"}, "\n";
 		}
-	    } else {
-		$match  = 'no_hit';
-		$result = $oq;
+		$result = join(" @@ ", map {$prfx. ($_->{"_source"}->{"name"}) } @_results);
+		$results[0] = $result;
+		$match = $matchtype_map{$_key};
+		$info = $info_map{$_key};
+		if($_key =~ m/^mlt/){
+		    if($avoidcsFlag){
+			$info .= "(cs_avoidance in $_key)";
+		    }
+		    $info .= join(" @@ ", map {$prfx. ($_->{"_source"}->{"normalized_name"}) } @_results);
+		}
+		my @out;
+		if($_key =~ m/^term/){
+		    $info .= ($prfx?" (prefix=${prfx})":"");
+		}elsif($_key eq 'mlt_after'){
+		    @out = sort by_priority @_results;
+		}
+		last;
 	    }
 	}
+    } else {
+	warn("An error happened: ".$curl->strerror($retcode)." ($retcode)\n");
     }
-=cut
+
     $result = b2a($result);
 
     my %annotations;
@@ -949,109 +535,54 @@ sub getAnnotations{
 sub by_priority {
     #my $minfreq = shift;
     #my $cosdist = shift;
-      
+    
     #  $minfreq->{$a} <=> $minfreq->{$b} || $cosdist->{$b} <=> $cosdist->{$a} || $a =~ y/ / / <=> $b =~ y/ / /
     ## $cosdist->{$b} <=> $cosdist->{$a} || $minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /
-        guideline_penalty($a) <=> guideline_penalty($b)
-         or 
+    guideline_penalty($a) <=> guideline_penalty($b)
+	or 
         $minfreq->{$a} <=> $minfreq->{$b}
-         or 
+    or 
         $cosdist->{$b} <=> $cosdist->{$a}
-         or 
+    or 
         $a =~ y/ / / <=> $b =~ y/ / /
 }
 
 sub guideline_penalty {
- my $result = shift; 
- my $idx = 0;
+    my $result = shift; 
+    my $idx = 0;
 
-#1. (酵素名辞書に含まれている場合)
- $idx-- if $enzymeHash{lc($result)};
+    #1. (酵素名辞書に含まれている場合)
+    $idx-- if $enzymeHash{lc($result)};
 
-#2. 記述や句ではなく簡潔な名前を用いる。
- $idx++ if $result =~/ (of|or|and) /;
-#5. タンパク質名が不明な場合は、 産物名として、"unknown” または "hypothetical protein”を用いる。今回の再アノテーションでは、"hypothetical protein”の使用を推奨する。
- $idx++ if $result =~/(unknown protein|uncharacterized protein)/;
-#7. タンパク質名に分子量の使用は避ける。例えば、"unicornase 52 kDa subunit”は避け、"unicornase subunit A” 等と表記する。
- $idx++ if $result =~/\d+\s*kDa/;
-#8. 名前に“homolog”を使わない。
- $idx++ if $result =~/homolog/;
-#9. 可能なかぎり、コンマを用いない。
- $idx++ if $result =~/\,/;
-#12. 可能な限りローマ数字は避け、アラビア数字を用いる。
- $idx++ if $result =~/[I-X]/;
-#16. ギリシャ文字は、小文字でスペルアウトする（例：alpha）。ただし、ステロイドや脂肪酸代謝での「デルタ」は例外として語頭を大文字にする（Delta）。さらに、番号が続いている場合、ダッシュ" -“の後に続ける（例：unicornase alpha-1）。
- $idx++ if $result =~/(\p{Greek})/;
-#17. アクセント、ウムラウトなどの発音区別記号を使用しない。多くのコンピュータシステムは、ASCII文字しか判別できない。 
- $idx++ if $result =~/(\p{Mn})/;
+    #2. 記述や句ではなく簡潔な名前を用いる。
+    $idx++ if $result =~/ (of|or|and) /;
+    #5. タンパク質名が不明な場合は、 産物名として、"unknown” または "hypothetical protein”を用いる。今回の再アノテーションでは、"hypothetical protein”の使用を推奨する。
+    $idx++ if $result =~/(unknown protein|uncharacterized protein)/;
+    #7. タンパク質名に分子量の使用は避ける。例えば、"unicornase 52 kDa subunit”は避け、"unicornase subunit A” 等と表記する。
+    $idx++ if $result =~/\d+\s*kDa/;
+    #8. 名前に“homolog”を使わない。
+    $idx++ if $result =~/homolog/;
+    #9. 可能なかぎり、コンマを用いない。
+    $idx++ if $result =~/\,/;
+    #12. 可能な限りローマ数字は避け、アラビア数字を用いる。
+    $idx++ if $result =~/[I-X]/;
+    #16. ギリシャ文字は、小文字でスペルアウトする（例：alpha）。ただし、ステロイドや脂肪酸代謝での「デルタ」は例外として語頭を大文字にする（Delta）。さらに、番号が続いている場合、ダッシュ" -“の後に続ける（例：unicornase alpha-1）。
+    $idx++ if $result =~/(\p{Greek})/;
+    #17. アクセント、ウムラウトなどの発音区別記号を使用しない。多くのコンピュータシステムは、ASCII文字しか判別できない。 
+    $idx++ if $result =~/(\p{Mn})/;
 
-#3. 理想的には命名する遺伝子名（タンパク質名）はユニークであり、すべてのオルソログに同じ名前がついているとよい。
-#4. タンパク質名に、タンパク質の特定の特徴を入れない。 例えば、タンパク質の機能、細胞内局在、ドメイン構造、分子量やその起源の種名はノートに記述する。
-#6. タンパク質名は、対応する遺伝子と同じ表記を用いる。ただし，語頭を大文字にする。
-#10. 語頭は基本的に小文字を用いる。（例外：DNA、ATPなど）
-#11. スペルはアメリカ表記を用いる。→ 実装済み（b2a関数の適用）
-#13. 略記に分子量を組み込まない。
-#14. 多重遺伝子ファミリーに属するタンパク質では、ファミリーの各メンバーを指定する番号を使用することを推奨する。
-#15. 相同性または共通の機能に基づくファミリーに分類されるタンパク質に名前を付ける場合、"-"に後にアラビア数字を入れて標記する。（例："desmoglein-1", "desmoglein-2"など）
-#18. 複数形を使用しない。"ankyrin repeats-containing protein 8" は間違い。
-#19 機能未知タンパク質のうち既知のドメインまたはモチーフを含む場合、ドメイン名を付して名前を付けてもよい。例えば "PAS domain-containing protein 5" など。
- return $idx;
+    #3. 理想的には命名する遺伝子名（タンパク質名）はユニークであり、すべてのオルソログに同じ名前がついているとよい。
+    #4. タンパク質名に、タンパク質の特定の特徴を入れない。 例えば、タンパク質の機能、細胞内局在、ドメイン構造、分子量やその起源の種名はノートに記述する。
+    #6. タンパク質名は、対応する遺伝子と同じ表記を用いる。ただし，語頭を大文字にする。
+    #10. 語頭は基本的に小文字を用いる。（例外：DNA、ATPなど）
+    #11. スペルはアメリカ表記を用いる。→ 実装済み（b2a関数の適用）
+    #13. 略記に分子量を組み込まない。
+    #14. 多重遺伝子ファミリーに属するタンパク質では、ファミリーの各メンバーを指定する番号を使用することを推奨する。
+    #15. 相同性または共通の機能に基づくファミリーに分類されるタンパク質に名前を付ける場合、"-"に後にアラビア数字を入れて標記する。（例："desmoglein-1", "desmoglein-2"など）
+    #18. 複数形を使用しない。"ankyrin repeats-containing protein 8" は間違い。
+    #19 機能未知タンパク質のうち既知のドメインまたはモチーフを含む場合、ドメイン名を付して名前を付けてもよい。例えば "PAS domain-containing protein 5" など。
+    return $idx;
 }
-
-# sub getScore {
-#     my $retr = shift;
-#     my $qtms = shift;
-#     my $minf = shift;
-#     my $query = shift;
-#     my (%minfreq, %minword, %ifhit, %cosdistance);
-#     # 対象タンパク質のスコアは、当該タンパク質を構成する単語それぞれにつき、検索対象辞書中での当該単語の出現頻度のうち最小値を割り当てる
-#     # 最小値を持つ語は $minword{$_} に代入する
-#     # また、検索タンパク質名を構成する単語が、検索対象辞書からヒットした各タンパク質名に含まれている場合は $ifhit{$_} にフラグが立つ
-
-#     #全ての空白を取り除く処理をした場合への対応
-#     my $wospct = ($minf)? "D" : "E";
-#     #my $wospct = ($minf)? \%wospconvtableD : \%wospconvtableE;
-#     #####
-#     for my $hit ( @{ get_all_wospconv($wospct, $retr) } ) { # <--- 全ての空白を取り除く処理をした場合への対応
-# 	my $wosp = $hit->{"_source"}->{"normalized_name"};
-# 	$_ = $hit->{"_source"}->{"name"};
-# 	$cosdistance{$_} = $cosine_object->similarity($query, $wosp, $n_gram);
-# 	my $score = 100000;
-# 	my $word = '';
-# 	my $hitflg = 0;
-# 	for (split){
-# 	    my $h = $histogram->{$_} // 0;
-# 	    if($qtms->{$_}){
-# 		$hitflg++;
-# 	    }else{
-# 		$h += 10000;
-# 	    }
-# 	    if($score > $h){
-# 		$score = $h;
-# 		$word = $_;
-# 	    }
-# 	}
-# 	$minfreq{$_} = $score;
-# 	$minword{$_} = $word;
-# 	$ifhit{$_}++ if $hitflg;
-#     }
-#     # 検索タンパク質名を構成する単語が、ヒットした各タンパク質名に複数含まれる場合には、その中で検索対象辞書中での出現頻度スコアが最小であるものを採用する
-#     # そして最小の語のスコアは-1とする。
-#     my $leastwrd = '';
-#     my $leastscr = 100000;
-#     for (keys %ifhit){
-# 	if($minfreq{$_} < $leastscr){
-# 	    $leastwrd = $_;
-# 	    $leastscr = $minfreq{$_};
-# 	}
-#     }
-#     if($minf && $leastwrd){
-# 	for (keys %minword){
-# 	    $minfreq{$_} = -1 if $minword{$_} eq $minword{$leastwrd};
-# 	}
-#     }
-#     return (\%minfreq, \%minword, \%ifhit, \%cosdistance);
-# }
 
 1;
 __END__
