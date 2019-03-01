@@ -435,11 +435,12 @@ sub loadEsearch {
 	print $type,"\n";
 	no strict "refs";
 	while(my ($tkey, $tvalue) = each %{$type}){
-	    $id++;
 	    if($type eq "correct_definitions"){
+	        $id++;
 		$esearch->index( index => "dict_".$md5dname, type => $type, id => $id, body => { name => $tvalue, normalized_name => $tkey, frequency => 0 });
 	    }else{
 		while(my ($name, $frequency) = each %$tvalue){
+	            $id++;
 		    $esearch->index( index => "dict_".$md5dname, type => $type, id => $id, body => { name => $name, normalized_name => $tkey, frequency => $frequency });
 		}
 	    }
