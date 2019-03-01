@@ -49,6 +49,8 @@ package Text::TogoAnnotatorES;
 # White/Black List対応
 # * 2018.11.26
 # 変数名について、小文字化した$queryを$lcqueryに、$lc_queryを$lcb4queryに。
+# * 2019.3.1
+# 新生Elasticsearch対応のために大幅な変更を施す。
 
 use warnings;
 use strict;
@@ -66,6 +68,7 @@ use Digest::MD5 qw/md5_hex/;
 use File::Slurp;
 use Encode;
 use WWW::Curl::Easy;
+use JSON::XS;
 
 my ($sysroot, $niteAll, $curatedDict, $enzymeDict, $locustag_prefix_name, $embl_locustag_name, $gene_symbol_name, $family_name, $esearch);
 my ($nitealldb_after_name, $nitealldb_before_name);
@@ -133,7 +136,7 @@ sub init {
     $n_gram //= 3;
     $ignore_chars = qr{[-/,:+()]};
 
-    $cosine_object = Bag::Similarity::Cosine->new;
+    #$cosine_object = Bag::Similarity::Cosine->new;
     $esearch = Search::Elasticsearch->new();
     #$esearch = Search::Elasticsearch->new(serializer => 'JSON::XS');
     #$esearch = Search::Elasticsearch->new(cxn_pool => 'Sniff');
