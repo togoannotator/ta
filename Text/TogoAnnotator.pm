@@ -137,7 +137,8 @@ sub init {
     $ignore_chars = qr{[-/,:+()]};
 
     $cosine_object = Bag::Similarity::Cosine->new;
-    $esearch = Search::Elasticsearch->new();
+    $esearch = Search::Elasticsearch->new(nodes => ['172.18.8.190:9200']); # vs40のサーバーにアクセス
+    #$esearch = Search::Elasticsearch->new();
     #$esearch = Search::Elasticsearch->new(serializer => 'JSON::XS');
     #$esearch = Search::Elasticsearch->new(cxn_pool => 'Sniff');
 
