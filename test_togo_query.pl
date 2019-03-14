@@ -11,9 +11,11 @@ my $curl = WWW::Curl::Easy->new();
 my $response_body;
 #my $lcquery = "3 oxoacyl acyl carrier protein reductase like";
 my $lcquery = "oxoacyl carrier protein reductase";
+my $INDEX_NAME = "tm_68c008bfb37f663c81d581287b267a20";
+#my $INDEX_NAME = "tm_f0a37107d9735025c81673c0ad3f1109";
 #my $INDEX_NAME = "tm_53a186f8c95c329d6bddd8bc3d3b4189";
-my $INDEX_NAME = "tm_dd2f74a1041db59c64a665b356c9d1b3";
-$curl->setopt(CURLOPT_URL, "http://172.18.8.190:9200/${INDEX_NAME}/_search");
+#my $INDEX_NAME = "tm_dd2f74a1041db59c64a665b356c9d1b3";
+$curl->setopt(CURLOPT_URL, "http://172.18.8.190:19200/${INDEX_NAME}/_search");
 $curl->setopt(CURLOPT_POST, 1);
 $curl->setopt(CURLOPT_HTTPHEADER, [
 	"Content-Type: application/json",
@@ -117,7 +119,6 @@ my $query2es =<<"QUERY";
     }
  },
   "size": 0, 
-  "aggs": {  },
   "aggs": {
     "tags": {
       "terms": {

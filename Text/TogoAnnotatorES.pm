@@ -286,7 +286,7 @@ sub retrieve {
     my $curl = WWW::Curl::Easy->new();
     my $response_body;
     my $INDEX_NAME = "tm_".$md5dname;
-    $curl->setopt(CURLOPT_URL, "http://localhost:9200/${INDEX_NAME}/_search");
+    $curl->setopt(CURLOPT_URL, "http://172.18.8.190:19200/${INDEX_NAME}/_search");
     $curl->setopt(CURLOPT_POST, 1);
     $curl->setopt(CURLOPT_HTTPHEADER, [
 		      "Content-Type: application/json",
@@ -299,113 +299,112 @@ sub retrieve {
     my $MAX_WORD_LENGTH = 0;
     my $query2es =<<"QUERY";
 {
-    "query": {
-	"bool": {
-	    "should": [
-		{
-		    "bool": {
-			"must": [
-			    {
-				"term": {
-				    "query_type": "term_before"
-				}
-			    },
-			    {
-				"match": {
-				    "normalized_name.term": {
-					"query": "${KEY_WORD}"
-				    }
-				}
-			    }
-			    ]
-		    }
-		},
-		{
-		    "bool": {
-			"must": [
-			    {
-				"term": {
-				    "query_type": "term_after"
-				}
-			    },
-			    {
-				"match": {
-				    "normalized_name.term": {
-					"query": "${KEY_WORD}"
-				    }
-				}
-			    }
-			    ]
-		    }
-		},
-		{
-		    "bool": {
-			"must": [
-			    {
-				"term": {
-				    "query_type": "mlt_before"
-				}
-			    },
-			    {
-				"more_like_this": {
-				    "fields": [
-					"normalized_name.mlt"
-					],
-					"like": "${KEY_WORD}",
-					"max_query_terms": ${MAX_QUERY_TERMS},
-					"minimum_should_match": "${MINIMUM_SHOULD_MATCH}",
-					"min_term_freq": ${MIN_TERM_FREQ},
-					"min_word_length": ${MIN_WORD_LENGTH},
-					"max_word_length":  ${MAX_WORD_LENGTH}
-				}
-			    }
-			    ]
-		    }
-		},
-		{
-		    "bool": {
-			"must": [
-			    {
-				"term": {
-				    "query_type": "mlt_after"
-				}
-			    },
-			    {
-				"more_like_this": {
-				    "fields": [
-					"normalized_name.mlt"
-					],
-					"like": "${KEY_WORD}",
-					"max_query_terms": ${MAX_QUERY_TERMS},
-					"minimum_should_match": "${MINIMUM_SHOULD_MATCH}",
-					"min_term_freq": ${MIN_TERM_FREQ},
-					"min_word_length": ${MIN_WORD_LENGTH},
-					"max_word_length": ${MAX_WORD_LENGTH}
-				}
-			    }
-			    ]
-		    }
-		}
-		]
-	}
-    },
-    "size": 0, 
-    "aggs": {  },
-    "aggs": {
-	"tags": {
-	    "terms": {
-		"field": "query_type",
-		"size": 4
-	    },
-		    "aggs":{
-			"top_tag_hits":{
-			    "top_hits": {
-				"size": 15
-			    }
-			}
-		}
-	}
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "bool": {
+            "must": [
+              {
+                "term": {
+                  "query_type": "term_before"
+                }
+              },
+              {
+                "match": {
+                  "normalized_name.term": {
+                    "query": "${KEY_WORD}"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "bool": {
+            "must": [
+              {
+                "term": {
+                  "query_type": "term_after"
+                }
+              },
+              {
+                "match": {
+                  "normalized_name.term": {
+                    "query": "${KEY_WORD}"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "bool": {
+            "must": [
+              {
+                "term": {
+                  "query_type": "mlt_before"
+                }
+              },
+              {
+                "more_like_this": {
+                  "fields": [
+                    "normalized_name.mlt"
+                  ],
+                  "like": "${KEY_WORD}",
+                  "max_query_terms": ${MAX_QUERY_TERMS},
+                  "minimum_should_match": "${MINIMUM_SHOULD_MATCH}",
+                  "min_term_freq": ${MIN_TERM_FREQ},
+                  "min_word_length": ${MIN_WORD_LENGTH},
+                  "max_word_length":  ${MAX_WORD_LENGTH}
+                }
+              }
+            ]
+          }
+        },
+        {
+          "bool": {
+            "must": [
+              {
+                "term": {
+                  "query_type": "mlt_after"
+                }
+              },
+              {
+                "more_like_this": {
+                  "fields": [
+                    "normalized_name.mlt"
+                  ],
+                  "like": "${KEY_WORD}",
+                  "max_query_terms": ${MAX_QUERY_TERMS},
+                  "minimum_should_match": "${MINIMUM_SHOULD_MATCH}",
+                  "min_term_freq": ${MIN_TERM_FREQ},
+                  "min_word_length": ${MIN_WORD_LENGTH},
+                  "max_word_length": ${MAX_WORD_LENGTH}
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
+ },
+  "size": 0,
+  "aggs": {
+    "tags": {
+      "terms": {
+        "field": "query_type",
+        "size": 4
+      },
+      "aggs":{
+        "top_tag_hits":{
+          "top_hits": {
+            "size": 15
+          }
+        }
+      }
+    }
+  }
 }
 QUERY
 

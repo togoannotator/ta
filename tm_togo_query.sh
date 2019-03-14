@@ -10,6 +10,7 @@ hash_["ecoli"]="tm_f0a37107d9735025c81673c0ad3f1109"
 hash_["lab"]="tm_e854a94641613372a4170daba28407ae"
 hash_["bacteria"]="tm_68c008bfb37f663c81d581287b267a20"
 hash_["all"]="tm_53a186f8c95c329d6bddd8bc3d3b4189,tm_f0a37107d9735025c81673c0ad3f1109,tm_e854a94641613372a4170daba28407ae,tm_68c008bfb37f663c81d581287b267a20"
+hash_["new_ecoli"]="tm_68c008bfb37f663c81d581287b267a20"
 INDEX_NAME=${hash_[$1]}
 
 echo ""
@@ -118,7 +119,6 @@ cat << EOS > json.txt
     }
  },
   "size": 0, 
-  "aggs": {  },
   "aggs": {
     "tags": {
       "terms": {
@@ -144,7 +144,7 @@ cat json.txt | jq .
 echo ""
 
 
-curl -sS --noproxy localhost -X GET "http://172.18.8.190:9200/${INDEX_NAME}/_search" -H 'Content-Type: application/json' -d@json.txt > result.txt
+curl -sS --noproxy localhost -X GET "http://172.18.8.190:19200/${INDEX_NAME}/_search" -H 'Content-Type: application/json' -d@json.txt > result.txt
 if [ -z "$8" ]; then
 echo "===== All results ====="
 cat result.txt | jq

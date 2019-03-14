@@ -15,13 +15,16 @@ my $sysroot = "$Bin/..";
 my $dicts = json_file_to_perl ("$sysroot/conf/dictionary.json");
 while( my ($k,$o) = each %$dicts){
   #print Dumper $o;
-  next unless $o->{'namespace'} eq 'lab';
+  #next unless $o->{'namespace'} eq 'lab';
+  #next if $o->{'namespace'} eq 'lab';
   #next unless $o->{'namespace'} eq 'ecoli';
   #next unless $o->{'namespace'} eq 'cyanobacteria';
-  #next unless $o->{'namespace'} eq 'bacteria';
-  print Dumper $o;
+  next unless $o->{'namespace'} eq 'bacteria';
+  #print Dumper $o;
   $o->{'sysroot'} = $sysroot;
   $o->{'useCurrentDict'} = 0;
+  print "Text::TogoAnnotator->init(",join(", ", ($o->{'cos_threshold'}, $o->{'e_threashold'}, $o->{'cs_max'}, $o->{'n_gram'}, $o->{'sysroot'}, $o->{'niteAll'}, $o->{'curatedDict'}, $o->{'useCurrentDict'}, $o->{'namespace'})),");\n";
+  #next;
   Text::TogoAnnotator->init(
         $o->{'cos_threshold'},
         $o->{'e_threashold'},
