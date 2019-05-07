@@ -1,0 +1,315 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "TogoAnnotator API",
+    "description": "TogoAnnotator has APIs available in several methods focused on refinement of gene annotation. When you input a query string or a file describing the gene product/description, you can retrieve the JSON representation of output by TogoAnnotator. Below you can find technical details of our service. Note that Safari does not work properly if you upload a file.",
+    "version": "1.2"
+  },
+  "paths": {
+    "/gene": {
+      "get": {
+        "tags": [
+          "Gene Annotation"
+        ],
+        "description": "Input a query such as gene product or gene description and Return a result output by TogoAnnotator.",
+        "operationId": "gene",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "description": "Input a query such as gene product or description.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "PsbA"
+            }
+          },
+          {
+            "name": "queries",
+            "in": "query",
+            "description": "Input queries such as gene product or description.",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "default": "PsbA",
+              "items": [
+                {
+                  "$ref": "#/components/schemas/pet"
+                }
+              ]
+            }
+          },
+          {
+            "$ref": "#/components/parameters/dictionary"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit the number of items in result_array",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "max_query_terms",
+            "in": "query",
+            "description": "the maximum number of query terms that will be selected.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100
+            }
+          },
+          {
+            "name": "minimum_should_match",
+            "in": "query",
+            "description": "After the disjunctive query has been formed, this parameter controls the number of terms that must match. The syntax is the same as the minimum should match.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 30
+            }
+          },
+          {
+            "name": "min_term_freq",
+            "in": "query",
+            "description": "The minimum term frequency below which the terms will be ignored from the input document.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "min_word_length",
+            "in": "query",
+            "description": "The minimum word length below which the terms will be ignored. The old name min_word_len is deprecated. Defaults to 0.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "max_word_length",
+            "in": "query",
+            "description": "The maximum word length above which the terms will be ignored. The old name max_word_len is deprecated. Defaults to unbounded (0).",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. Invalid input query.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/genes": {
+      "post": {
+        "tags": [
+          "Gene Annotation"
+        ],
+        "description": "Upload a line-delimited text file contains gene product/description and Return all results output by TogoAnnotator.",
+        "operationId": "genes",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dictionary"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Genes"
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Results"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. Invalid input file supplied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://togoannotator.dbcls.jp/"
+    }
+  ],
+  "components": {
+    "parameters": {
+      "dictionary": {
+        "name": "dictionary",
+        "in": "query",
+        "description": "Select a TogoAnnotator dictionary",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "bacteria",
+            "cyanobacteria",
+            "ecoli",
+            "lab"
+          ],
+          "default": "cyanobacteria"
+        }
+      },
+      "format": {
+        "name": "format",
+        "in": "path",
+        "description": "Select a input file format",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "line-delimited-text",
+            "ddbj-submission",
+            "fasta",
+            "genbank",
+            "blast",
+            "gff"
+          ],
+          "default": "line-delimited-text"
+        }
+      }
+    },
+    "responses": {
+      "ErrorResponse400Standard": {
+        "description": "Bad request. Invalid input file supplied.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
+    "requestBodies": {
+      "Genes": {
+        "content": {
+          "multipart/form-data": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "upload": {
+                  "description": "The uploaded file data",
+                  "type": "string",
+                  "format": "binary"
+                },
+                "limit": {
+                  "description": "Limit the number of items in result_array",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "upload"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Result": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "a provided query."
+          },
+          "result": {
+            "type": "string",
+            "description": "a recommended annotation."
+          },
+          "match": {
+            "type": "string",
+            "description": "a match type. (ex, cs, bcs, no_hit)."
+          },
+          "info": {
+            "type": "string",
+            "description": "additional information."
+          },
+          "result_array": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "result"
+            },
+            "description": "recommended annotation candidates."
+          }
+        },
+        "example": {
+          "query": "Ammonium transport",
+          "result": "Ammonium transporter",
+          "match": "cs",
+          "info": "Ammonium transporter [-1:ammonium] @@ ammonium transporter AmtB [-1:ammonium] @@ ammonium transport protein [-1:ammonium] @@ Ammonium transporter family [-1:ammonium] @@ ammonium transporter sll1017 [-1:ammonium]",
+          "result_array": [
+            "Ammonium transporter",
+            "ammonium transporter AmtB",
+            "ammonium transport protein",
+            "Ammonium transporter family",
+            "ammonium transporter sll1017"
+          ]
+        }
+      },
+      "Results": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Result"
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
