@@ -5,9 +5,7 @@ use utf8;
 use Encode qw/encode decode/;
 use FindBin qw($Bin);
 use lib "$Bin/..";
-use Search::Elasticsearch;
 use Text::TogoAnnotatorES;
-#use Data::Dumper;
 
 plugin 'CORS';
 
@@ -24,7 +22,7 @@ app->mode($ENV{'TA_ENV'});
 my $sysroot = "$Bin/..";
 $config_dict->{'sysroot'} = $sysroot;
 
-print "### Server settings\n";
+#print "### Server settings\n";
 while (my($k, $v) =  each %$config_dict){
   printf("%- 14s %s\n","$k:", $v);
 }
@@ -32,9 +30,7 @@ print "\n";
 
 our ($opt_t, $opt_m) = ($config_dict->{'cos_threshold'}, $config_dict->{'cs_max'});
 
-#Text::TogoAnnotator->init($opt_t, $config_dict->{'e_threashold'}, $opt_m, $config_dict->{'n_gram'}, $sysroot, $config_dict->{'niteAll'}, $config_dict->{'curatedDict'}, 1, $config_dict->{'namespace'});
-Text::TogoAnnotatorES->init($opt_t, $config_dict->{'e_threashold'}, $opt_m, $config_dict->{'n_gram'}, $sysroot, $config_dict->{'niteAll'}, '', 1, $config_dict->{'namespace'}); 
-#TODO: init引数の調整
+Text::TogoAnnotatorES->init($opt_t, $config_dict->{'e_threashold'}, $opt_m, $config_dict->{'n_gram'}, $sysroot, $config_dict->{'niteAll'}, '', 1, $config_dict->{'namespace'}); #TODO: init引数の調整
 
 print "Server ready.\n";
 
@@ -63,91 +59,8 @@ sub ddbjfile2queries {
     return \@queries;
 }
 
-sub bioseqio2queries {
-    my @queries = ();
-    return unless $_[0];
-    use Bio::SeqIO;
-    use IO::String;
-    my $stringio = IO::String->new($_[0]);
-    my $seqio_object = Bio::SeqIO->new(-fh => $stringio, -format => 'genbank');
-    #my $seqio_object = Bio::SeqIO->new(-file => $_[0], -format => 'genbank');
-    my $seq_object = $seqio_object->next_seq;
-    for my $feat_object ($seq_object->get_SeqFeatures) {
-      #print "primary tag: ", $feat_object->primary_tag, "\n";
-        for my $tag ($feat_object->get_all_tags) {
-            #print "  tag: ", $tag, "\n";
-            next if $tag ne 'product';
-            for my $value ($feat_object->get_tag_values($tag)) {
-                #print "    value: ", $value, "\n";
-                push @queries, $value;
-            }
-        }
-    }
-    return \@queries;
-}
-
-sub fasta2queries {
-    my @queries = ();
-    return unless $_[0];
-    use Bio::SeqIO;
-    use IO::String;
-    my $stringio = IO::String->new($_[0]);
-    my $seqio_object = Bio::SeqIO->new(-fh => $stringio, -format => 'fasta');
-    while (my $seq = $seqio_object->next_seq) {
-        #print Dumper $seq->desc;
-        push @queries, $seq->desc;
-    }    
-    return \@queries;
-}
-
-sub biosearchio2queries {
-   my @queries = ();
-   return unless $_[0];
-   use Bio::SearchIO;
-   use IO::String;
-   my $stringio = IO::String->new($_[0]);
-   my $report_obj = new Bio::SearchIO( -fh => $stringio, -format => 'blast');
-    while( my $result = $report_obj->next_result ) {
-        while( my $hit = $result->next_hit ) {
-          (my $f = $hit->description) =~ s/[[:cntrl:]].*$//;
-	  $f =~ s/ *\[[^\[\]]+\]$//; # 末尾が]で終わっているときは、そこに生物種名が含まれているという想定の下、その部分を除去。
-          push @queries, $f;
-          #push @queries, trim( substr($f, 0, rindex($f, "[")) );
-            #while( $hsp = $hit->next_hsp ) {
-            #        $hsp->percent_identity, "\n";
-            #}
-         }
-    }
-    return \@queries;
-}
-
-sub gff2queries {
-   my @queries = ();
-   return unless $_[0];
-   use Bio::Tools::GFF;
-   use IO::String;
-   my $stringio = IO::String->new($_[0]);
-   #my $gff_filename = shift;
-   #my $gffio = Bio::Tools::GFF->new( -file => $gff_filename, -gff_version => 3 );
-   my $gffio = Bio::Tools::GFF->new( -fh => $stringio, -gff_version => 3 );
-
-   while ( my $feature = $gffio->next_feature() ) { 
-      for my $tag ($feature->get_all_tags) {
-        #print "  tag: ", $tag, "\n";
-         next if $tag ne 'product';
-         for my $value ($feature->get_tag_values($tag)) {
-           #print "    value: ", $value, "\n";
-            push @queries, $value;
-         }   
-      }   
-   }
-   $gffio->close();
-   return \@queries;
-}
-
 get '/' => sub {
    my $self = shift;
-   #$self->stash(name => qq{TogoAnnotator});
    $self->render(template => 'index');
 };
 
@@ -176,34 +89,6 @@ app->helper(
     return @out;
   }
 );
-
-sub json2ld{
-  my $r = shift;
-  my $dict = shift;
-  $r->{'@context'} = "http://purl.jp/bio/10/togoannotator/owl/tgao.jsonld";
-  $r->{'id'} = "http://purl.jp/bio/10/togoannotator/".$dict.$r->{'query'};
-  $r->{'type'} = "Annotation";
-  return $r;
-}
-=pod
-  {
-  "@context": "https://togoannotator.dbcls.jp/owl/tgao.jsonld",
-  "annotation": {
-    "ec": "IUBMB protein",
-    "gene_symbol": "pubsA"
-  },
-  "id": "https://togoannotator.dbcls.jp/cyanobaciteria/PsbA",
-  "info": "convert_from dictionary [Gene symbol]",
-  "match": "ex",
-  "query": "PsbA",
-  "result": "PsbA protein",
-  "result_array": [
-    "PsbA protein 2",
-    "PsbA protein"
-  ],
-  "type": "Annotation"
-}
-=cut
 
 get '/gene' => sub {
     my $self = shift;
@@ -248,21 +133,12 @@ post '/ddbj' => sub {
     }
 };
 
-#plugin OpenAPI => {url => app->home->rel_file("public/swagger.json")};
 app->log->level('debug');
-#app->hook('before_dispatch' => sub {
-#    my $self = shift;
-#    if ($self->req->headers->header('X-Forwarded-Host')) {
-#      #Proxy Path setting
-#      my $path = shift @{$self->req->url->path->parts};
-#      push @{$self->req->url->base->path->parts}, $path;
-#    }
-#});
 app->start;
 
 __DATA__
 
-@@ swagger3.html.ep
+@@ layouts/default.html.ep
 <!-- HTML for static distribution bundle build -->
 <!DOCTYPE html>
 <html lang="en">
@@ -304,8 +180,8 @@ __DATA__
     window.onload = function() {
       // Begin Swagger UI call region
       const ui = SwaggerUIBundle({
-        url: "https://petstore.swagger.io/v2/swagger.json",
-        url: "/v1/2/swagger.json",
+        //url: "/v1/2/swagger.json",
+        url: "/v2/0/openapi.json",
         dom_id: '#swagger-ui',
         deepLinking: true,
         presets: [
@@ -327,7 +203,7 @@ __DATA__
 
 
 
-@@ layouts/default.html.ep
+@@ layouts/default2.html.ep
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -374,7 +250,7 @@ __DATA__
       if (url && url.length > 1) {
         url = decodeURIComponent(url[1]);
       } else {
-        url = "v2/0/openapi.jsonn";
+        url = "v2/0/openapi.json";
       }
 
       hljs.configure({
@@ -581,3 +457,5 @@ $ curl -s http://togows.dbcls.jp/entry/nucleotide/ABA25090.1.fasta | curl -s -F 
 <table>
 </table>
 <%= dumper $record %>
+
+@@ swagger3.html.ep

@@ -32,11 +32,9 @@
             "schema": {
               "type": "array",
               "default": "PsbA",
-              "items": [
-                {
-                  "$ref": "#/components/schemas/pet"
-                }
-              ]
+              "items": {
+                "$ref": "#/components/parameters/query"
+              }
             }
           },
           {
@@ -169,11 +167,20 @@
   },
   "servers": [
     {
-      "url": "https://togoannotator.dbcls.jp/"
+      "url": "http://localhost:5011/"
     }
   ],
   "components": {
     "parameters": {
+      "query": {
+        "name": "query",
+        "in": "query",
+        "description": "Select a TogoAnnotator query",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
       "dictionary": {
         "name": "dictionary",
         "in": "query",
