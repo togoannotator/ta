@@ -6,15 +6,16 @@ use Encode qw/encode decode/;
 use FindBin qw($Bin);
 use lib "$Bin/..";
 use Search::Elasticsearch;
-use Text::TogoAnnotator;
-use Data::Dumper;
-
+use Text::TogoAnnotatorES;
+#use Data::Dumper;
 
 plugin 'CORS';
 
 my $config = plugin 'JSONConfig';
 my $port = 5100;
-my $config_dict = $config->{'DDBJCurated'};
+#my $config_dict = $config->{'DDBJCurated'};
+my $config_dict = $config->{'UniProtLeeModified'};
+
 $ENV{'TA_ENV'} ||= 'production';
 #app->config(hypnotoad => {listen => ['http://*:'.$config_dict->{'port'}], heartbeat_timeout => 1200, pid_file => './hypnotoad'. $config_dict->{'port'}.'.pid'});
 app->config(hypnotoad => {listen => ['http://*:'.$port], heartbeat_timeout => 1200, pid_file => './hypnotoad'. $port.'.pid'});
@@ -23,19 +24,18 @@ app->mode($ENV{'TA_ENV'});
 my $sysroot = "$Bin/..";
 $config_dict->{'sysroot'} = $sysroot;
 
-#print "### Server settings\n";
-#while (my($k, $v) =  each %$config_dict){
-#  printf("%- 14s %s\n","$k:", $v);
-#}
-#print "\n";
+print "### Server settings\n";
+while (my($k, $v) =  each %$config_dict){
+  printf("%- 14s %s\n","$k:", $v);
+}
+print "\n";
 
 our ($opt_t, $opt_m) = ($config_dict->{'cos_threshold'}, $config_dict->{'cs_max'});
 
 #Text::TogoAnnotator->init($opt_t, $config_dict->{'e_threashold'}, $opt_m, $config_dict->{'n_gram'}, $sysroot, $config_dict->{'niteAll'}, $config_dict->{'curatedDict'}, 1, $config_dict->{'namespace'});
-Text::TogoAnnotator->init($opt_t, $config_dict->{'e_threashold'}, $opt_m, $config_dict->{'n_gram'}, $sysroot, $config_dict->{'niteAll'}, '', 1, $config_dict->{'namespace'});
+Text::TogoAnnotatorES->init($opt_t, $config_dict->{'e_threashold'}, $opt_m, $config_dict->{'n_gram'}, $sysroot, $config_dict->{'niteAll'}, '', 1, $config_dict->{'namespace'}); 
+#TODO: init引数の調整
 
-#print "\n";
-#print "### Server\n";
 print "Server ready.\n";
 
 sub file2queries {
@@ -161,22 +161,18 @@ app->types->type(jsonld => 'application/ld+json');
 app->helper(
   retrieve => sub {
     my ($self, $defs, $dict_ns) = @_;
-    #Text::TogoAnnotator->openDicts;
-    my $r = Text::TogoAnnotator->retrieve($defs, $dict_ns);
-    #Text::TogoAnnotator->closeDicts;
+    my $r = Text::TogoAnnotatorES->retrieve($defs, $dict_ns);
     return $r;
   });
 
 app->helper(
   retrieve_array => sub {
     my ($self, $queries, $dict_ns) = @_;
-    #Text::TogoAnnotator->openDicts;
     my @out = ();
     foreach my $q (@$queries){
-       my $r = Text::TogoAnnotator->retrieve($q, $dict_ns);
+       my $r = Text::TogoAnnotatorES->retrieve($q, $dict_ns);
        push @out, $r;
     }
-    #Text::TogoAnnotator->closeDicts;
     return @out;
   }
 );
@@ -209,24 +205,17 @@ sub json2ld{
 }
 =cut
 
-get '/gene/*definition' => sub {
+get '/gene' => sub {
     my $self = shift;
-
-    my $defs = $self->param('definition');
-    my $dict_ns = $self->('dictionary');
+    my $defs = $self->param('query');
+    my $dict_ns = $self->param('dictionary');
+    # TODO:パラメータを追加してretriveに送る
     my $r = $self->retrieve($defs, $dict_ns);
 
    return $self->render(json => $r);
    $self->stash(record => $r);
    $self->respond_to(
      json => {json => $r},
-#     jsonld => { json => json2ld($r) },
-     #html => sub {
-     #    $self->render(template => 'retrieve')
-     #},
-     #html => sub {$self->render(json => $r)},
-#     html => {json => $r},
-#     any  => {text => 'Invalid format. Available formats are json, jsonld or html.', status => 204}
    );
 };
 
@@ -236,11 +225,10 @@ post '/genes' => sub {
     my $upload = $self->param('upload');
     my $dict_ns = $self->param('dictionary');
     if (ref $upload eq 'Mojo::Upload') {
-	my $file_type = $upload->headers->content_type;
-	#my %valid_types = map {$_ => 1} qw(image/gif image/jpeg image/png);
-	my $queries = file2queries($upload->slurp);
+	      my $file_type = $upload->headers->content_type;
+	      my $queries = file2queries($upload->slurp);
         my @out = $self->retrieve_array($queries, $dict_ns);
-	return $self->render(json => \@out);
+	      return $self->render(json => \@out);
     }else{
         $self->redirect_to('index');
     }
@@ -257,62 +245,6 @@ post '/ddbj' => sub {
 	return $self->render(json => \@out);
     }else{
 	$self->redirect_to('index');
-    }
-};
-
-post '/genbank' => sub {
-    my $self = shift;
-    my $upload = $self->param('upload');
-    my $dict_ns = $self->param('dictionary');
-    if (ref $upload eq 'Mojo::Upload') {
-        my $file_type = $upload->headers->content_type;
-        my $queries = bioseqio2queries($upload->slurp);
-        my @out = $self->retrieve_array($queries, $dict_ns);
-        return $self->render(json => \@out);
-    }else{
-        $self->redirect_to('index');
-    }
-};
-
-post '/fasta' => sub {
-    my $self = shift;
-    my $upload = $self->param('upload');
-    my $dict_ns = $self->param('dictionary');
-    if (ref $upload eq 'Mojo::Upload') {
-        my $file_type = $upload->headers->content_type;
-        my $queries = fasta2queries($upload->slurp);
-        my @out = $self->retrieve_array($queries, $dict_ns);
-        return $self->render(json => \@out);
-    }else{
-        $self->redirect_to('index');
-    }
-};
-
-post '/blast' => sub {
-    my $self = shift;
-    my $upload = $self->param('upload');
-    my $dict_ns = $self->param('dictionary');
-    if (ref $upload eq 'Mojo::Upload') {
-        my $file_type = $upload->headers->content_type;
-        my $queries = biosearchio2queries($upload->slurp);
-        my @out = $self->retrieve_array($queries, $dict_ns);
-        return $self->render(json => \@out);
-    }else{
-        $self->redirect_to('index');
-    }
-};
-
-post '/gff' => sub {
-    my $self = shift;
-    my $upload = $self->param('upload');
-    my $dict_ns = $self->param('dictionary');
-    if (ref $upload eq 'Mojo::Upload') {
-        my $file_type = $upload->headers->content_type;
-        my $queries = gff2queries($upload->slurp);
-        my @out = $self->retrieve_array($queries, $dict_ns);
-        return $self->render(json => \@out);
-    }else{
-        $self->redirect_to('index');
     }
 };
 
@@ -372,7 +304,7 @@ __DATA__
     window.onload = function() {
       // Begin Swagger UI call region
       const ui = SwaggerUIBundle({
-        //url: "https://petstore.swagger.io/v2/swagger.json",
+        url: "https://petstore.swagger.io/v2/swagger.json",
         url: "/v1/2/swagger.json",
         dom_id: '#swagger-ui',
         deepLinking: true,
@@ -442,7 +374,7 @@ __DATA__
       if (url && url.length > 1) {
         url = decodeURIComponent(url[1]);
       } else {
-        url = "/v1/2/swagger.json";
+        url = "v2/0/openapi.jsonn";
       }
 
       hljs.configure({

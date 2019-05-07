@@ -59,7 +59,7 @@ use File::Path 'mkpath';
 use File::Basename;
 use Bag::Similarity::Cosine;
 use String::Trim;
-use simstring;
+#use simstring;
 use PerlIO::gzip;
 use Lingua::EN::ABC qw/b2a/;
 use Text::Match::FastAlternatives;
@@ -317,8 +317,8 @@ sub readDict {
     if( $useCurrentDict ){
 	print "Reading histogram.\n";
 	my $decoder = Sereal::Decoder->new();
-	$histogram = sereal_decode_with_object($decoder, read_file($sysroot.'/'.$dictdir.'/histogram'));
-	print "Done.\n";
+#	$histogram = sereal_decode_with_object($decoder, read_file($sysroot.'/'.$dictdir.'/histogram'));
+#	print "Done.\n";
 	return;
     }
 
