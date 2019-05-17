@@ -145,9 +145,9 @@ __DATA__
   <head>
     <meta charset="UTF-8">
     <title>Swagger UI</title>
-    <link rel="stylesheet" type="text/css" href="/dist/swagger-ui.css" >
-    <link rel="icon" type="image/png" href="/dist/favicon-32x32.png" sizes="32x32" />
-    <link rel="icon" type="image/png" href="/dist/favicon-16x16.png" sizes="16x16" />
+    <link rel="stylesheet" type="text/css" href="/v2/dist/swagger-ui.css" >
+    <link rel="icon" type="image/png" href="/v2/dist/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/v2/dist/favicon-16x16.png" sizes="16x16" />
     <style>
       html
       {
@@ -174,14 +174,14 @@ __DATA__
   <body>
     <div id="swagger-ui"></div>
 
-    <script src="/dist/swagger-ui-bundle.js"> </script>
-    <script src="/dist/swagger-ui-standalone-preset.js"> </script>
+    <script src="/v2/dist/swagger-ui-bundle.js"> </script>
+    <script src="/v2/dist/swagger-ui-standalone-preset.js"> </script>
     <script>
     window.onload = function() {
       // Begin Swagger UI call region
       const ui = SwaggerUIBundle({
         //url: "/v1/2/swagger.json",
-        url: "/v2/0/openapi.json",
+        url: "/v2/v2/0/openapi.json",
         dom_id: '#swagger-ui',
         deepLinking: true,
         presets: [

@@ -167,7 +167,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:5011/"
+      "url": "https://togoannotator.dbcls.jp/v2/"
     }
   ],
   "components": {
