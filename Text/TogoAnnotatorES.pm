@@ -69,9 +69,10 @@ use JSON::XS;
 
 my ($sysroot, $niteAll, $curatedDict, $enzymeDict, $locustag_prefix_name, $embl_locustag_name, $gene_symbol_name, $family_name, $esearch);
 my ($white_list, $black_list);
-my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $cosine_object, $ignore_chars, $locustag_prefix_matcher, $embl_locustag_matcher, $gene_symbol_matcher, $family_name_matcher, $white_list_matcher, $black_list_matcher);
-my ($useCurrentDict, $md5dname);
-my ($namespace);
+my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $ignore_chars);
+my ($locustag_prefix_matcher, $embl_locustag_matcher, $gene_symbol_matcher, $family_name_matcher, $white_list_matcher, $black_list_matcher);
+# my ($useCurrentDict, $md5dname);
+# my ($namespace);
 
 my (
     @sp_words,      # マッチ対象から外すが、マッチ処理後は元に戻して結果に表示させる語群。
@@ -80,27 +81,27 @@ my (
 my (
     %negative_min_words,  # コサイン距離を用いた類似マッチではクエリと辞書中のエントリで文字列としては類似していても、両者の間に共通に出現する語が無い場合がある。
     # その場合、共通に出現する語がある辞書中エントリを優先させる処理をしているが、本処理が逆効果となってしまう語がここに含まれる。
-    %name_provenance,     # 変換後デフィニションの由来。
-    %curatedHash,         # curated辞書のエントリ（キーは小文字化する）
+    # %name_provenance,     # 変換後デフィニションの由来。
+    # %curatedHash,         # curated辞書のエントリ（キーは小文字化する）
     %enzymeHash           # 酵素辞書のエントリ（小文字化する）
     );
 my ($minfreq, $minword, $ifhit, $cosdist);
 
 sub init {
     my $_this = shift;
-    $cos_threshold = shift; # cosine距離で類似度を測る際に用いる閾値。この値以上類似している場合は変換対象の候補とする。
-    $e_threashold  = shift; # E列での表現から候補を探す場合、辞書中での最大出現頻度がここで指定する数未満の場合のもののみを対象とする。
-    $cs_max        = shift; # 複数表示する候補が在る場合の最大表示数
-    $n_gram        = shift; # N-gram
+    $cos_threshold = shift; # 使わず。cosine距離で類似度を測る際に用いる閾値。この値以上類似している場合は変換対象の候補とする。
+    $e_threashold  = shift; # 使わず。E列での表現から候補を探す場合、辞書中での最大出現頻度がここで指定する数未満の場合のもののみを対象とする。
+    $cs_max        = shift; # 使わず。複数表示する候補が在る場合の最大表示数
+    $n_gram        = shift; # 使わず。N-gram
     $sysroot       = shift; # 辞書や作業用ファイルを生成するディレクトリ
-    $niteAll       = shift; # 辞書名
-    $curatedDict   = shift; # curated辞書名（形式は同一）
-    $useCurrentDict= shift; # 既に内部利用辞書ファイルがある場合には、それを削除して改めて構築するか否か
-    $namespace     = shift; # 辞書のネームスペースを指定
+    # $niteAll       = shift; # 使わず。辞書名
+    # $curatedDict   = shift; # 使わず。curated辞書名（形式は同一）
+    # $useCurrentDict= shift; # 使わず。既に内部利用辞書ファイルがある場合には、それを削除して改めて構築するか否か
+    # $namespace     = shift; # 使わず。辞書のネームスペースを指定
 
-    if(not defined($namespace)){
-        die encode_utf8("初期化エラー: namespaceを指定してください。\n");
-    }
+    #if(not defined($namespace)){
+    #    die encode_utf8("初期化エラー: namespaceを指定してください。\n");
+    #}
 
     #立ち上げ時に必要なファイルリスト
     $enzymeDict = "enzyme/enzyme_accepted_names.txt";
@@ -125,10 +126,10 @@ sub init {
     }
 
     # 未定議の場合の初期値
-    $cos_threshold //= 0.6;
-    $e_threashold //= 30;
-    $cs_max //= 5;
-    $n_gram //= 3;
+    # $cos_threshold //= 0.6;
+    # $e_threashold //= 30;
+    # $cs_max //= 5;
+    # $n_gram //= 3;
     $ignore_chars = qr{[-/,:+()]};
     #$esearch = Search::Elasticsearch->new();
 
@@ -152,14 +153,14 @@ sub init {
 sub readDict {
 
     # 類似度計算用辞書構築の準備
-    #my $dictdir = 'dictionary/cdb_nite_ALL';
-    (my $dname = basename $niteAll) =~ s/\..*$//;
-    my $dictdir = 'dictionary/'.$dname;
-    $md5dname = md5_hex($dname);
+    # my $dictdir = 'dictionary/cdb_nite_ALL';
+    # (my $dname = basename $niteAll) =~ s/\..*$//;
+    # my $dictdir = 'dictionary/'.$dname;
+    # $md5dname = md5_hex($dname);
 
-    print "### Text::Annotation\n";
-    print "dictdir: $dictdir\n";
-    print "md5name: $md5dname\n";
+    print "### Text::AnnotationES\n";
+    # print "dictdir: $dictdir\n";
+    # print "md5name: $md5dname\n";
 
     # 酵素辞書の構築
     print "Prepare: Enzyme Dictionary.\n";
@@ -261,6 +262,8 @@ sub retrieve {
     shift;
     ($minfreq, $minword, $ifhit, $cosdist) = undef;
     my $query = my $oq = shift;
+    my $md5dname = md5_hex(shift);
+
     # $query ||= 'hypothetical protein';
     my $lcquery = lc($query);
 
