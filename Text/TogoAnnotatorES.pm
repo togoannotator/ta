@@ -444,7 +444,8 @@ QUERY
 	    if($group_by_key{$_key}){
 		my @_results;
 		for ( @{ $group_by_key{$_key}->{"top_tag_hits"}->{"hits"}->{"hits"} } ){
-		    push @_results, $_->{"_source"}->{"name"}, "\n";
+		    #push @_results, $_->{"_source"}->{"name"}, "\n";
+		    push @_results, $_;
 		}
 		$result = join(" @@ ", map {$prfx. ($_->{"_source"}->{"name"}) } @_results);
 		$results[0] = $result;
