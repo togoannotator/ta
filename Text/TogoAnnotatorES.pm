@@ -450,8 +450,13 @@ QUERY
 		    #push @_results, $_->{"_source"}->{"name"}, "\n";
 		    push @_results, $_;
 		}
-		$result = join(" @@ ", map {$prfx. ($_->{"_source"}->{"name"}) } @_results);
-		$results[0] = $result;
+    if ($_key =~ /^term_/){
+  		$result = join(" @@ ", map {$prfx. ($_->{"_source"}->{"name"}) } @_results);
+	  	$results[0] = $result;
+    } else {
+  		$result = $prfx. $_results[0]->{"_source"}->{"name"};
+  		@results = map { $prfx.$_->{"_source"}->{"name"} } @_results;
+    }
 		$match = $matchtype_map{$_key};
 		$info = $info_map{$_key};
 		if($_key =~ m/^mlt/){
