@@ -91,9 +91,9 @@ sub init {
     my $_this = shift;
     $cos_threshold = shift; # 使わず。cosine距離で類似度を測る際に用いる閾値。この値以上類似している場合は変換対象の候補とする。
     $e_threashold  = shift; # 使わず。E列での表現から候補を探す場合、辞書中での最大出現頻度がここで指定する数未満の場合のもののみを対象とする。
-    $cs_max        = shift; # 使わず。複数表示する候補が在る場合の最大表示数
+    $cs_max        = shift; # 使わず。複数表示する候補が在る場合の最大表示数。
     $n_gram        = shift; # 使わず。N-gram
-    $sysroot       = shift; # 辞書や作業用ファイルを生成するディレクトリ
+    $sysroot       = shift; # 辞書や作業用ファイルを生成するディレクトリ。
     # $niteAll       = shift; # 使わず。辞書名
     # $curatedDict   = shift; # 使わず。curated辞書名（形式は同一）
     # $useCurrentDict= shift; # 使わず。既に内部利用辞書ファイルがある場合には、それを削除して改めて構築するか否か
