@@ -82,17 +82,17 @@ app->types->type(jsonld => 'application/ld+json');
 
 app->helper(
   retrieve => sub {
-    my ($self, $defs, $dict_ns) = @_;
-    my $r = Text::TogoAnnotatorES->retrieve($defs, $dicts->{$dict_ns});
+    my ($self, $defs, $dict_ns, $opts) = @_;
+    my $r = Text::TogoAnnotatorES->retrieve($defs, $dicts->{$dict_ns}, $opts);
     return $r;
   });
 
 app->helper(
   retrieve_array => sub {
-    my ($self, $queries, $dict_ns) = @_;
+    my ($self, $queries, $dict_ns, $opts) = @_;
     my @out = ();
     foreach my $q (@$queries){
-       my $r = Text::TogoAnnotatorES->retrieve($q, $dicts->{$dict_ns});
+       my $r = Text::TogoAnnotatorES->retrieve($q, $dicts->{$dict_ns}, $opts);
        push @out, $r;
     }
     return \@out;
@@ -103,7 +103,14 @@ get '/gene' => sub {
     my $self = shift;
     my $defs = $self->param('query');
     my $dict_ns = $self->param('dictionary');
-    my $r = $self->retrieve($defs, $dict_ns);
+    my $opts = {};
+    foreach my $p (qw(max_query_terms minimum_should_match min_term_freq min_word_length max_word_length)){
+      my $pp = uc $p;
+      $opts->{$pp} = $self->param($p) if $self->param($p) ; 
+    };
+    $opts->{'HITS'} = $self->param('limit') if  $self->param('limit') ;
+    #print Dumper $opts;
+    my $r = $self->retrieve($defs, $dict_ns, $opts);
     return $self->render(json => $r);
     #$self->stash(record => $r);
     #$self->respond_to(
@@ -115,7 +122,14 @@ get '/genes' => sub {
     my $self = shift;
     my @defs = $self->every_param('query');
     my $dict_ns = $self->param('dictionary');
-    my $r = $self->retrieve_array(@defs, $dict_ns);
+    my $opts ={};
+    foreach my $p (qw(max_query_terms minimum_should_match min_term_freq min_word_length max_word_length)){
+      my $pp = uc $p;
+      $opts->{$pp} = $self->param($p) if $self->param($p) ;
+    };
+    $opts->{'HITS'} = $self->param('limit') if  $self->param('limit') ;
+    my $r = $self->retrieve_array(@defs, $dict_ns, $opts);
+    #my $r = $self->retrieve_array(@defs, $dict_ns, $opts);
     return $self->render(json => $r);
 };
 

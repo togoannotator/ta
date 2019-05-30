@@ -264,6 +264,9 @@ sub retrieve {
     ($minfreq, $minword, $ifhit, $cosdist) = undef;
     my $query = my $oq = shift;
     my $md5dname = md5_hex(shift);
+    my $es_opts_default = {'MAX_QUERY_TERMS'=> 100, 'MINIMUM_SHOULD_MATCH' => '30','MIN_TERM_FREQ' =>0, 'MIN_WORD_LENGTH'=>0,'MAX_WORD_LENGTH'=>0, 'HITS'=>15};
+    my $es_opts = shift  || $es_opts_default;
+    #print Dumper $es_opts;
 
     # $query ||= 'hypothetical protein';
     my $lcquery = lc($query);
@@ -297,11 +300,12 @@ sub retrieve {
 		      "Content-Type: application/json",
 		  ]);
     my $KEY_WORD = $lcquery;
-    my $MAX_QUERY_TERMS = 100;
-    my $MINIMUM_SHOULD_MATCH = "30%";
-    my $MIN_TERM_FREQ = 0;
-    my $MIN_WORD_LENGTH = 0;
-    my $MAX_WORD_LENGTH = 0;
+    my $MAX_QUERY_TERMS = $es_opts->{'MAX_QUERY_TERMS'} || $es_opts_default->{'MAX_QUERY_TERMS'} ; #|| 100;
+    my $MINIMUM_SHOULD_MATCH = $es_opts->{'MINIMUM_SHOULD_MATCH'} || $es_opts_default->{'MINIMUM_SHOULD_MATCH'} ; #"30%";
+    my $MIN_TERM_FREQ =  $es_opts->{'MIN_TERM_FREQ'} || $es_opts_default->{'MIN_TERM_FREQ'} ;     # 0;
+    my $MIN_WORD_LENGTH = $es_opts->{'MIN_WORD_LENGTH'} || $es_opts_default->{'MIN_WORD_LENGTH'} ; # 0;
+    my $MAX_WORD_LENGTH = $es_opts->{'MAX_WORD_LENGTH'} || $es_opts_default->{'MAX_WORD_LENGTH'} ; # 0;
+    my $HITS = $es_opts->{'HITS'} || $es_opts_default->{'HITS'} ; # 15;
     my $query2es =<<"QUERY";
 {
   "query": {
@@ -358,7 +362,7 @@ sub retrieve {
                   ],
                   "like": "${KEY_WORD}",
                   "max_query_terms": ${MAX_QUERY_TERMS},
-                  "minimum_should_match": "${MINIMUM_SHOULD_MATCH}",
+                  "minimum_should_match": "${MINIMUM_SHOULD_MATCH}%",
                   "min_term_freq": ${MIN_TERM_FREQ},
                   "min_word_length": ${MIN_WORD_LENGTH},
                   "max_word_length":  ${MAX_WORD_LENGTH}
@@ -404,7 +408,7 @@ sub retrieve {
       "aggs":{
         "top_tag_hits":{
           "top_hits": {
-            "size": 15
+            "size": ${HITS}
           }
         }
       }
