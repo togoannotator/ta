@@ -66,6 +66,7 @@ use Digest::MD5 qw/md5_hex/;
 use Encode;
 use WWW::Curl::Easy;
 use JSON::XS;
+use Data::Dumper;
 
 my ($sysroot, $niteAll, $curatedDict, $enzymeDict, $locustag_prefix_name, $embl_locustag_name, $gene_symbol_name, $family_name, $esearch);
 my ($white_list, $black_list);
@@ -289,6 +290,7 @@ sub retrieve {
     my $curl = WWW::Curl::Easy->new();
     my $response_body;
     my $INDEX_NAME = "tm_".$md5dname;
+    print Dumper "http://172.18.8.190:19200/${INDEX_NAME}/_search";
     $curl->setopt(CURLOPT_URL, "http://172.18.8.190:19200/${INDEX_NAME}/_search");
     $curl->setopt(CURLOPT_POST, 1);
     $curl->setopt(CURLOPT_HTTPHEADER, [
@@ -540,10 +542,11 @@ sub by_priority {
     #  $minfreq->{$a} <=> $minfreq->{$b} || $cosdist->{$b} <=> $cosdist->{$a} || $a =~ y/ / / <=> $b =~ y/ / /
     ## $cosdist->{$b} <=> $cosdist->{$a} || $minfreq->{$a} <=> $minfreq->{$b} || $a =~ y/ / / <=> $b =~ y/ / /
     guideline_penalty($a) <=> guideline_penalty($b)
-	or 
-        $minfreq->{$a} <=> $minfreq->{$b}
-    or 
-        $cosdist->{$b} <=> $cosdist->{$a}
+# FIXME: 未定義のため一時的にコメントアウト
+#	or 
+#        $minfreq->{$a} <=> $minfreq->{$b}
+#    or 
+#        $cosdist->{$b} <=> $cosdist->{$a}
     or 
         $a =~ y/ / / <=> $b =~ y/ / /
 }

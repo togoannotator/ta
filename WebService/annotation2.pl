@@ -83,8 +83,6 @@ app->types->type(jsonld => 'application/ld+json');
 app->helper(
   retrieve => sub {
     my ($self, $defs, $dict_ns) = @_;
-    print Dumper $dict_ns;
-    print Dumper $dicts;
     my $r = Text::TogoAnnotatorES->retrieve($defs, $dicts->{$dict_ns});
     return $r;
   });
@@ -97,7 +95,7 @@ app->helper(
        my $r = Text::TogoAnnotatorES->retrieve($q, $dicts->{$dict_ns});
        push @out, $r;
     }
-    return @out;
+    return \@out;
   }
 );
 
@@ -105,14 +103,20 @@ get '/gene' => sub {
     my $self = shift;
     my $defs = $self->param('query');
     my $dict_ns = $self->param('dictionary');
-    # TODO:パラメータを追加してretriveに送る
     my $r = $self->retrieve($defs, $dict_ns);
+    return $self->render(json => $r);
+    #$self->stash(record => $r);
+    #$self->respond_to(
+    #  json => {json => $r},
+    #);
+};
 
-   return $self->render(json => $r);
-   $self->stash(record => $r);
-   $self->respond_to(
-     json => {json => $r},
-   );
+get '/genes' => sub {
+    my $self = shift;
+    my @defs = $self->every_param('query');
+    my $dict_ns = $self->param('dictionary');
+    my $r = $self->retrieve_array(@defs, $dict_ns);
+    return $self->render(json => $r);
 };
 
 post '/genes' => sub {
