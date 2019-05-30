@@ -6,6 +6,7 @@ use Encode qw/encode decode/;
 use FindBin qw($Bin);
 use lib "$Bin/..";
 use Text::TogoAnnotatorES;
+use Data::Dumper;
 
 plugin 'CORS';
 
@@ -13,6 +14,14 @@ my $config = plugin 'JSONConfig';
 my $port = 5100;
 #my $config_dict = $config->{'DDBJCurated'};
 my $config_dict = $config->{'UniProtLeeModified'};
+#print Dumper $config;
+my $dicts = {};
+while (my ($k, $v) = each(%$config)){
+  $dicts->{$v->{'namespace'}} = $k; 
+}
+#print Dumper $dicts;
+
+
 
 $ENV{'TA_ENV'} ||= 'production';
 #app->config(hypnotoad => {listen => ['http://*:'.$config_dict->{'port'}], heartbeat_timeout => 1200, pid_file => './hypnotoad'. $config_dict->{'port'}.'.pid'});
@@ -74,7 +83,9 @@ app->types->type(jsonld => 'application/ld+json');
 app->helper(
   retrieve => sub {
     my ($self, $defs, $dict_ns) = @_;
-    my $r = Text::TogoAnnotatorES->retrieve($defs, $dict_ns);
+    print Dumper $dict_ns;
+    print Dumper $dicts;
+    my $r = Text::TogoAnnotatorES->retrieve($defs, $dicts->{$dict_ns});
     return $r;
   });
 
@@ -83,7 +94,7 @@ app->helper(
     my ($self, $queries, $dict_ns) = @_;
     my @out = ();
     foreach my $q (@$queries){
-       my $r = Text::TogoAnnotatorES->retrieve($q, $dict_ns);
+       my $r = Text::TogoAnnotatorES->retrieve($q, $dicts->{$dict_ns});
        push @out, $r;
     }
     return @out;
