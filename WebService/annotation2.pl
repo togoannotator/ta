@@ -45,7 +45,6 @@ print "Server ready.\n";
 
 sub file2queries {
     my @queries = ();
-
     return unless $_[0];
     for (split /[\r\n]/, $_[0]){
 	next if /^#/;
@@ -135,16 +134,22 @@ get '/genes' => sub {
 
 post '/genes' => sub {
     my $self = shift;
-
     my $upload = $self->param('upload');
     my $dict_ns = $self->param('dictionary');
+    my $opts ={};
+    foreach my $p (qw(max_query_terms minimum_should_match min_term_freq min_word_length max_word_length)){
+      my $pp = uc $p;
+      $opts->{$pp} = $self->param($p) if $self->param($p) ;
+    };
+    $opts->{'HITS'} = $self->param('limit') if  $self->param('limit') ;
     if (ref $upload eq 'Mojo::Upload') {
-	      my $file_type = $upload->headers->content_type;
-	      my $queries = file2queries($upload->slurp);
-        my @out = $self->retrieve_array($queries, $dict_ns);
-	      return $self->render(json => \@out);
+        my $file_type = $upload->headers->content_type;
+        my $queries = file2queries($upload->slurp);
+        my @out = $self->retrieve_array($queries, $dict_ns, $opts);
+	return $self->render(json => \@out);
     }else{
-        $self->redirect_to('index');
+        return $self->render(json => {});
+        #$self->redirect_to('index');
     }
 };
 

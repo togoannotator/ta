@@ -236,6 +236,66 @@
         "parameters": [
           {
             "$ref": "#/components/parameters/dictionary"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit the number of items in result_array",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "max_query_terms",
+            "in": "query",
+            "description": "the maximum number of query terms that will be selected.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100
+            }
+          },
+          {
+            "name": "minimum_should_match",
+            "in": "query",
+            "description": "After the disjunctive query has been formed, this parameter controls the number of terms that must match. The syntax is the same as the minimum should match.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 30
+            }
+          },
+          {
+            "name": "min_term_freq",
+            "in": "query",
+            "description": "The minimum term frequency below which the terms will be ignored from the input document.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "min_word_length",
+            "in": "query",
+            "description": "The minimum word length below which the terms will be ignored. The old name min_word_len is deprecated. Defaults to 0.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "max_word_length",
+            "in": "query",
+            "description": "The maximum word length above which the terms will be ignored. The old name max_word_len is deprecated. Defaults to unbounded (0).",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
           }
         ],
         "requestBody": {
