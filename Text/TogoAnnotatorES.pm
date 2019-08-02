@@ -61,6 +61,7 @@ use File::Basename;
 use String::Trim;
 use Lingua::EN::ABC qw/b2a/;
 use Text::Match::FastAlternatives;
+use Algorithm::AhoCorasick::XS;
 use Search::Elasticsearch;
 use Digest::MD5 qw/md5_hex/;
 use Encode;
@@ -71,7 +72,7 @@ use Data::Dumper;
 my ($sysroot, $niteAll, $curatedDict, $enzymeDict, $locustag_prefix_name, $embl_locustag_name, $gene_symbol_name, $family_name, $esearch);
 my ($white_list, $black_list);
 my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $ignore_chars);
-my ($locustag_prefix_matcher, $embl_locustag_matcher, $gene_symbol_matcher, $family_name_matcher, $white_list_matcher, $black_list_matcher);
+my ($locustag_prefix_matcher, $embl_locustag_matcher, $gene_symbol_matcher, $family_name_matcher);
 # my ($useCurrentDict, $md5dname);
 # my ($namespace);
 
@@ -84,7 +85,10 @@ my (
     # その場合、共通に出現する語がある辞書中エントリを優先させる処理をしているが、本処理が逆効果となってしまう語がここに含まれる。
     # %name_provenance,     # 変換後デフィニションの由来。
     # %curatedHash,         # curated辞書のエントリ（キーは小文字化する）
-    %enzymeHash           # 酵素辞書のエントリ（小文字化する）
+    %enzymeHash,           # 酵素辞書のエントリ（小文字化する）
+    %black2white,            # ブラックリストで書き換え対象が記載されている場合の書き換え用ハッシュ（のハッシュ）
+    %white_matcher,
+    %black_matcher
     );
 my ($minfreq, $minword, $ifhit, $cosdist);
 
@@ -237,7 +241,7 @@ sub readDict {
 	push @white_list_array, lc(' '.$_.' ');
     }
     close($white_list_fh);
-    $white_list_matcher = Text::Match::FastAlternatives->new( @white_list_array );
+    $white_matcher{"Lee"} = Text::Match::FastAlternatives->new( @white_list_array );
 
     # Black Listのロード
     print "Prepare: Black List.\n";
@@ -246,10 +250,17 @@ sub readDict {
     while(<$black_list_fh>){
 	chomp;
 	trim( $_ );
-	push @black_list_array, lc(' '.$_.' ');
+	my ($b, $w) = split /\t/;
+	if (defined($w)){
+	    $black2white{"Lee"}{$b} = $w;
+	}
+	
+	push @black_list_array, lc(' '.$b.' ');
     }
     close($black_list_fh);
-    $black_list_matcher = Text::Match::FastAlternatives->new( @black_list_array );
+    # $black_matcher{"Lee"} = Text::Match::FastAlternatives->new( @black_list_array );
+    $black_matcher{"Lee"}= Algorithm::AhoCorasick::XS->new( \@black_list_array );
+
 
     print "Prepare: Done.\n";
 }
@@ -516,7 +527,7 @@ sub getAnnotations{
 	$$info .= " [Family name]";
 	$annotations->{"Family name"} = [ $oq ];
     }
-    if($white_list_matcher->match(' '.$oq.' ')){
+    if($white_matcher{"Lee"}->match(' '.$oq.' ')){
 	$$info .= " [White list]";
 	my @unmatched;
 	(my $fm = $oq) =~ y|-()[]/,| |;
@@ -524,7 +535,7 @@ sub getAnnotations{
 	$fm =~ s/  +/ /g;
 	trim( $fm );
 	for ( split / /, $fm ){
-	    if( $white_list_matcher->exact_match(lc $_) ){
+	    if( $white_matcher{"Lee"}->exact_match(lc $_) ){
 	    } else {
 		push @unmatched, $_;
 	    }
@@ -533,10 +544,13 @@ sub getAnnotations{
     }else{
 	$$info .= " [Not in the white list]";
     }
-    if($black_list_matcher->match(' '.$oq.' ')){
+    my @black_matched;
+    while((my $matched = $black_matcher{"Lee"}->first_match(' '.$oq.' ')) ne ""){
+	$oq =~ s/${matched}/$black2white{$matched}/ if defined($black2white{$matched});
 	$$info .= " [Black list]";
-	$annotations->{"Black list"} = [ $oq ];
+	push @black_matched, $matched;
     }
+    $annotations->{"Black list"} = \@black_matched;
 }
 
 sub by_priority {
