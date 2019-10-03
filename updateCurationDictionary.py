@@ -19,8 +19,8 @@ def getDictionary(dictionaryType):
           continue
       if len(row[0]) == 0:
           continue
-#      print(dictionaryType + '\t' + '\t'.join(map(str, row)))
-      f.write('\t'.join(map(str, row)) + "\n")
+      print(dictionaryType + '\t' + '\t'.join(map(str, row)))
+#      f.write('\t'.join(map(str, row)) + "\n")
 #      f.write(row[0]+"\n")
   f.close()
 
