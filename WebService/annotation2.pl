@@ -89,12 +89,7 @@ app->helper(
 app->helper(
   retrieve_array => sub {
     my ($self, $queries, $dict_ns, $opts) = @_;
-    my @out = ();
-    foreach my $q (@$queries){
-       my $r = Text::TogoAnnotatorES->retrieve($q, $dicts->{$dict_ns}, $opts);
-       push @out, $r;
-    }
-    return \@out;
+    return Text::TogoAnnotatorES->retrieveMulti2($queries, $dicts->{$dict_ns}, $opts);
   }
 );
 

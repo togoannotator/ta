@@ -296,7 +296,7 @@ sub makeQuery4Msearch {
 					"fields": ["normalized_name.mlt"],
 					"like": "$_[0]",
 					"max_query_terms": "$_[1]->{MAX_QUERY_TERMS}",
-					"minimum_should_match": "$_[1]->{MINIMUM_SHOULD_MATCH}",
+					"minimum_should_match": "$_[1]->{MINIMUM_SHOULD_MATCH}%",
 					"min_term_freq": "$_[1]->{MIN_TERM_FREQ}",
 					"min_word_length": "$_[1]->{MIN_WORD_LENGTH}",
 					"max_word_length": "$_[1]->{MAX_WORD_LENGTH}"
@@ -314,7 +314,7 @@ sub makeQuery4Msearch {
 					"fields": ["normalized_name.mlt"],
 					"like": "$_[0]",
 					"max_query_terms": "$_[1]->{MAX_QUERY_TERMS}",
-					"minimum_should_match": "$_[1]->{MINIMUM_SHOULD_MATCH}",
+					"minimum_should_match": "$_[1]->{MINIMUM_SHOULD_MATCH}%",
 					"min_term_freq": "$_[1]->{MIN_TERM_FREQ}",
 					"min_word_length": "$_[1]->{MIN_WORD_LENGTH}",
 					"max_word_length": "$_[1]->{MAX_WORD_LENGTH}"
@@ -336,7 +336,7 @@ sub makeQuery4Msearch {
 			"aggs": {
 			    "top_tag_hits": {
 				"top_hits": {
-				    "size": 15
+				    "size": $_[1]->{HITS}
 				}
 			    }
 		    }
@@ -352,18 +352,24 @@ MSEARCH
 
 sub retrieveMulti { # $oq にクエリのリストへのポインタが入る
     shift;
-    ($minfreq, $minword, $ifhit, $cosdist) = undef;
-
+#    ($minfreq, $minword, $ifhit, $cosdist) = undef;
     my $query = my $oq = shift;
     my $md5dname = md5_hex(shift);
     my $es_opts_default = {
 	'MAX_QUERY_TERMS'=> 100,
 	'MINIMUM_SHOULD_MATCH' => '30',
 	'MIN_TERM_FREQ' => 0,
-	'MIN_WORD_LENGTH'=> 0,
-	'MAX_WORD_LENGTH'=> 0,
-	'HITS'=> 15};
+	'MIN_WORD_LENGTH' => 0,
+	'MAX_WORD_LENGTH' => 0,
+	'HITS' => 15
+    };
     my $es_opts = shift || $es_opts_default;
+    $es_opts->{'MAX_QUERY_TERMS'} //= $es_opts_default->{'MAX_QUERY_TERMS'};
+    $es_opts->{'MINIMUM_SHOULD_MATCH'} //= $es_opts_default->{'MINIMUM_SHOULD_MATCH'};
+    $es_opts->{'MIN_TERM_FREQ'} //= $es_opts_default->{'MIN_TERM_FREQ'};
+    $es_opts->{'MIN_WORD_LENGTH'} //= $es_opts_default->{'MIN_WORD_LENGTH'};
+    $es_opts->{'MAX_WORD_LENGTH'} //= $es_opts_default->{'MAX_WORD_LENGTH'};
+    $es_opts->{'HITS'} //= $es_opts_default->{'HITS'};
     my @prfx_list;
     my @q4msearch;
     my $INDEX_NAME = "tm_".$md5dname;
@@ -404,10 +410,6 @@ sub retrieveMulti { # $oq にクエリのリストへのポインタが入る
 		      "Content-Type: application/json",
 		  ]);
     my @entire_results;
-    my @match_array;
-    my @info_array;
-    my @result_array;
-    my @annotation_array;
     my %matchtype_map = (
 	"term_after", "ex",
 	"term_before", "ex",
@@ -429,8 +431,7 @@ sub retrieveMulti { # $oq にクエリのリストへのポインタが入る
     if ($retcode == 0) {
 	my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
 	my $response_json = ${ \decode_json $response_body }->{"responses"};
-	#my $response_json = decode_json $response_body;
-	print Dumper $response_json, "\n";
+	# print Dumper $response_json, "\n";
 	for ( my $idx = 0; $idx < @$response_json; $idx++ ){
 	    my ($match, $result, $info) = ('') x 3;
 	    my @results;
@@ -478,20 +479,20 @@ sub retrieveMulti { # $oq にクエリのリストへのポインタが入る
 		    last;
 		}
 	    }
-	    push @entire_results, b2a($result);
 	    my %annotations;
 	    getAnnotations($oq->[$idx], \$info, \%annotations);
-	    push @match_array, $match;
-	    push @info_array, $info;
-	    push @result_array, \@results;
-	    push @annotation_array, \%annotations;
+	    push @entire_results, {
+		'query' => $oq->[$idx],
+		'result' => b2a($result),
+		'match' => $match,
+		'info' => $info,
+		'result_array' => \@results,
+		'annotation' => \%annotations};
 	}
-
     } else {
 	warn("An error happened: ".$curl->strerror($retcode)." ($retcode)\n");
     }
-
-    return({'query'=> $oq, 'result' => \@result_array, 'match' => \@match_array, 'info' => \@info_array, 'result_array' => \@result_array, 'annotation' => \@annotation_array});
+    return \@entire_results;
 
 }
 
@@ -502,11 +503,24 @@ sub retrieveMulti { # $oq にクエリのリストへのポインタが入る
 =cut
 sub retrieve {
     shift;
-    ($minfreq, $minword, $ifhit, $cosdist) = undef;
+#    ($minfreq, $minword, $ifhit, $cosdist) = undef;
     my $query = my $oq = shift;
     my $md5dname = md5_hex(shift);
-    my $es_opts_default = {'MAX_QUERY_TERMS'=> 100, 'MINIMUM_SHOULD_MATCH' => '30','MIN_TERM_FREQ' =>0, 'MIN_WORD_LENGTH'=>0,'MAX_WORD_LENGTH'=>0, 'HITS'=>15};
-    my $es_opts = shift  || $es_opts_default;
+    my $es_opts_default = {
+	'MAX_QUERY_TERMS' => 100,
+	'MINIMUM_SHOULD_MATCH' => '30',
+	'MIN_TERM_FREQ' => 0,
+	'MIN_WORD_LENGTH' => 0,
+	'MAX_WORD_LENGTH' => 0,
+	'HITS' => 15
+    };
+    my $es_opts = shift || $es_opts_default;
+    $es_opts->{'MAX_QUERY_TERMS'} //= $es_opts_default->{'MAX_QUERY_TERMS'};
+    $es_opts->{'MINIMUM_SHOULD_MATCH'} //= $es_opts_default->{'MINIMUM_SHOULD_MATCH'};
+    $es_opts->{'MIN_TERM_FREQ'} //= $es_opts_default->{'MIN_TERM_FREQ'};
+    $es_opts->{'MIN_WORD_LENGTH'} //= $es_opts_default->{'MIN_WORD_LENGTH'};
+    $es_opts->{'MAX_WORD_LENGTH'} //= $es_opts_default->{'MAX_WORD_LENGTH'};
+    $es_opts->{'HITS'} //= $es_opts_default->{'HITS'};
     #print Dumper $es_opts;
 
     # $query ||= 'hypothetical protein';
@@ -541,12 +555,6 @@ sub retrieve {
 		      "Content-Type: application/json",
 		  ]);
     my $KEY_WORD = $lcquery;
-    my $MAX_QUERY_TERMS = $es_opts->{'MAX_QUERY_TERMS'} || $es_opts_default->{'MAX_QUERY_TERMS'} ; #|| 100;
-    my $MINIMUM_SHOULD_MATCH = $es_opts->{'MINIMUM_SHOULD_MATCH'} || $es_opts_default->{'MINIMUM_SHOULD_MATCH'} ; #"30%";
-    my $MIN_TERM_FREQ =  $es_opts->{'MIN_TERM_FREQ'} || $es_opts_default->{'MIN_TERM_FREQ'} ;     # 0;
-    my $MIN_WORD_LENGTH = $es_opts->{'MIN_WORD_LENGTH'} || $es_opts_default->{'MIN_WORD_LENGTH'} ; # 0;
-    my $MAX_WORD_LENGTH = $es_opts->{'MAX_WORD_LENGTH'} || $es_opts_default->{'MAX_WORD_LENGTH'} ; # 0;
-    my $HITS = $es_opts->{'HITS'} || $es_opts_default->{'HITS'} ; # 15;
     my $query2es =<<"QUERY";
 {
   "query": {
@@ -602,11 +610,11 @@ sub retrieve {
                     "normalized_name.mlt"
                   ],
                   "like": "${KEY_WORD}",
-                  "max_query_terms": ${MAX_QUERY_TERMS},
-                  "minimum_should_match": "${MINIMUM_SHOULD_MATCH}%",
-                  "min_term_freq": ${MIN_TERM_FREQ},
-                  "min_word_length": ${MIN_WORD_LENGTH},
-                  "max_word_length":  ${MAX_WORD_LENGTH}
+                  "max_query_terms": $es_opts->{MAX_QUERY_TERMS},
+                  "minimum_should_match": "$es_opts->{MINIMUM_SHOULD_MATCH}%",
+                  "min_term_freq": $es_opts->{MIN_TERM_FREQ},
+                  "min_word_length": $es_opts->{MIN_WORD_LENGTH},
+                  "max_word_length":  $es_opts->{MAX_WORD_LENGTH}
                 }
               }
             ]
@@ -626,11 +634,11 @@ sub retrieve {
                     "normalized_name.mlt"
                   ],
                   "like": "${KEY_WORD}",
-                  "max_query_terms": ${MAX_QUERY_TERMS},
-                  "minimum_should_match": "${MINIMUM_SHOULD_MATCH}%",
-                  "min_term_freq": ${MIN_TERM_FREQ},
-                  "min_word_length": ${MIN_WORD_LENGTH},
-                  "max_word_length": ${MAX_WORD_LENGTH}
+                  "max_query_terms": $es_opts->{MAX_QUERY_TERMS},
+                  "minimum_should_match": "$es_opts->{MINIMUM_SHOULD_MATCH}%",
+                  "min_term_freq": $es_opts->{MIN_TERM_FREQ},
+                  "min_word_length": $es_opts->{MIN_WORD_LENGTH},
+                  "max_word_length": $es_opts->{MAX_WORD_LENGTH}
                 }
               }
             ]
@@ -649,7 +657,7 @@ sub retrieve {
       "aggs":{
         "top_tag_hits":{
           "top_hits": {
-            "size": ${HITS}
+            "size": $es_opts->{HITS}
           }
         }
       }
@@ -697,13 +705,13 @@ QUERY
 		    #push @_results, $_->{"_source"}->{"name"}, "\n";
 		    push @_results, $_;
 		}
-    if ($_key =~ /^term_/){
-  		$result = join(" @@ ", map {$prfx. ($_->{"_source"}->{"name"}) } @_results);
-	  	$results[0] = $result;
-    } else {
-  		$result = $prfx. $_results[0]->{"_source"}->{"name"};
-  		@results = map { $prfx.$_->{"_source"}->{"name"} } @_results;
-    }
+		if ($_key =~ /^term_/){
+		    $result = join(" @@ ", map {$prfx. ($_->{"_source"}->{"name"}) } @_results);
+		    $results[0] = $result;
+		} else {
+		    $result = $prfx. $_results[0]->{"_source"}->{"name"};
+		    @results = map { $prfx.$_->{"_source"}->{"name"} } @_results;
+		}
 		$match = $matchtype_map{$_key};
 		$info = $info_map{$_key};
 		if($_key =~ m/^mlt/){
