@@ -265,9 +265,8 @@ sub readDict {
     print "Prepare: Done.\n";
 }
 
-
 sub makeQuery4Msearch {
-    my $d =<<"MSEARCH";
+    $_ =<<"MSEARCH";
     {
 	"query": {
 	    "bool": {
@@ -276,7 +275,7 @@ sub makeQuery4Msearch {
 			"bool": {
 			    "must": [
 				{"term": {"query_type": "term_before"}},
-				{"match": {"normalized_name.term": {"query": $_[0]}}}
+				{"match": {"normalized_name.term": {"query": "$_[0]"}}}
 				]
 			}
 		    },
@@ -284,7 +283,7 @@ sub makeQuery4Msearch {
 			"bool": {
 			    "must": [
 				{"term": {"query_type": "term_after"}},
-				{"match": {"normalized_name.term": {"query": $_[0]}}}
+				{"match": {"normalized_name.term": {"query": "$_[0]"}}}
 				]
 			}
 		    },
@@ -295,12 +294,12 @@ sub makeQuery4Msearch {
 				{
 				    "more_like_this": {
 					"fields": ["normalized_name.mlt"],
-					"like": $_[0],
-					"max_query_terms": str(self.mlt_params['max_query_terms']),
-					"minimum_should_match": self.mlt_params['minimum_should_match'],
-					"min_term_freq": str(self.mlt_params['min_term_freq']),
-					"min_word_length": str(self.mlt_params['min_word_length']),
-					"max_word_length": str(self.mlt_params['max_word_length'])
+					"like": "$_[0]",
+					"max_query_terms": "$_[1]->{MAX_QUERY_TERMS}",
+					"minimum_should_match": "$_[1]->{MINIMUM_SHOULD_MATCH}",
+					"min_term_freq": "$_[1]->{MIN_TERM_FREQ}",
+					"min_word_length": "$_[1]->{MIN_WORD_LENGTH}",
+					"max_word_length": "$_[1]->{MAX_WORD_LENGTH}"
 				    }
 				}
 				]
@@ -313,12 +312,12 @@ sub makeQuery4Msearch {
 				{
 				    "more_like_this": {
 					"fields": ["normalized_name.mlt"],
-					"like": $_[0],
-					"max_query_terms": str(self.mlt_params['max_query_terms']),
-					"minimum_should_match": self.mlt_params['minimum_should_match'] ,
-					"min_term_freq": str(self.mlt_params['min_term_freq']),
-					"min_word_length": str(self.mlt_params['min_word_length']),
-					"max_word_length": str(self.mlt_params['max_word_length'])
+					"like": "$_[0]",
+					"max_query_terms": "$_[1]->{MAX_QUERY_TERMS}",
+					"minimum_should_match": "$_[1]->{MINIMUM_SHOULD_MATCH}",
+					"min_term_freq": "$_[1]->{MIN_TERM_FREQ}",
+					"min_word_length": "$_[1]->{MIN_WORD_LENGTH}",
+					"max_word_length": "$_[1]->{MAX_WORD_LENGTH}"
 				    }
 				}
 				]
@@ -345,7 +344,10 @@ sub makeQuery4Msearch {
 	}
     }
 MSEARCH
-    return $d;
+    s/\s+/ /g;
+    s/^\s+//;
+    s/\s+$//;
+    return $_;
 }
 
 sub retrieveMulti { # $oq にクエリのリストへのポインタが入る
@@ -389,9 +391,10 @@ sub retrieveMulti { # $oq にクエリのリストへのポインタが入る
 	    push @prfx_list, "";
 	}
 	push @q4msearch, encode_json {"index" => ${INDEX_NAME}};
-	push @q4msearch, makeQuery4Msearch( $_ );
+	push @q4msearch, makeQuery4Msearch( $_, $es_opts );
     }
 
+    my $issue_query = join("\n", @q4msearch). "\n";
     my $curl = WWW::Curl::Easy->new();
     my $response_body;
     print Dumper "http://172.18.8.190:19200/_msearch";
@@ -400,16 +403,11 @@ sub retrieveMulti { # $oq にクエリのリストへのポインタが入る
     $curl->setopt(CURLOPT_HTTPHEADER, [
 		      "Content-Type: application/json",
 		  ]);
-    my $MAX_QUERY_TERMS = $es_opts->{'MAX_QUERY_TERMS'} || $es_opts_default->{'MAX_QUERY_TERMS'} ; #|| 100;
-    my $MINIMUM_SHOULD_MATCH = $es_opts->{'MINIMUM_SHOULD_MATCH'} || $es_opts_default->{'MINIMUM_SHOULD_MATCH'} ; #"30%";
-    my $MIN_TERM_FREQ =  $es_opts->{'MIN_TERM_FREQ'} || $es_opts_default->{'MIN_TERM_FREQ'} ;      # 0;
-    my $MIN_WORD_LENGTH = $es_opts->{'MIN_WORD_LENGTH'} || $es_opts_default->{'MIN_WORD_LENGTH'} ; # 0;
-    my $MAX_WORD_LENGTH = $es_opts->{'MAX_WORD_LENGTH'} || $es_opts_default->{'MAX_WORD_LENGTH'} ; # 0;
-    my $HITS = $es_opts->{'HITS'} || $es_opts_default->{'HITS'} ; # 15;
-
     my @entire_results;
-    my ($match, $result, $info) = ('') x 3;
-    my @results;
+    my @match_array;
+    my @info_array;
+    my @result_array;
+    my @annotation_array;
     my %matchtype_map = (
 	"term_after", "ex",
 	"term_before", "ex",
@@ -423,71 +421,78 @@ sub retrieveMulti { # $oq にクエリのリストへのポインタが入る
 	"mlt_before", "",
     );
 
-    $curl->setopt(CURLOPT_POSTFIELDS, encode_json @q4msearch);
+    $curl->setopt(CURLOPT_POSTFIELDS, $issue_query);
     open (my $fileb, ">", \$response_body);
     $curl->setopt(CURLOPT_WRITEDATA, $fileb);
     my $retcode = $curl->perform;
 
     if ($retcode == 0) {
 	my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
-	my $response_json = decode_json $response_body;
+	my $response_json = ${ \decode_json $response_body }->{"responses"};
+	#my $response_json = decode_json $response_body;
 	print Dumper $response_json, "\n";
-=head
-	my $array_ptr = $response_json->{"aggregations"}->{"tags"}->{"buckets"};
-	my %group_by_key;
-	for ( @$array_ptr ){
-	    $group_by_key{$_->{"key"}}->{"doc_count"} = $_->{"doc_count"};
-	    $group_by_key{$_->{"key"}}->{"top_tag_hits"} = $_->{"top_tag_hits"};
-	}
-	my $avoidcsFlag = 0;
-	for ( @avoid_cs_terms ){
-	    $avoidcsFlag = ($lcquery =~ m,\b$_$,);
-	    last if $avoidcsFlag;
-	}
-	for my $_key (qw/term_after term_before mlt_after mlt_before/){
-	    $match = "no_hit";
-	    $result = $oq;
-	    if($group_by_key{$_key}){
-		my @_results;
-		for ( @{ $group_by_key{$_key}->{"top_tag_hits"}->{"hits"}->{"hits"} } ){
-		    #push @_results, $_->{"_source"}->{"name"}, "\n";
-		    push @_results, $_;
-		}
-		if ($_key =~ /^term_/){
-		    $result = join(" @@ ", map {$prfx. ($_->{"_source"}->{"name"}) } @_results);
-		    $results[0] = $result;
-		} else {
-		    $result = $prfx. $_results[0]->{"_source"}->{"name"};
-		    @results = map { $prfx.$_->{"_source"}->{"name"} } @_results;
-		}
-		$match = $matchtype_map{$_key};
-		$info = $info_map{$_key};
-		if($_key =~ m/^mlt/){
-		    if($avoidcsFlag){
-			$info .= "(cs_avoidance in $_key)";
-		    }
-		    $info .= join(" @@ ", map {$prfx. ($_->{"_source"}->{"normalized_name"}) } @_results);
-		}
-		my @out;
-		if($_key =~ m/^term/){
-		    $info .= ($prfx?" (prefix=${prfx})":"");
-		}elsif($_key =~ m/^mlt/){
-		    @out = sort by_priority @_results;
-		}
-		last;
+	for ( my $idx = 0; $idx < @$response_json; $idx++ ){
+	    my ($match, $result, $info) = ('') x 3;
+	    my @results;
+	    my $array_ptr = $response_json->[$idx]->{"aggregations"}->{"tags"}->{"buckets"};
+	    my %group_by_key;
+	    for ( @$array_ptr ){
+		$group_by_key{$_->{"key"}}->{"doc_count"} = $_->{"doc_count"};
+		$group_by_key{$_->{"key"}}->{"top_tag_hits"} = $_->{"top_tag_hits"};
 	    }
+	    my $avoidcsFlag = 0;
+	    for ( @avoid_cs_terms ){
+		$avoidcsFlag = ($query->[$idx] =~ m,\b$_$,);
+		last if $avoidcsFlag;
+	    }
+	    for my $_key (qw/term_after term_before mlt_after mlt_before/){
+		$match = "no_hit";
+		$result = $oq->[$idx];
+		if($group_by_key{$_key}){
+		    my @_results;
+		    for ( @{ $group_by_key{$_key}->{"top_tag_hits"}->{"hits"}->{"hits"} } ){
+			#push @_results, $_->{"_source"}->{"name"}, "\n";
+			push @_results, $_;
+		    }
+		    if ($_key =~ /^term_/){
+			$result = join(" @@ ", map {$prfx_list[$idx]. ($_->{"_source"}->{"name"}) } @_results);
+			$results[0] = $result;
+		    } else {
+			$result = $prfx_list[$idx]. $_results[0]->{"_source"}->{"name"};
+			@results = map { $prfx_list[$idx].$_->{"_source"}->{"name"} } @_results;
+		    }
+		    $match = $matchtype_map{$_key};
+		    $info = $info_map{$_key};
+		    if($_key =~ m/^mlt/){
+			if($avoidcsFlag){
+			    $info .= "(cs_avoidance in $_key)";
+			}
+			$info .= join(" @@ ", map {$prfx_list[$idx]. ($_->{"_source"}->{"normalized_name"}) } @_results);
+		    }
+		    my @out;
+		    if($_key =~ m/^term/){
+			$info .= ($prfx_list[$idx]?" (prefix=${prfx_list[$idx]})":"");
+		    }elsif($_key =~ m/^mlt/){
+			@out = sort by_priority @_results;
+		    }
+		    last;
+		}
+	    }
+	    push @entire_results, b2a($result);
+	    my %annotations;
+	    getAnnotations($oq->[$idx], \$info, \%annotations);
+	    push @match_array, $match;
+	    push @info_array, $info;
+	    push @result_array, \@results;
+	    push @annotation_array, \%annotations;
 	}
-=cut
+
     } else {
 	warn("An error happened: ".$curl->strerror($retcode)." ($retcode)\n");
     }
 
-=head
-    $result = b2a($result);
-    my %annotations;
-    getAnnotations($oq, \$info, \%annotations);
-    return({'query'=> $oq, 'result' => $result, 'match' => $match, 'info' => $info, 'result_array' => \@results, 'annotation' => \%annotations});
-=cut
+    return({'query'=> $oq, 'result' => \@result_array, 'match' => \@match_array, 'info' => \@info_array, 'result_array' => \@result_array, 'annotation' => \@annotation_array});
+
 }
 
 =head
@@ -622,7 +627,7 @@ sub retrieve {
                   ],
                   "like": "${KEY_WORD}",
                   "max_query_terms": ${MAX_QUERY_TERMS},
-                  "minimum_should_match": "${MINIMUM_SHOULD_MATCH}",
+                  "minimum_should_match": "${MINIMUM_SHOULD_MATCH}%",
                   "min_term_freq": ${MIN_TERM_FREQ},
                   "min_word_length": ${MIN_WORD_LENGTH},
                   "max_word_length": ${MAX_WORD_LENGTH}
