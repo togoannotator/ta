@@ -59,7 +59,7 @@ use File::Path 'mkpath';
 use File::Basename;
 use Bag::Similarity::Cosine;
 use String::Trim;
-#use simstring;
+use simstring;
 use PerlIO::gzip;
 use Lingua::EN::ABC qw/b2a/;
 use Text::Match::FastAlternatives;

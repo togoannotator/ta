@@ -51,6 +51,8 @@ package Text::TogoAnnotatorES;
 # 変数名について、小文字化した$queryを$lcqueryに、$lc_queryを$lcb4queryに。
 # * 2019.3.1
 # 新生Elasticsearch対応のために大幅な変更を施す。
+# * 2019.10.4
+# Elasticsearchのmulti searchに対応する関数を追加。
 
 use warnings;
 use strict;
@@ -69,10 +71,12 @@ use WWW::Curl::Easy;
 use JSON::XS;
 use Data::Dumper;
 
-my ($sysroot, $niteAll, $curatedDict, $enzymeDict, $locustag_prefix_name, $embl_locustag_name, $gene_symbol_name, $family_name, $esearch);
+my ($sysroot, $enzymeDict, $locustag_prefix_name, $embl_locustag_name, $gene_symbol_name, $family_name, $esearch);
 my ($white_list, $black_list);
-my ($cos_threshold, $e_threashold, $cs_max, $n_gram, $ignore_chars);
+my $ignore_chars;
 my ($locustag_prefix_matcher, $embl_locustag_matcher, $gene_symbol_matcher, $family_name_matcher);
+# my ($niteAll, $curatedDict);
+# my ($cos_threshold, $e_threashold, $cs_max, $n_gram);
 # my ($useCurrentDict, $md5dname);
 # my ($namespace);
 
@@ -83,10 +87,10 @@ my (
 my (
     %negative_min_words,  # コサイン距離を用いた類似マッチではクエリと辞書中のエントリで文字列としては類似していても、両者の間に共通に出現する語が無い場合がある。
     # その場合、共通に出現する語がある辞書中エントリを優先させる処理をしているが、本処理が逆効果となってしまう語がここに含まれる。
-    # %name_provenance,     # 変換後デフィニションの由来。
-    # %curatedHash,         # curated辞書のエントリ（キーは小文字化する）
-    %enzymeHash,           # 酵素辞書のエントリ（小文字化する）
-    %black2white,            # ブラックリストで書き換え対象が記載されている場合の書き換え用ハッシュ（のハッシュ）
+    # %name_provenance,   # 変換後デフィニションの由来。
+    # %curatedHash,       # curated辞書のエントリ（キーは小文字化する）
+    %enzymeHash,          # 酵素辞書のエントリ（小文字化する）
+    %black2white,         # ブラックリストで書き換え対象が記載されている場合の書き換え用ハッシュ（のハッシュ）
     %white_matcher,
     %black_matcher
     );
@@ -94,10 +98,10 @@ my ($minfreq, $minword, $ifhit, $cosdist);
 
 sub init {
     my $_this = shift;
-    $cos_threshold = shift; # 使わず。cosine距離で類似度を測る際に用いる閾値。この値以上類似している場合は変換対象の候補とする。
-    $e_threashold  = shift; # 使わず。E列での表現から候補を探す場合、辞書中での最大出現頻度がここで指定する数未満の場合のもののみを対象とする。
-    $cs_max        = shift; # 使わず。複数表示する候補が在る場合の最大表示数。
-    $n_gram        = shift; # 使わず。N-gram
+    # $cos_threshold = shift; # 使わず。cosine距離で類似度を測る際に用いる閾値。この値以上類似している場合は変換対象の候補とする。
+    # $e_threashold  = shift; # 使わず。E列での表現から候補を探す場合、辞書中での最大出現頻度がここで指定する数未満の場合のもののみを対象とする。
+    # $cs_max        = shift; # 使わず。複数表示する候補が在る場合の最大表示数。
+    # $n_gram        = shift; # 使わず。N-gram
     $sysroot       = shift; # 辞書や作業用ファイルを生成するディレクトリ。
     # $niteAll       = shift; # 使わず。辞書名
     # $curatedDict   = shift; # 使わず。curated辞書名（形式は同一）
