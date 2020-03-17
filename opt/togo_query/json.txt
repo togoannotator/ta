@@ -1,0 +1,108 @@
+{
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "bool": {
+            "must": [
+              {
+                "term": {
+                  "query_type": "term_before"
+                }
+              },
+              {
+                "match": {
+                  "normalized_name.term": {
+                    "query": ""
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "bool": {
+            "must": [
+              {
+                "term": {
+                  "query_type": "term_after"
+                }
+              },
+              {
+                "match": {
+                  "normalized_name.term": {
+                    "query": ""
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "bool": {
+            "must": [
+              {
+                "term": {
+                  "query_type": "mlt_before"
+                }
+              },
+              {
+                "more_like_this": {
+                  "fields": [
+                    "normalized_name.mlt"
+                  ],
+                  "like": "",
+                  "max_query_terms": ,
+                  "minimum_should_match": "",
+                  "min_term_freq": ,
+                  "min_word_length": ,
+                  "max_word_length":  
+                }
+              }
+            ]
+          }
+        },
+        {
+          "bool": {
+            "must": [
+              {
+                "term": {
+                  "query_type": "mlt_after"
+                }
+              },
+              {
+                "more_like_this": {
+                  "fields": [
+                    "normalized_name.mlt"
+                  ],
+                  "like": "",
+                  "max_query_terms": ,
+                  "minimum_should_match": "",
+                  "min_term_freq": ,
+                  "min_word_length": ,
+                  "max_word_length": 
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+ },
+  "size": 0, 
+  "aggs": {
+    "tags": {
+      "terms": {
+        "field": "query_type",
+        "size": 4
+      },
+      "aggs":{
+        "top_tag_hits":{
+          "top_hits": {
+            "size": 15
+          }
+        }
+      }
+    }
+  }
+}

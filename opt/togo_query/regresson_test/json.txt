@@ -1,0 +1,108 @@
+{
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "bool": {
+            "must": [
+              {
+                "term": {
+                  "query_type": "term_before"
+                }
+              },
+              {
+                "match": {
+                  "normalized_name.term": {
+                    "query": "4-amino-4-deoxy-L-arabinose transferase and related glycosyltransferases of PMT family protein"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "bool": {
+            "must": [
+              {
+                "term": {
+                  "query_type": "term_after"
+                }
+              },
+              {
+                "match": {
+                  "normalized_name.term": {
+                    "query": "4-amino-4-deoxy-L-arabinose transferase and related glycosyltransferases of PMT family protein"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "bool": {
+            "must": [
+              {
+                "term": {
+                  "query_type": "mlt_before"
+                }
+              },
+              {
+                "more_like_this": {
+                  "fields": [
+                    "normalized_name.mlt"
+                  ],
+                  "like": "4-amino-4-deoxy-L-arabinose transferase and related glycosyltransferases of PMT family protein",
+                  "max_query_terms": 100,
+                  "minimum_should_match": "30%",
+                  "min_term_freq": 0,
+                  "min_word_length": 0,
+                  "max_word_length":  0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "bool": {
+            "must": [
+              {
+                "term": {
+                  "query_type": "mlt_after"
+                }
+              },
+              {
+                "more_like_this": {
+                  "fields": [
+                    "normalized_name.mlt"
+                  ],
+                  "like": "4-amino-4-deoxy-L-arabinose transferase and related glycosyltransferases of PMT family protein",
+                  "max_query_terms": 100,
+                  "minimum_should_match": "30%",
+                  "min_term_freq": 0,
+                  "min_word_length": 0,
+                  "max_word_length": 0
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+ },
+  "size": 0,
+  "aggs": {
+    "tags": {
+      "terms": {
+        "field": "query_type",
+        "size": 4
+      },
+      "aggs":{
+        "top_tag_hits":{
+          "top_hits": {
+            "size": 15
+          }
+        }
+      }
+    }
+  }
+}
