@@ -1,0 +1,30 @@
+version: '2'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
+    container_name: ta_elasticsearch
+    environment:
+      - "TZ=Asia/Tokyo"
+      - cluster.name=ta-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms8192m -Xmx8192m"
+      - ELASTIC_PASSWORD=changeme
+      - "network.host=_local_,_site_"
+      - "http.max_content_length=200m"
+      - "discovery.type=single-node"
+      - "script.painless.regex.enabled=true"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./esdata:/usr/share/elasticsearch/data
+      - ./es/share/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
+    ports:
+      - 9200:9200
+    networks:
+      - tanet
+    restart: always
+
+networks:
+  tanet:
