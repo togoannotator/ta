@@ -1,0 +1,216 @@
+{
+  "order": 0,
+  "index_patterns": [
+    "tm_*"
+  ],
+  "settings": {
+    "index": {
+      "analysis": {
+        "analyzer": {
+          "term_analyzer": {
+            "filter": [
+              "lowercase"
+            ],
+            "char_filter": [
+              "term_reprocessing",
+              "trim",
+              "double_spaces"
+            ],
+            "type": "custom",
+            "tokenizer": "keyword"
+          },
+          "mlt_analyzer": {
+            "filter": [
+              "lowercase"
+            ],
+            "char_filter": [
+              "term_reprocessing",
+              "single_spaces"
+            ],
+            "type": "custom",
+            "tokenizer": "trigram"
+          }
+        },
+        "char_filter": {
+          "single_spaces": {
+            "pattern": "\\s{1,}",
+            "type": "pattern_replace",
+            "replacement": ""
+          },
+          "term_reprocessing": {
+            "pattern": "(\\-|\\/|\\,|\\:|\\+|\\(|\\))",
+            "type": "pattern_replace",
+            "replacement": " "
+          },
+          "double_spaces": {
+            "pattern": "\\s{2,}",
+            "type": "pattern_replace",
+            "replacement": " "
+          },
+          "trim": {
+            "pattern": "(\\\"|^\\s{1,}|\\s{1,}$)",
+            "type": "pattern_replace",
+            "replacement": ""
+          }
+        },
+        "tokenizer": {
+          "trigram": {
+            "type": "ngram",
+            "min_gram": "3",
+            "max_gram": "3"
+          }
+        }
+      },
+      "number_of_shards": "1",
+      "number_of_replicas": "0"
+    }
+  },
+  "mappings": {
+    "_meta": {
+      "description": ""
+    },
+    "_source": {
+      "excludes": []
+    },
+    "properties": {
+      "guideline_PN017": {
+        "type": "keyword"
+      },
+      "guideline_PN039": {
+        "type": "keyword"
+      },
+      "guideline_PN016": {
+        "type": "keyword"
+      },
+      "guideline_PN038": {
+        "type": "keyword"
+      },
+      "guideline_PN019": {
+        "type": "keyword"
+      },
+      "guideline_PN018": {
+        "type": "keyword"
+      },
+      "guideline_PN013": {
+        "type": "keyword"
+      },
+      "normalized_name": {
+        "type": "keyword",
+        "fields": {
+          "mlt": {
+            "fielddata": true,
+            "analyzer": "mlt_analyzer",
+            "type": "text"
+          },
+          "term": {
+            "fielddata": true,
+            "analyzer": "term_analyzer",
+            "type": "text"
+          }
+        }
+      },
+      "guideline_PN012": {
+        "type": "keyword"
+      },
+      "guideline_PN034": {
+        "type": "keyword"
+      },
+      "guideline_PN037": {
+        "type": "keyword"
+      },
+      "guideline_PN014": {
+        "type": "keyword"
+      },
+      "guideline_PN036": {
+        "type": "keyword"
+      },
+      "guideline_PN030": {
+        "type": "keyword"
+      },
+      "guideline_PN011": {
+        "type": "keyword"
+      },
+      "guideline_unmatch_list": {
+        "type": "keyword"
+      },
+      "guideline_PN028": {
+        "type": "keyword"
+      },
+      "guideline_PN005": {
+        "type": "keyword"
+      },
+      "guideline_PN027": {
+        "type": "keyword"
+      },
+      "guideline_PN049": {
+        "type": "keyword"
+      },
+      "guideline_PN007": {
+        "type": "keyword"
+      },
+      "guideline_PN029": {
+        "type": "keyword"
+      },
+      "guideline_PN002": {
+        "type": "keyword"
+      },
+      "guideline_PN024": {
+        "type": "keyword"
+      },
+      "guideline_PN001": {
+        "type": "keyword"
+      },
+      "guideline_PN004": {
+        "type": "keyword"
+      },
+      "guideline_PN026": {
+        "type": "keyword"
+      },
+      "guideline_PN048": {
+        "type": "keyword"
+      },
+      "query_type": {
+        "ignore_above": 1000,
+        "type": "keyword"
+      },
+      "guideline_PN003": {
+        "type": "keyword"
+      },
+      "guideline_PN047": {
+        "type": "keyword"
+      },
+      "guideline_match_list": {
+        "type": "keyword"
+      },
+      "guideline_PN020": {
+        "type": "keyword"
+      },
+      "guideline_PN042": {
+        "type": "keyword"
+      },
+      "guideline_PN041": {
+        "type": "keyword"
+      },
+      "guideline_PN022": {
+        "type": "keyword"
+      },
+      "guideline_PN021": {
+        "type": "keyword"
+      },
+      "guideline_PN043": {
+        "type": "keyword"
+      },
+      "guideline_PN051": {
+        "type": "keyword"
+      },
+      "guideline_PN050": {
+        "type": "keyword"
+      },
+      "name": {
+        "ignore_above": 1000,
+        "type": "keyword"
+      }
+    }
+  },
+  "aliases": {}
+}
