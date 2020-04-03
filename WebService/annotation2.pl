@@ -233,7 +233,7 @@ __DATA__
       // Begin Swagger UI call region
       const ui = SwaggerUIBundle({
         //url: "/v1/2/swagger.json",
-        url: "/v2/0/openapi.json",
+        url: "/v2/1/openapi.json",
         dom_id: '#swagger-ui',
         deepLinking: true,
         presets: [
