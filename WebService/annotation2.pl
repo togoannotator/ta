@@ -11,7 +11,7 @@ use Data::Dumper;
 plugin 'CORS';
 
 my $config = plugin 'JSONConfig';
-my $port = 5100;
+my $port = 5001;
 #my $config_dict = $config->{'DDBJCurated'};
 my $config_dict = $config->{'UniProtLeeModified'};
 #print Dumper $config;
@@ -69,7 +69,7 @@ get '/' => sub {
 
 get '/api' => sub {
   my $self = shift;
-  $self->render('swagger3');
+  $self->render(template => 'index');
 };
 
 app->types->type(jsonld => 'application/ld+json');
@@ -163,262 +163,21 @@ app->start;
 __DATA__
 
 @@ layouts/default.html.ep
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <!-- <link rel="icon" href="../../favicon.ico"> -->
-    <title>TogoAnnotator</title>
-
-  <!--//swagger UI begin -->
-  <link rel="icon" type="image/png" href="images/favicon-32x32.png" sizes="32x32" />
-  <link rel="icon" type="image/png" href="images/favicon-16x16.png" sizes="16x16" />
-  <link rel="icon" type="image/png" href="images/favicon-96x96.png" sizes="96x96" />
-  <link href='css/typography.css' media='screen' rel='stylesheet' type='text/css'/>
-  <link href='css/reset.css' media='screen' rel='stylesheet' type='text/css'/>
-  <link href='css/screen.css' media='screen' rel='stylesheet' type='text/css'/>
-  <link href='css/reset.css' media='print' rel='stylesheet' type='text/css'/>
-  <link href='css/print.css' media='print' rel='stylesheet' type='text/css'/>
-
-  <script src='lib/object-assign-pollyfill.js' type='text/javascript'></script>
-  <script src='lib/jquery-1.8.0.min.js' type='text/javascript'></script>
-  <script src='lib/jquery.slideto.min.js' type='text/javascript'></script>
-  <script src='lib/jquery.wiggle.min.js' type='text/javascript'></script>
-  <script src='lib/jquery.ba-bbq.min.js' type='text/javascript'></script>
-  <script src='lib/handlebars-4.0.5.js' type='text/javascript'></script>
-  <script src='lib/lodash.min.js' type='text/javascript'></script>
-  <script src='lib/backbone-min.js' type='text/javascript'></script>
-  <script src='swagger-ui.js' type='text/javascript'></script>
-  <script src='lib/highlight.9.1.0.pack.js' type='text/javascript'></script>
-  <script src='lib/highlight.9.1.0.pack_extended.js' type='text/javascript'></script>
-  <script src='lib/jsoneditor.min.js' type='text/javascript'></script>
-  <script src='lib/marked.js' type='text/javascript'></script>
-  <script src='lib/swagger-oauth.js' type='text/javascript'></script>
-
-  <!-- Some basic translations -->
-  <!-- <script src='lang/translator.js' type='text/javascript'></script> -->
-  <!-- <script src='lang/ru.js' type='text/javascript'></script> -->
-  <!-- <script src='lang/en.js' type='text/javascript'></script> -->
-
-  <script type="text/javascript">
-    $(function () {
-      var url = window.location.search.match(/url=([^&]+)/);
-      if (url && url.length > 1) {
-        url = decodeURIComponent(url[1]);
-      } else {
-        url = "/v1/2/swagger.json";
-      }
-
-      hljs.configure({
-        highlightSizeThreshold: 5000
-      });
-
-      // Pre load translate...
-      if(window.SwaggerTranslator) {
-        window.SwaggerTranslator.translate();
-      }
-      window.swaggerUi = new SwaggerUi({
-        url: url,
-        dom_id: "swagger-ui-container",
-        supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
-        onComplete: function(swaggerApi, swaggerUi){
-          if(typeof initOAuth == "function") {
-            initOAuth({
-              clientId: "your-client-id",
-              clientSecret: "your-client-secret-if-required",
-              realm: "your-realms",
-              appName: "your-app-name",
-              scopeSeparator: " ",
-              additionalQueryStringParams: {}
-            });
-          }
-
-          if(window.SwaggerTranslator) {
-            window.SwaggerTranslator.translate();
-          }
-        },
-        onFailure: function(data) {
-          log("Unable to Load SwaggerUI");
-        },
-        docExpansion: "full",
-        jsonEditor: false,
-        //defaultModelRendering: 'schema',
-        defaultModelRendering: 'model',
-        showRequestHeaders: false
-      });
-
-      window.swaggerUi.load();
-
-      function log() {
-        if ('console' in window) {
-          console.log.apply(console, arguments);
-        }
-      }
-  });
-  </script><!--//swagger UI end-->
-
-    <!-- Bootstrap core CSS -->
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <link href="/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
-    <!-- <link href="starter-template.css" rel="stylesheet"> -->
-
-    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
-    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-    <script src="/js/ie-emulation-modes-warning.js"></script>
-
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-
-    <!-- for mojo/debug
-    <script src="/mojo/jquery/jquery.js"></script>
-    <script src="/mojo/prettify/run_prettify.js"></script>
-    <link href="/mojo/prettify/prettify-mojo-dark.css" rel="stylesheet">
-    -->
-<style type="text/css">
-body { padding-top: 40px; }
- @media screen and (max-width: 768px) {
-    body { padding-top: 0px; }
-    }
-
-.container {
-  max-width: 880px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-
-</style>
-</head>
-<body>
-<!--//<div class="jumbotron">-->
-  <div class="text-center">
-  <nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="#">TogoAnnotator</a>
-      </div>
-      <div id="navbar" class="collapse navbar-collapse">
-        <ul class="nav navbar-nav">
-          <li class="active"><a href="#">Home</a></li>
-          <li><a href="/help.html">Help</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-  </div>
-
-  <div class="page-header text-center">
-    <!--//<div class="swagger-ui-wrap text-center">-->
-      <img style="width: 600px; height: 240 px;" src="images/horizontal.png" alt="TogoAnnotator" title="TogoAnnotator">
-      <p>A tool for genome reannotation</p>
-    <!--//</div>-->
-  </div>
-  
-  <div>
-    <div class="swagger-section">
-      <div id="message-bar" class="swagger-ui-wrap" data-sw-translate>&nbsp;</div>
-      <div id="swagger-ui-container" class="swagger-ui-wrap"></div>
-      <!--//swagger UI end -->
-
-      <!--//API Sample -->      
-      <div id="swagger-ui-container" class="swagger-ui-wrap">
-        <div class="info" id="api_sample">
-          <div class="info_title">API request examples</div>
-            <h2>1. Input "DnaA" query</h2>
-<pre class="prettyprint">
-#!sh
-$ curl -s 'http://togoannotator.dbcls.jp/gene/DnaA' | jq
-</pre>
-
-            <h2>2. Input <a href="/annotation_list.txt">annotation_list.txt</a></h2>
-<pre class="prettyprint">
-#!sh
-$ curl -s http://togoannotator.dbcls.jp/annotation_list.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/genes' | jq
-
-</pre>
-
-            <h2>3. Input <a href="/ddbj_submission.txt">ddbj_submission.txt</a></h2>
-<pre class="prettyprint">
-#!sh
-$ curl -s http://togoannotator.dbcls.jp/ddbj_submission.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/ddbj' | jq
-
-</pre>
-
-            <h2>4. Input GenBank format file <a href="http://togows.dbcls.jp/entry/nucleotide/BA000022.gb">BA000022.gb</a></h2>
-<pre class="prettyprint">
-#!sh
-$ curl -s http://togows.dbcls.jp/entry/nucleotide/BA000022.gb | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/genbank' | jq
-
-</pre>
-
-            <h2>5. Input BLAST report file <a href="/7XS7A95B015-Alignment.txt">7XS7A95B015-Alignment.txt</a></h2>
-<pre class="prettyprint">
-#!sh
-$ curl -s http://togoannotator.dbcls.jp/7XS7A95B015-Alignment.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/blast' | jq
-
-</pre>
-
-            <h2>6. Input GFF3 format file <a href="http://togows.dbcls.jp/entry/nucleotide/BA000022.gff">BA000022.gff</a></h2>
-<pre class="prettyprint">
-#!sh
-$ curl -s http://togows.dbcls.jp/entry/nucleotide/BA000022.gff | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/gff'
-</pre>
-
-            <h2>7. Input FASTA format file <a href="http://togows.dbcls.jp/entry/nucleotide/ABA25090.1.fasta">ABA25090.1.fasta</a></h2>
-<pre class="prettyprint">
-#!sh
-$ curl -s http://togows.dbcls.jp/entry/nucleotide/ABA25090.1.fasta | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/fasta' | jq
-</pre>
-
-
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>  
-<!--//</div>-->  
-    <%= content %>
-<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-<script src="/js/ie10-viewport-bug-workaround.js"></script>
-
-<!--// TogoAnnotator Footer-->
-<div class="jumbotron text-center">
-  <p>
-    <a rel="license" href="http://creativecommons.org/licenses/by/2.1/jp/">
-    <img alt="Creative Commons License" style="border-width:0" src="/images/by.png" width="88" height="31" /></a>
-    <a xmlns:dc="http://purl.org/dc/elements/1.1/" href="http://purl.org/dc/dcmitype/Text" rel="dc:type" style="text-decoration:none;color:black">TogoAnnotator</a> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://dbcls.rois.ac.jp/" rel="cc:attributionURL">Database Center for Life Science (DBCLS)</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/2.1/jp/">Creative Commons &#34920;&#31034; 2.1 &#26085;&#26412; License</a>.
-  </p>
-  <p>This software includes the work that is distributed in the Apache License 2.0.</p>
-</div>
-
-</body>
-</html>
-
-@@ layouts/default2.html.ep
 <!-- HTML for static distribution bundle build -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>Swagger UI</title>
-    <link rel="stylesheet" type="text/css" href="/v2/dist/swagger-ui.css" >
-    <link rel="icon" type="image/png" href="/v2/dist/favicon-32x32.png" sizes="32x32" />
-    <link rel="icon" type="image/png" href="/v2/dist/favicon-16x16.png" sizes="16x16" />
+    <title>TogoAnnotator</title>
+    <script type="text/javascript" src="https://dbcls.rois.ac.jp/DBCLS-common-header-footer/common-header-and-footer/script/common-header-and-footer.js" id="common-header-and-footer__script"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="/dist/swagger-ui.css" >
+    <link rel="icon" type="image/png" href="images/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="images/favicon-16x16.png" sizes="16x16" />
+    <link rel="icon" type="image/png" href="images/favicon-96x96.png" sizes="96x96" />
     <style>
       html
       {
@@ -439,20 +198,42 @@ $ curl -s http://togows.dbcls.jp/entry/nucleotide/ABA25090.1.fasta | curl -s -F 
         margin:0;
         background: #fafafa;
       }
+
+.col { 
+  width: auto;
+}
+
     </style>
   </head>
 
   <body>
+    <div id="home" class="container px-lg-5">
+      <div class="row align-items-center mt-3 mx-lg-5">
+        <img src="images/horizontal.png" class="img-fluid px-lg-5" alt="TogoAnnotator">
+<ul class="nav nav-pills nav-justified">
+  <li class="nav-item"><a href="#" class="nav-link active">Home</a></li>
+  <li class="nav-item"><a href="https://docs.json2ld.mapper.tokyo" class="nav-link disabled" tabindex="-1" aria-disabled="true">Documents</a></li>
+</ul>
+      </div>
+      <div class="row align-items-center mt-3 mx-lg-5">
+        <div class="h2">What is TogoAnnotator?</div>
+      </div>
+      <div class="row align-items-center mt-3 mx-lg-5">
+        <p>This tool normalizes gene product names and assists with the curation task.</p>
+      </div>
+    </div>
+    <div class="hr">
+
     <div id="swagger-ui"></div>
 
-    <script src="/v2/dist/swagger-ui-bundle.js"> </script>
-    <script src="/v2/dist/swagger-ui-standalone-preset.js"> </script>
+    <script src="/dist/swagger-ui-bundle.js"> </script>
+    <script src="/dist/swagger-ui-standalone-preset.js"> </script>
     <script>
     window.onload = function() {
       // Begin Swagger UI call region
       const ui = SwaggerUIBundle({
         //url: "/v1/2/swagger.json",
-        url: "/v2/v2/0/openapi.json",
+        url: "/v2/0/openapi.json",
         dom_id: '#swagger-ui',
         deepLinking: true,
         presets: [
@@ -472,260 +253,7 @@ $ curl -s http://togows.dbcls.jp/entry/nucleotide/ABA25090.1.fasta | curl -s -F 
   </body>
 </html>
 
-
-@@ layouts/default1.html.ep
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <!-- <link rel="icon" href="../../favicon.ico"> -->
-    <title>TogoAnnotator</title>
-
-  <!--//swagger UI begin -->
-  <link rel="icon" type="image/png" href="images/favicon-32x32.png" sizes="32x32" />
-  <link rel="icon" type="image/png" href="images/favicon-16x16.png" sizes="16x16" />
-  <link href='css/typography.css' media='screen' rel='stylesheet' type='text/css'/>
-  <link href='css/reset.css' media='screen' rel='stylesheet' type='text/css'/>
-  <link href='css/screen.css' media='screen' rel='stylesheet' type='text/css'/>
-  <link href='css/reset.css' media='print' rel='stylesheet' type='text/css'/>
-  <link href='css/print.css' media='print' rel='stylesheet' type='text/css'/>
-
-  <script src='lib/object-assign-pollyfill.js' type='text/javascript'></script>
-  <script src='lib/jquery-1.8.0.min.js' type='text/javascript'></script>
-  <script src='lib/jquery.slideto.min.js' type='text/javascript'></script>
-  <script src='lib/jquery.wiggle.min.js' type='text/javascript'></script>
-  <script src='lib/jquery.ba-bbq.min.js' type='text/javascript'></script>
-  <script src='lib/handlebars-4.0.5.js' type='text/javascript'></script>
-  <script src='lib/lodash.min.js' type='text/javascript'></script>
-  <script src='lib/backbone-min.js' type='text/javascript'></script>
-  <script src='swagger-ui.js' type='text/javascript'></script>
-  <script src='lib/highlight.9.1.0.pack.js' type='text/javascript'></script>
-  <script src='lib/highlight.9.1.0.pack_extended.js' type='text/javascript'></script>
-  <script src='lib/jsoneditor.min.js' type='text/javascript'></script>
-  <script src='lib/marked.js' type='text/javascript'></script>
-  <script src='lib/swagger-oauth.js' type='text/javascript'></script>
-
-  <!-- Some basic translations -->
-  <!-- <script src='lang/translator.js' type='text/javascript'></script> -->
-  <!-- <script src='lang/ru.js' type='text/javascript'></script> -->
-  <!-- <script src='lang/en.js' type='text/javascript'></script> -->
-
-  <script type="text/javascript">
-    $(function () {
-      var url = window.location.search.match(/url=([^&]+)/);
-      if (url && url.length > 1) {
-        url = decodeURIComponent(url[1]);
-      } else {
-        url = "v2/0/openapi.json";
-      }
-
-      hljs.configure({
-        highlightSizeThreshold: 5000
-      });
-
-      // Pre load translate...
-      if(window.SwaggerTranslator) {
-        window.SwaggerTranslator.translate();
-      }
-      window.swaggerUi = new SwaggerUi({
-        url: url,
-        dom_id: "swagger-ui-container",
-        supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
-        onComplete: function(swaggerApi, swaggerUi){
-          if(typeof initOAuth == "function") {
-            initOAuth({
-              clientId: "your-client-id",
-              clientSecret: "your-client-secret-if-required",
-              realm: "your-realms",
-              appName: "your-app-name",
-              scopeSeparator: " ",
-              additionalQueryStringParams: {}
-            });
-      }
-
-          if(window.SwaggerTranslator) {
-            window.SwaggerTranslator.translate();
-          }
-        },
-        onFailure: function(data) {
-          log("Unable to Load SwaggerUI");
-        },
-        docExpansion: "full",
-        jsonEditor: false,
-        //defaultModelRendering: 'schema',
-        defaultModelRendering: 'model',
-        showRequestHeaders: false
-      });
-
-      window.swaggerUi.load();
-
-      function log() {
-        if ('console' in window) {
-          console.log.apply(console, arguments);
-        }
-      }
-  });
-  </script><!--//swagger UI end-->
-
-    <!-- Bootstrap core CSS -->
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <link href="/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
-    <!-- <link href="starter-template.css" rel="stylesheet"> -->
-
-    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
-    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-    <script src="/js/ie-emulation-modes-warning.js"></script>
-
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-
-    <!-- for mojo/debug
-    <script src="/mojo/jquery/jquery.js"></script>
-    <script src="/mojo/prettify/run_prettify.js"></script>
-    <link href="/mojo/prettify/prettify-mojo-dark.css" rel="stylesheet">
-    -->
-<style type="text/css">
-body { padding-top: 40px; }
- @media screen and (max-width: 768px) {
-    body { padding-top: 0px; }
-    }
-
-.container {
-  max-width: 880px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-
-</style>
-</head>
-<body>
-<!--//<div class="jumbotron">-->
-  <div class="text-center">
-  <nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="#">TogoAnnotator</a>
-      </div>
-      <div id="navbar" class="collapse navbar-collapse">
-        <ul class="nav navbar-nav">
-          <li class="active"><a href="#">Home</a></li>
-          <li><a href="/help.html">Help</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-  </div>
-
-  <div class="page-header text-center">
-    <!--//<div class="swagger-ui-wrap text-center">-->
-      <img style="width: 600px; height: 240 px;" src="images/horizontal.png" alt="TogoAnnotator" title="TogoAnnotator">
-      <p>A tool for genome reannotation</p>
-    <!--//</div>-->
-  </div>
-  
-  <div>
-    <div class="swagger-section">
-      <div id="message-bar" class="swagger-ui-wrap" data-sw-translate>&nbsp;</div>
-      <div id="swagger-ui-container" class="swagger-ui-wrap"></div>
-      <!--//swagger UI end -->
-
-      <!--//API Sample -->      
-      <div id="swagger-ui-container" class="swagger-ui-wrap">
-        <div class="info" id="api_sample">
-          <div class="info_title">API request examples</div>
-            <h2>1. Input "DnaA" query</h2>
-<pre class="prettyprint">
-#!sh
-$ curl -s 'http://togoannotator.dbcls.jp/gene/DnaA' | jq
-</pre>
-
-            <h2>2. Input <a href="/annotation_list.txt">annotation_list.txt</a></h2>
-<pre class="prettyprint">
-#!sh
-$ curl -s http://togoannotator.dbcls.jp/annotation_list.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/genes' | jq
-
-</pre>
-
-            <h2>3. Input <a href="/ddbj_submission.txt">ddbj_submission.txt</a></h2>
-<pre class="prettyprint">
-#!sh
-$ curl -s http://togoannotator.dbcls.jp/ddbj_submission.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/ddbj' | jq
-
-</pre>
-
-            <h2>4. Input GenBank format file <a href="http://togows.dbcls.jp/entry/nucleotide/BA000022.gb">BA000022.gb</a></h2>
-<pre class="prettyprint">
-#!sh
-$ curl -s http://togows.dbcls.jp/entry/nucleotide/BA000022.gb | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/genbank' | jq
-
-</pre>
-
-            <h2>5. Input BLAST report file <a href="/7XS7A95B015-Alignment.txt">7XS7A95B015-Alignment.txt</a></h2>
-<pre class="prettyprint">
-#!sh
-$ curl -s http://togoannotator.dbcls.jp/7XS7A95B015-Alignment.txt | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/blast' | jq
-
-</pre>
-
-            <h2>6. Input GFF3 format file <a href="http://togows.dbcls.jp/entry/nucleotide/BA000022.gff">BA000022.gff</a></h2>
-<pre class="prettyprint">
-#!sh
-$ curl -s http://togows.dbcls.jp/entry/nucleotide/BA000022.gff | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/gff'
-</pre>
-
-            <h2>7. Input FASTA format file <a href="http://togows.dbcls.jp/entry/nucleotide/ABA25090.1.fasta">ABA25090.1.fasta</a></h2>
-<pre class="prettyprint">
-#!sh
-$ curl -s http://togows.dbcls.jp/entry/nucleotide/ABA25090.1.fasta | curl -s -F 'upload=@-' 'http://togoannotator.dbcls.jp/fasta' | jq
-</pre>
-
-
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>  
-<!--//</div>-->  
-    <%= content %>
-<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-<script src="/js/ie10-viewport-bug-workaround.js"></script>
-
-<!--// TogoAnnotator Footer-->
-<div class="jumbotron text-center">
-  <p>
-    <a rel="license" href="http://creativecommons.org/licenses/by/2.1/jp/">
-    <img alt="Creative Commons License" style="border-width:0" src="/images/by.png" width="88" height="31" /></a>
-    <a xmlns:dc="http://purl.org/dc/elements/1.1/" href="http://purl.org/dc/dcmitype/Text" rel="dc:type" style="text-decoration:none;color:black">TogoAnnotator</a> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://dbcls.rois.ac.jp/" rel="cc:attributionURL">Database Center for Life Science (DBCLS)</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/2.1/jp/">Creative Commons &#34920;&#31034; 2.1 &#26085;&#26412; License</a>.
-  </p>
-  <p>This software includes the work that is distributed in the Apache License 2.0.</p>
-</div>
-
-</body>
-</html>
-
 @@ index.html.ep
 % layout 'default';
 %= content;
 
-@@ retrieve.html.ep
-<table>
-</table>
-<%= dumper $record %>
-
-@@ swagger3.html.ep
