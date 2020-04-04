@@ -122,7 +122,7 @@ class TsvElasticsearchConnector(object):
 
         guideline["guideline_compliance_list"] = guideline_compliance_list
         guideline["guideline_noncompliance_list"] = guideline_noncompliance_list
-        return json.dumps(guideline).strip('{}')
+        return guideline
     
     # ドキュメント投入処理
     # 100MBまでしかbulk投入はできないため、bulkを500件ごとに区切って投入する
@@ -151,7 +151,7 @@ class TsvElasticsearchConnector(object):
                 actions.append(
                         {'_op_type': "create", "_index": self.index, "pipeline": "judge-guideline-compliance",
                          "_id": self.concat_md5(converted_name, "", query_type),
-                         "_source": {"query_type": query_type, "name": self.convert_basic(elements[4]), "normalized_name": self.convert_basic(elements[4])}
+                         "_source": dict({"query_type": query_type, "name": self.convert_basic(elements[4]), "normalized_name": self.convert_basic(elements[4])}, **guidelines)
                          })
             elif query_type.endswith("_before"):
                 converted_name = self.convert_basic(elements[4])
@@ -159,7 +159,7 @@ class TsvElasticsearchConnector(object):
                 actions.append(
                         {'_op_type': "index", "_index": self.index, "pipeline": "judge-guideline-compliance",
                          "_id": self.concat_md5(converted_name, converted_normalized_name, query_type),
-                         "_source": {"query_type": query_type, "name": self.convert_basic(elements[4]), "normalized_name": self.convert_b4_to_b4source(elements[5])}
+                         "_source": dict({"query_type": query_type, "name": self.convert_basic(elements[4]), "normalized_name": self.convert_b4_to_b4source(elements[5])}, **guidelines)
                          })
         return actions
 
