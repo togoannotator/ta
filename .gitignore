@@ -1,2 +1,15 @@
 *.pid
+*.swp
+*.log
+*.json
+dictionary/
 nodes/
+hmm/
+at_ep/*.gz
+PerformanceProfile/
+untracked/
+.RData
+.Rhistory
+.hg/
+.hgtags
+.node-version
