@@ -1,2 +1,5 @@
 *.pid
 nodes/
+__pycache__/
+.project
+.pydevproject
