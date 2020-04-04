@@ -13,3 +13,6 @@ untracked/
 .hg/
 .hgtags
 .node-version
+__pycache__/
+.project
+.pydevproject
