@@ -9,6 +9,8 @@ import unicodedata
 import json
 import abc_en
 import check_freq
+import check_abbreviation
+from distutils.command.check import check
 
 # tsvのデータを加工してElasticsearchに投入するクラス
 class TsvElasticsearchConnector(object):
@@ -119,6 +121,12 @@ class TsvElasticsearchConnector(object):
             guideline_compliance_list.append("PN005")
         else:
             guideline_noncompliance_list.append("PN005")
+
+        if not check_abbreviation.check_word_is_abbreviation(text): # 略語でなければガイドラインにマッチ
+            guideline["PN007"] = "1"
+            guideline_compliance_list.append("PN007")
+        else:
+            guideline_noncompliance_list.append("PN007")
 
         guideline["guideline_compliance_list"] = guideline_compliance_list
         guideline["guideline_noncompliance_list"] = guideline_noncompliance_list
