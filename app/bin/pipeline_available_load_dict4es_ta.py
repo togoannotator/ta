@@ -11,7 +11,8 @@ import abc_en
 import check_freq
 import check_abbreviation
 import check_chemical_symbols
-import check_std_sci_abb
+#import check_std_sci_abb # pipelineで実装済み
+import check_common_modifiers
 from distutils.command.check import check
 from cgitb import text
 
@@ -102,7 +103,6 @@ class TsvElasticsearchConnector(object):
 
     def check_diacritics(self, text): # PN003 マッチしなければ加点
         return not self.diacritics.search(unicodedata.normalize("NFD", text))
-
     def check_prime(self, text): # PN011 マッチしなければ加点
         return not self.prime.search(text)
 
@@ -147,11 +147,17 @@ class TsvElasticsearchConnector(object):
         else:
             guideline_noncompliance_list.append("PN012")
 
-        if not check_std_sci_abb.text_contains_std_sci_abb(text): # 含んでいたら非遵守
-            guideline["PN013"] = "1"
-            guideline_compliance_list.append("PN013")
+#        if not check_std_sci_abb.text_contains_std_sci_abb(text): # 含んでいたら非遵守 <- pipelineで実装済み
+#            guideline["PN013"] = "1"
+#            guideline_compliance_list.append("PN013")
+#        else:
+#            guideline_noncompliance_list("PN013")
+
+        if check_common_modifiers.text_has_hyphen_b4_cm_or_others(text): # Common Modifiersがあれば、その直前はハイフンが必要
+            guideline["PN016"] = "1"
+            guideline_compliance_list.append("PN016")
         else:
-            guideline_noncompliance_list("PN013")
+            guideline_noncompliance_list.append("PN016")
 
         guideline["guideline_compliance_list"] = guideline_compliance_list
         guideline["guideline_noncompliance_list"] = guideline_noncompliance_list
