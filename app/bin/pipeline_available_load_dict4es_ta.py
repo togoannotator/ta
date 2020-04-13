@@ -10,7 +10,10 @@ import json
 import abc_en
 import check_freq
 import check_abbreviation
+import check_chemical_symbols
+import check_std_sci_abb
 from distutils.command.check import check
+from cgitb import text
 
 # tsvのデータを加工してElasticsearchに投入するクラス
 class TsvElasticsearchConnector(object):
@@ -34,6 +37,7 @@ class TsvElasticsearchConnector(object):
         self.possible_symbols = re.compile("^possible[\-/,:\+\(\)]", re.IGNORECASE)
 
         self.diacritics = regex.compile(r"\p{M}")
+        self.prime = regex.compile(r"\b\w+[\s-]prime\b")
     # ハッシュ値の計算処理
     # 移行前の辞書のキーはquery_type毎に異なるため、ハッシュの作り方もquery_typeで場合分けをした
     def concat_md5(self, text1, text2, query_type):
@@ -99,6 +103,9 @@ class TsvElasticsearchConnector(object):
     def check_diacritics(self, text): # PN003 マッチしなければ加点
         return not self.diacritics.search(unicodedata.normalize("NFD", text))
 
+    def check_prime(self, text): # PN011 マッチしなければ加点
+        return not self.prime.search(text)
+
     def eval_guidelines(self, text):
         guideline = {}
         guideline_compliance_list = []
@@ -127,6 +134,24 @@ class TsvElasticsearchConnector(object):
             guideline_compliance_list.append("PN007")
         else:
             guideline_noncompliance_list.append("PN007")
+
+        if self.check_prime(text): # プライムシンボルがない場合は加点
+            guideline["PN011"] = "1"
+            guideline_compliance_list.append("PN011")
+        else:
+            guideline_noncompliance_list.append("PN011")
+
+        if check_chemical_symbols.text_contains_symbols(text): # 含んでいたら加点
+            guideline["PN012"] = "1"
+            guideline_compliance_list.append("PN012")
+        else:
+            guideline_noncompliance_list.append("PN012")
+
+        if not check_std_sci_abb.text_contains_std_sci_abb(text): # 含んでいたら非遵守
+            guideline["PN013"] = "1"
+            guideline_compliance_list.append("PN013")
+        else:
+            guideline_noncompliance_list("PN013")
 
         guideline["guideline_compliance_list"] = guideline_compliance_list
         guideline["guideline_noncompliance_list"] = guideline_noncompliance_list
