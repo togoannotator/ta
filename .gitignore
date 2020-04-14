@@ -16,3 +16,4 @@ untracked/
 __pycache__/
 .project
 .pydevproject
+FREQ.txt
