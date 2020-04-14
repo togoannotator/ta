@@ -52,7 +52,7 @@ class TsvElasticsearchConnector(object):
             return "{0}{1}".format(hashlib.md5(text1.encode()).hexdigest(), query_type)
 
     def bulk_insert(self):
-        #helpers.bulk(self.es_client, self.queue, stats_only=True, raise_on_error=False)
+        helpers.bulk(self.es_client, self.queue, stats_only=True, raise_on_error=False)
         self.queue = []
 
     # データの事前加工処理
@@ -205,7 +205,7 @@ class TsvElasticsearchConnector(object):
     def convert_bulk(self, line):
         elements = line.replace("\n", "").split("\t")
         guidelines = self.eval_guidelines(elements[5])
-        print(guidelines)
+        # print(guidelines)
         actions = []
         for query_type in self.query_types:
             if query_type.endswith("_after"):
