@@ -1,0 +1,27 @@
+{
+  "description": "PN030の合致可否判定をするpipeline",
+  "processors": [
+    {
+      "script": {
+        "lang": "painless",
+        "source": """
+        if(ctx.name =~ /.+ase enzyme/){
+          ctx.guideline_noncompliance_list.add("PN030"); 
+        }
+        else{
+          ctx.guideline_PN030 = "1";
+          ctx.guideline_compliance_list.add("PN030");
+        }
+      """,
+        "on_failure": [
+          {
+            "append": {
+              "field": "error_pipeline",
+              "value": "judge-guideline-compliance-PN030"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

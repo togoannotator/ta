@@ -1,0 +1,27 @@
+{
+  "description": "PN036の合致可否判定をするpipeline",
+  "processors": [
+    {
+      "script": {
+        "lang": "painless",
+        "source": """
+        if(ctx.name =~ /\b(:?for|or|of|to|with|also known as|together with)\b/){
+          ctx.guideline_noncompliance_list.add("PN036"); 
+        }
+        else{
+          ctx.guideline_PN036 = "1";
+          ctx.guideline_compliance_list.add("PN036");
+        }
+      """,
+        "on_failure": [
+          {
+            "append": {
+              "field": "error_pipeline",
+              "value": "judge-guideline-compliance-PN036"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

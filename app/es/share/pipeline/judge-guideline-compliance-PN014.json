@@ -1,0 +1,27 @@
+{
+  "description": "PN014の合致可否判定をするpipeline",
+  "processors": [
+    {
+      "script": {
+        "lang": "painless",
+        "source": """
+        if (ctx.name =~ /\\/){
+          ctx.guideline_noncompliance_list.add("PN014");
+        }
+        else{
+          ctx.guideline_PN014 = "1";
+          ctx.guideline_compliance_list.add("PN014");
+        }
+      """,
+        "on_failure": [
+          {
+            "append": {
+              "field": "error_pipeline",
+              "value": "judge-guideline-compliance-PN014"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

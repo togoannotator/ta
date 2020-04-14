@@ -1,0 +1,27 @@
+{
+  "description": "PN029の合致可否判定をするpipeline",
+  "processors": [
+    {
+      "script": {
+        "lang": "painless",
+        "source": """
+        if(ctx.name =~ /factor protein|enzyme protein|inhibitor protein|regulator protein|.+ase protein/){
+          ctx.guideline_noncompliance_list.add("PN029");
+        }
+        else{
+          ctx.guideline_PN029 = "1";
+          ctx.guideline_compliance_list.add("PN029");
+        }
+      """,
+        "on_failure": [
+          {
+            "append": {
+              "field": "error_pipeline",
+              "value": "judge-guideline-compliance-PN029"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

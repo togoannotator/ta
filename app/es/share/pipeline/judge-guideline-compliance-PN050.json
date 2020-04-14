@@ -1,0 +1,27 @@
+{
+  "description": "PN050の合致可否判定をするpipeline",
+  "processors": [
+    {
+      "script": {
+        "lang": "painless",
+        "source": """
+        if(ctx.name =~ /\b(:inactive)\b/){
+          ctx.guideline_noncompliance_list.add("PN050"); 
+        }
+        else{
+          ctx.guideline_PN050 = "1";
+          ctx.guideline_compliance_list.add("PN050");
+        }
+      """,
+        "on_failure": [
+          {
+            "append": {
+              "field": "error_pipeline",
+              "value": "judge-guideline-compliance-PN050"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
