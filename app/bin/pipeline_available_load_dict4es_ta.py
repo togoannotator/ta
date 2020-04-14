@@ -11,6 +11,7 @@ import abc_en
 import check_freq
 import check_abbreviation
 import check_chemical_symbols
+import check_colon_semicolon
 #import check_std_sci_abb # pipelineで実装済み
 import check_common_modifiers
 from distutils.command.check import check
@@ -158,6 +159,12 @@ class TsvElasticsearchConnector(object):
             guideline_compliance_list.append("PN016")
         else:
             guideline_noncompliance_list.append("PN016")
+
+        if not check_colon_semicolon.text_contains_col_semi(text):
+            guideline["PN019"] = "1"
+            guideline_compliance_list.append("PN019")
+        else:
+            guideline_noncompliance_list.append("PN019")
 
         guideline["guideline_compliance_list"] = guideline_compliance_list
         guideline["guideline_noncompliance_list"] = guideline_noncompliance_list
