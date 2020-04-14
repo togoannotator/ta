@@ -12,6 +12,7 @@ import check_freq
 import check_abbreviation
 import check_chemical_symbols
 import check_colon_semicolon
+import check_Delta
 #import check_std_sci_abb # pipelineで実装済み
 import check_common_modifiers
 from distutils.command.check import check
@@ -175,6 +176,12 @@ class TsvElasticsearchConnector(object):
         else:
             guideline_noncompliance_list.append("PN027")
 
+        if check_Delta.text_contains_Delta_steroid_fatty_acid(text):
+            guideline["PN028"] = "1"
+            guideline_compliance_list.append("PN028")
+        else:
+            guideline_noncompliance_list.append("PN028")
+            
         guideline["guideline_compliance_list"] = guideline_compliance_list
         guideline["guideline_noncompliance_list"] = guideline_noncompliance_list
         return guideline

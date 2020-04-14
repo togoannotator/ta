@@ -1,0 +1,47 @@
+Acyl-CoA Delta(11) desaturase
+Delta(12)-oleate desaturase
+Delta(7)-sterol 5(6)-desaturase
+Delta(7)-sterol-C5(6)-desaturase
+Delta(8)-fatty-acid desaturase
+Delta(12) fatty acid desaturase
+Delta(12)-acyl-lipid-desaturase
+Delta(5) fatty acid desaturase A
+Delta(7)-sterol-C5(6)-desaturase 1
+Delta(8)-fatty-acid desaturase 1
+Delta(8)-fatty-acid desaturase 2
+Delta-9 acyl-lipid desaturase 1
+Delta-9 acyl-lipid desaturase 2
+Acyl-CoA C20 Delta5-desaturase
+Delta(5) fatty acid desaturase C
+Delta(7)-sterol-C5(6)-desaturase 2
+Delta-9 desaturase-like 1 protein
+Delta-9 desaturase-like 2 protein
+Delta-9 desaturase-like 3 protein
+Delta-9 desaturase-like 4 protein
+Delta-9 desaturase-like 5 protein
+sphingolipid delta(4)-desaturase
+Delta 8-(E)-sphingolipid desaturase
+Delta(5) fatty acid desaturase fat-4
+Delta(6)-fatty-acid desaturase fat-3
+Delta(7)-sterol 5(6)-desaturase erg31
+Delta(7)-sterol 5(6)-desaturase erg32
+Delta(9)-fatty-acid desaturase fat-5
+Delta(9)-fatty-acid desaturase fat-6
+Delta(9)-fatty-acid desaturase fat-7
+Sphingolipid delta(4)-desaturase DES1
+Delta(12) fatty acid desaturase FAD2
+Delta(12) fatty acid desaturase fat-2
+Delta(12) fatty acid desaturase DES8.11
+3-oxo-Delta(4,5)-steroid 5-beta-reductase
+Delta(14)-sterol reductase
+Delta(24)-sterol reductase
+Delta(14)-sterol reductase LBR
+Delta(24(24(1)))-sterol reductase
+Delta(14)-sterol reductase TM7SF2
+3-dehydro-bile acid delta(4,6)-reductase
+Oxalate oxidoreductase subunit delta
+arsenate reductase (glutaredoxin)
+Glutaredoxin arsenate reductase
+Delta(1)-pyrroline-2-carboxylate reductase
+Delta(1)-pyrroline-2-carboxylate reductase 1
+Delta(1)-pyrroline-2-carboxylate reductase 2
