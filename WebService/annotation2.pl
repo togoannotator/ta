@@ -169,7 +169,7 @@ __DATA__
   <head>
     <meta charset="UTF-8">
     <title>TogoAnnotator</title>
-    <script type="text/javascript" src="https://dbcls.rois.ac.jp/DBCLS-common-header-footer/common-header-and-footer/script/common-header-and-footer.js" id="common-header-and-footer__script"></script>
+    <!--//<script type="text/javascript" src="https://dbcls.rois.ac.jp/DBCLS-common-header-footer/common-header-and-footer/script/common-header-and-footer.js" id="common-header-and-footer__script"></script>-->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
@@ -207,6 +207,12 @@ __DATA__
   </head>
 
   <body>
+<script
+	type="text/javascript"
+	src="https://dbcls.rois.ac.jp/DBCLS-common-header-footer/v2/script/common-header-and-footer.js"
+	style="display: block"
+	id="common-header-and-footer__script"
+></script>
     <div id="home" class="container px-lg-5">
       <div class="row align-items-center mt-3 mx-lg-5">
         <img src="images/horizontal.png" class="img-fluid px-lg-5" alt="TogoAnnotator">
