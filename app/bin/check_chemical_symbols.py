@@ -18,5 +18,5 @@ if __name__ == '__main__':
     print(text_contains_symbols("Protein Carbon"))
     print(text_contains_symbols("Carbon Protein"))
     print(text_contains_symbols("Similar Carbon Protein"))
-    print(text_contains_symbols("ProteinCarbon"))
+    print(text_contains_symbols("Ce"))
     print('モジュール名：{}'.format(__name__))

@@ -141,7 +141,7 @@ class TsvElasticsearchConnector(object):
         else:
             guideline_noncompliance_list.append("PN011")
 
-        if check_chemical_symbols.text_contains_symbols(text): # 含んでいたら加点
+        if not check_chemical_symbols.text_contains_symbols(text): # 含んでいなかったら加点
             guideline["PN012"] = "1"
             guideline_compliance_list.append("PN012")
         else:
