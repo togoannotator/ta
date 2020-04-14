@@ -40,6 +40,7 @@ class TsvElasticsearchConnector(object):
 
         self.diacritics = regex.compile(r"\p{M}")
         self.prime = regex.compile(r"\b\w+[\s-]prime\b")
+        self.greek = regex.compile(r"\b(?:\p{Greek}|Alpha|Beta|Gamma|Delta|Epsilon|Zeta|Eta|Theta|Iota|Kappa|Lambda|Mu|Nu|Xi|Omicron|Pi|Rho|Sigma|Tau|Upsilon|Phi|Chi|Psi|Omega)\b") # マッチしなければ加点
     # ハッシュ値の計算処理
     # 移行前の辞書のキーはquery_type毎に異なるため、ハッシュの作り方もquery_typeで場合分けをした
     def concat_md5(self, text1, text2, query_type):
@@ -106,6 +107,8 @@ class TsvElasticsearchConnector(object):
         return not self.diacritics.search(unicodedata.normalize("NFD", text))
     def check_prime(self, text): # PN011 マッチしなければ加点
         return not self.prime.search(text)
+    def check_greek(self, text): # PN027 マッチしなければ加点
+        return not self.greek.search(text)
 
     def eval_guidelines(self, text):
         guideline = {}
@@ -165,6 +168,12 @@ class TsvElasticsearchConnector(object):
             guideline_compliance_list.append("PN019")
         else:
             guideline_noncompliance_list.append("PN019")
+
+        if self.check_greek(text): # Greek letterの使い方が不適切でない限り加点
+            guideline["PN027"] = "1"
+            guideline_compliance_list.append("PN027")
+        else:
+            guideline_noncompliance_list.append("PN027")
 
         guideline["guideline_compliance_list"] = guideline_compliance_list
         guideline["guideline_noncompliance_list"] = guideline_noncompliance_list
