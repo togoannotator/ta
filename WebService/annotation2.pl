@@ -11,7 +11,7 @@ use Data::Dumper;
 plugin 'CORS';
 
 my $config = plugin 'JSONConfig';
-my $port = 5001;
+my $port = 5100;
 #my $config_dict = $config->{'DDBJCurated'};
 my $config_dict = $config->{'UniProtLeeModified'};
 #print Dumper $config;
