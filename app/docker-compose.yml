@@ -1,18 +1,19 @@
-version: '2'
+version: '3'
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
-    container_name: ta_elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.7.1
+    container_name: elasticsearch771
     environment:
       - "TZ=Asia/Tokyo"
-      - cluster.name=ta-cluster
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms8192m -Xmx8192m"
       - ELASTIC_PASSWORD=changeme
-      - "network.host=_local_,_site_"
-      - "http.max_content_length=200m"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - bootstrap.memory_lock=true
+      - cluster.name=docker-cluster
       - "discovery.type=single-node"
+      - "http.max_content_length=200m"
+      - "network.host=_local_,_site_"
       - "script.painless.regex.enabled=true"
+      - "xpack.monitoring.collection.enabled=true"
     ulimits:
       memlock:
         soft: -1
@@ -23,8 +24,48 @@ services:
     ports:
       - 9200:9200
     networks:
-      - tanet
+      - esnet
+    restart: always
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.7.1
+    container_name: kibana771
+    ports:
+      - 5601:5601
+    environment:
+      - "TZ=Asia/Tokyo"
+      - "ELASTICSEARCH_URL=http://elasticsearch:9200"
+      - "SERVER_NAME=kibana"
+      - "SERVER_HOST=0.0.0.0"
+    networks:
+      - esnet
+    restart: always
+    
+  togoannotator:
+    build: ./
+    image: ta
+    container_name: ta
+    volumes:
+      - ./log/production.log:/opt/togoannotator/ta/WebService/log/production.log
+      - ./dictionary:/opt/togoannotator/ta/WebService/dictionary
+    ports:
+      - 5100:5100
+    networks:
+     - esnet
+    restart: always
+
+  nginx:
+    image: nginx:1.17.9
+    container_name: nginx
+    volumes:
+      - ./nginx:/etc/nginx
+    ports:
+      - 5000:5000
+    depends_on:
+      - togoannotator
+    networks:
+      - esnet
     restart: always
 
 networks:
-  tanet:
+  esnet:
