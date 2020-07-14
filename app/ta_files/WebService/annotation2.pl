@@ -25,7 +25,8 @@ $ENV{'TA_ENV'} ||= 'production';
 app->config(hypnotoad => {listen => ['http://*:'.$port], heartbeat_timeout => 1200, pid_file => './hypnotoad'. $port.'.pid'});
 app->mode($ENV{'TA_ENV'});
 
-my $sysroot = "$Bin/..";
+#my $sysroot = "$Bin/..";
+my $sysroot = "$Bin";
 $config_dict->{'sysroot'} = $sysroot;
 
 #print "### Server settings\n";

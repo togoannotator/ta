@@ -113,13 +113,13 @@ sub init {
     #}
 
     #立ち上げ時に必要なファイルリスト
-    $enzymeDict = "enzyme/enzyme_accepted_names.txt";
-    $locustag_prefix_name = "locus_tag_prefix.txt";
-    $embl_locustag_name = "uniprot_evaluation/Embl2LocusTag.txt";
-    $gene_symbol_name = "UniProtPrefGeneSymbols.txt";
-    $family_name = "pfam-ac.txt";
-    $white_list = 'ValidationWhiteDictionary.txt';
-    $black_list = 'ValidationBlackDictionary.txt';
+    $enzymeDict = "dictionary/enzyme_accepted_names.txt";
+    $locustag_prefix_name = "dictionary/locus_tag_prefix.txt";
+    $embl_locustag_name = "dictionary/Embl2LocusTag.txt";
+    $gene_symbol_name = "dictionary/UniProtPrefGeneSymbols.txt";
+    $family_name = "dictionary/pfam-ac.txt";
+    $white_list = 'dictionary/ValidationWhiteDictionary.txt';
+    $black_list = 'dictionary/ValidationBlackDictionary.txt';
 
     @sp_words = qw/putative probable possible/;
     @avoid_cs_terms = (
