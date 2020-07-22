@@ -21,6 +21,7 @@ services:
     volumes:
       - ./esdata:/usr/share/elasticsearch/data
       - ./es/share/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
+      - ./es/share/elasticsearch.log:/usr/share/elasticsearch/logs/docker-cluster.log
     ports:
       - 9200:9200
     networks:
@@ -37,13 +38,22 @@ services:
       - "ELASTICSEARCH_URL=http://elasticsearch:9200"
       - "SERVER_NAME=kibana"
       - "SERVER_HOST=0.0.0.0"
+      - "LOGGING_DEST=/usr/share/kibana/kibana.log"
+    volumes:
+      - ./kibana/kibana.log:/usr/share/kibana/kibana.log
     networks:
       - esnet
     restart: always
     
   togoannotator:
-    build: ./
-    image: ta
+    build: 
+      context: ./
+      dockerfile: ./ta/Dockerfile
+#プロキシ環境下では53から55行目のコメントアウトを外す
+#      args:
+#        http_proxy: http://<プロキシアドレス>
+#        https_proxy: http://<プロキシアドレス>
+    image: ta_test
     container_name: ta
     volumes:
       - ./log/production.log:/opt/togoannotator/ta/WebService/log/production.log
