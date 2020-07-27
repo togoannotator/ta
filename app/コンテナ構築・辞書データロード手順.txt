@@ -1,0 +1,119 @@
+■環境クリーンアップ手順
+0.前提
+　　a.dockerコマンドによりコンテナが停止済みである
+　　
+1.docker コンテナの削除
+　　a.以下のコマンドでElasticsearch、Kibana、ta、nginxと名の付くコンテナを削除する
+　　　docker rm <コンテナ名>
+　　　or
+　　　docker rm <コンテナID>
+　　
+　　b.コンテナ一覧を出力し、削除されたことを確認する
+　　　docker ps -a
+
+2.docker イメージの削除
+　　a.以下のコマンドでElasticsearch、Kibana、ta、nginxと名の付くイメージを削除する
+　　　docker rmi <イメージ名>:<TAG>
+　　　or
+　　　docker rmi <イメージID>
+　　
+　　b.イメージ一覧を出力し、削除されていることを確認する
+　　　docker images
+　　
+3.docker ネットワークの削除
+　　a.以下のコマンドでesnetと名の付くイメージを削除する
+　　　docker network rm <ネットワーク名>
+　　　or
+　　　docker network rm <ネットワークID>
+　　
+　　b.ネットワーク一覧を出力し、ネットワークが削除されていることを確認する
+　　　docker network list
+　　
+　　
+4,ディレクトリの削除
+　　Githubのリポジトリからコピーしてきたディレクトリを削除する
+　　
+　　
+　　
+■コンテナ構築手順
+1.作業用ディレクトリを作成する
+　　mkdir togoannotator
+
+2.githubからcloneしたtaディレクトリをtogoannotatorディレクトリ下に配置する
+
+3.cd togoannotator/ta/app
+
+4.nginx起動に必要なフィルを配置する
+  mkdir nginx/logs
+
+5.TogoAnnotator起動に必要なログファイルを配置する
+　　mkdir log
+　　touch log/production.log
+
+6.Elasticsearchに必要なディレクトリを配置する
+　　mkdir esdata
+　　touch es/share/elasticsearch.log
+　　chmod 777 esdata
+　　chmod 777 es/share/elasticsearch.log
+
+7.Kibanaに必要なディレクトリを配置する
+　　mkdir kibana
+　　touch kibana/kibana.log
+　　chmod 777 kibana/kibana.log
+
+8.プロキシ環境で動作する場合はdocker-compose.ymlとDockerfileを修正する
+　　修正内容は各ファイル参照
+　　
+　　
+9.Docker composeでTogoAnnotatorコンテナをビルドする
+　　以下のコマンドを実行する
+　　docker-compose build
+    
+    
+10.Docker composeでコンテナを起動する
+　　以下のコマンドを実行する
+　　docker-compose up -d
+    
+
+■辞書データロード手順
+
+0.前提
+　　a.docker-composeコマンドで、Elasticsearchコンテナが起動する
+　
+　　b.localhost:9200でElasticsearchに接続できる
+　 
+1.templateの登録
+　　app/es/defsディレクトリ下のindex templateを以下のコマンドで登録する
+　　curl -H "Content-Type: application/json" -XPOST http://localhost:9200/_template/tm_dict -d @es/defs/template_tm_dict.json |jq
+　　
+　
+2.pipelineの登録
+　　手順1同様に、app/es/defs/pipelineディレクトリ下の
+　　pipelineを以下のコマンドで登録する
+　　
+　　curl -s -H "Content-Type: application/json" -XPUT http://localhost:9200/_ingest/pipeline/judge-guideline-compliance -d @es/defs/pipeline/judge-guideline-compliance.json
+　　
+　　これをすべてのpipeline下のjsonファイルについて実行する
+　
+3.スクリプトによるデータロードを行う
+　　辞書ロードスクリプトにより、タンパク質名辞書データをElasticsearchに登録する
+　　
+　　cd ../load_tool
+　　touch FREQ.txt
+　　
+　　# cyanobacteria
+　　python3.6  pipeline_available_load_dict4es_ta.py --file ../opt/togo_index/dict_cyanobacteria_20151120_with_cyanobase.txt --index tm_53a186f8c95c329d6bddd8bc3d3b4189
+　　
+　　# ecoli
+　　python3.6  pipeline_available_load_dict4es_ta.py --file ../opt/togo_index/dict_dfast_eco.txt --index tm_f0a37107d9735025c81673c0ad3f1109
+　　
+　　# lab
+　　python3.6  pipeline_available_load_dict4es_ta.py --file ../opt/togo_index/dict_dfast_lab.txt --index tm_e854a94641613372a4170daba28407ae
+　　
+　　# bacteria
+　　python3.6  pipeline_available_load_dict4es_ta.py --file ../opt/togo_index/UniProtLeeCurated.txt --index tm_68c008bfb37f663c81d581287b267a20
+
+
+
+4.辞書ロードに成功したことを以下のコマンドで確認する
+　　curl -XGET "http://localhost:9200/_cat/indices?v&s=i"
