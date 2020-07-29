@@ -1,0 +1,24 @@
+# Text/TogoAnnotatorES.pm
+Fatal
+File::Basename
+String::Trim
+Lingua::EN::ABC
+Text::Match::FastAlternatives
+Algorithm::AhoCorasick::XS
+Search::Elasticsearch
+Digest::MD5
+Encode
+WWW::Curl::Easy
+JSON::XS
+Data::Dumper
+
+# Webservice/annotation2.pl
+Mojolicious::Lite
+Mojo::Parameters
+Mojo::Server::Prefork
+Encode
+FindBin
+#Text::TogoAnnotatorES
+#Data::Dumper
+Mojolicious::Plugin::CORS
+Mojolicious::Plugin::JSONConfig

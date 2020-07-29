@@ -1,0 +1,219 @@
+{
+    "order": 0,
+    "index_patterns": [
+        "tm_*"
+    ],
+    "settings": {
+        "index": {
+            "analysis": {
+                "analyzer": {
+                    "term_analyzer": {
+                        "filter": [
+                            "lowercase"
+                        ],
+                        "char_filter": [
+                            "term_reprocessing",
+                            "trim",
+                            "double_spaces"
+                        ],
+                        "type": "custom",
+                        "tokenizer": "keyword"
+                    },
+                    "mlt_analyzer": {
+                        "filter": [
+                            "lowercase"
+                        ],
+                        "char_filter": [
+                            "term_reprocessing",
+                            "single_spaces"
+                        ],
+                        "type": "custom",
+                        "tokenizer": "trigram"
+                    }
+                },
+                "char_filter": {
+                    "single_spaces": {
+                        "pattern": "\\s{1,}",
+                        "type": "pattern_replace",
+                        "replacement": ""
+                    },
+                    "term_reprocessing": {
+                        "pattern": "(\\-|\\/|\\,|\\:|\\+|\\(|\\))",
+                        "type": "pattern_replace",
+                        "replacement": " "
+                    },
+                    "double_spaces": {
+                        "pattern": "\\s{2,}",
+                        "type": "pattern_replace",
+                        "replacement": " "
+                    },
+                    "trim": {
+                        "pattern": "(\\\"|^\\s{1,}|\\s{1,}$)",
+                        "type": "pattern_replace",
+                        "replacement": ""
+                    }
+                },
+                "tokenizer": {
+                    "trigram": {
+                        "type": "ngram",
+                        "min_gram": "3",
+                        "max_gram": "3"
+                    }
+                }
+            },
+            "number_of_shards": "1",
+            "number_of_replicas": "0"
+        }
+    },
+    "mappings": {
+        "_meta": {
+            "description": ""
+        },
+        "_source": {
+            "excludes": []
+        },
+        "properties": {
+            "name": {
+                "type": "keyword",
+                "ignore_above": 1000
+            },
+            "normalized_name": {
+                "type": "keyword",
+                "fields": {
+                    "mlt": {
+                        "type": "text",
+                        "analyzer": "mlt_analyzer",
+                        "fielddata": true
+                    },
+                    "term": {
+                        "type": "text",
+                        "analyzer": "term_analyzer",
+                        "fielddata": true
+                    }
+                }
+            },
+            "query_type": {
+                "type": "keyword",
+                "ignore_above": 1000
+            },
+            "guideline_PN001": {
+                "type": "integer"
+            },
+            "guideline_PN002": {
+                "type": "integer"
+            },
+            "guideline_PN003": {
+                "type": "integer"
+            },
+            "guideline_PN004": {
+                "type": "integer"
+            },
+            "guideline_PN005": {
+                "type": "integer"
+            },
+            "guideline_PN007": {
+                "type": "integer"
+            },
+            "guideline_PN011": {
+                "type": "integer"
+            },
+            "guideline_PN012": {
+                "type": "integer"
+            },
+            "guideline_PN013": {
+                "type": "integer"
+            },
+            "guideline_PN014": {
+                "type": "integer"
+            },
+            "guideline_PN016": {
+                "type": "integer"
+            },
+            "guideline_PN017": {
+                "type": "integer"
+            },
+            "guideline_PN018": {
+                "type": "integer"
+            },
+            "guideline_PN019": {
+                "type": "integer"
+            },
+            "guideline_PN020": {
+                "type": "integer"
+            },
+            "guideline_PN021": {
+                "type": "integer"
+            },
+            "guideline_PN022": {
+                "type": "integer"
+            },
+            "guideline_PN024": {
+                "type": "integer"
+            },
+            "guideline_PN026": {
+                "type": "integer"
+            },
+            "guideline_PN027": {
+                "type": "integer"
+            },
+            "guideline_PN028": {
+                "type": "integer"
+            },
+            "guideline_PN029": {
+                "type": "integer"
+            },
+            "guideline_PN030": {
+                "type": "integer"
+            },
+            "guideline_PN034": {
+                "type": "integer"
+            },
+            "guideline_PN036": {
+                "type": "integer"
+            },
+            "guideline_PN037": {
+                "type": "integer"
+            },
+            "guideline_PN038": {
+                "type": "integer"
+            },
+            "guideline_PN039": {
+                "type": "integer"
+            },
+            "guideline_PN041": {
+                "type": "integer"
+            },
+            "guideline_PN042": {
+                "type": "integer"
+            },
+            "guideline_PN043": {
+                "type": "integer"
+            },
+            "guideline_PN047": {
+                "type": "integer"
+            },
+            "guideline_PN048": {
+                "type": "integer"
+            },
+            "guideline_PN049": {
+                "type": "integer"
+            },
+            "guideline_PN050": {
+                "type": "integer"
+            },
+            "guideline_PN051": {
+                "type": "integer"
+            },
+            "guideline_compliance_list": {
+                "type": "keyword"
+            },
+            "guideline_noncompliance_list": {
+                "type": "keyword"
+            },
+            "guideline_score_add": {
+                "type": "rank_feature"
+            }
+        }
+    },
+    "aliases": {}
+}
