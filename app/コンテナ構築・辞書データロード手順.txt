@@ -94,9 +94,16 @@
 　　curl -s -H "Content-Type: application/json" -XPUT http://localhost:9200/_ingest/pipeline/judge-guideline-compliance -d @es/defs/pipeline/judge-guideline-compliance.json
 　　
 　　これをすべてのpipeline下のjsonファイルについて実行する
+
+    for i in  es/defs/pipeline/judge-guideline-compliance-*; do echo $i; curl -s -H "Content-Type: application/json" -XPUT http://localhost:9200/_ingest/pipeline/judge-guideline-compliance -d @$i |jq ; done
 　
 3.スクリプトによるデータロードを行う
 　　辞書ロードスクリプトにより、タンパク質名辞書データをElasticsearchに登録する
+    スクリプト実行環境にpythonモジュールが含まれない場合、以下のモジュールがインストールされている必要がある。
+
+    pip install elasticsearch
+    pip install regex
+    pip install pyahocorasick
 　　
 　　cd ../load_tool
 　　touch FREQ.txt
