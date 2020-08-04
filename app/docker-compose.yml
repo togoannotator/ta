@@ -55,6 +55,8 @@ services:
 #        https_proxy: http://<プロキシアドレス>
     image: ta_test
     container_name: ta
+    environment:
+      - TA_URL=${TA_URL:-http://localhost:5000}
     volumes:
       - ./log/production.log:/opt/togoannotator/ta/WebService/log/production.log
       - ./dictionary:/opt/togoannotator/ta/WebService/dictionary

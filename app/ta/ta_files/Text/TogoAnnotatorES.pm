@@ -407,8 +407,8 @@ sub retrieveMulti { # $oq にクエリのリストへのポインタが入る
     my $issue_query = join("\n", @q4msearch). "\n";
     my $curl = WWW::Curl::Easy->new();
     my $response_body;
-    print Dumper "http://172.18.8.190:19200/_msearch";
-    $curl->setopt(CURLOPT_URL, "http://172.18.8.190:19200/_msearch");
+    print Dumper "http://elasticsearch:9200/_msearch";
+    $curl->setopt(CURLOPT_URL, "http://elasticsearch:9200/_msearch");
     $curl->setopt(CURLOPT_POST, 1);
     $curl->setopt(CURLOPT_HTTPHEADER, [
 		      "Content-Type: application/json",
@@ -552,8 +552,8 @@ sub retrieve {
     my $curl = WWW::Curl::Easy->new();
     my $response_body;
     my $INDEX_NAME = "tm_".$md5dname;
-    print Dumper "http://172.18.8.190:19200/${INDEX_NAME}/_search";
-    $curl->setopt(CURLOPT_URL, "http://172.18.8.190:19200/${INDEX_NAME}/_search");
+    print Dumper "http://elasticsearch:9200/${INDEX_NAME}/_search";
+    $curl->setopt(CURLOPT_URL, "http://elasticsearch:9200/${INDEX_NAME}/_search");
     $curl->setopt(CURLOPT_POST, 1);
     $curl->setopt(CURLOPT_HTTPHEADER, [
 		      "Content-Type: application/json",
