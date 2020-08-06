@@ -69,7 +69,7 @@
 　　以下のコマンドを実行する
 　　docker-compose build
     
-　　注)docker for Windowsを利用する場合は、FILE SHARINGの設定を行う必要がある。
+　　注)Windows版、macOS版のDocker Desktopを利用する場合は、FILE SHARINGの設定を行う必要がある。
 　　　　DockerのSettings画面からResources > FILE SHARINGを開き、
     　　ホスト側のディレクトリ、ファイルパスを登録する。
      
