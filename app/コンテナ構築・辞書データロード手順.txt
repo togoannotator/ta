@@ -52,9 +52,9 @@
 
 6.Elasticsearchに必要なディレクトリを配置する
 　　mkdir esdata
-　　touch es/share/elasticsearch.log
+　　mkdir es/share/log
 　　chmod 777 esdata
-　　chmod 777 es/share/elasticsearch.log
+　　chmod 777 es/share/log
 
 7.Kibanaに必要なディレクトリを配置する
 　　mkdir kibana
@@ -69,6 +69,10 @@
 　　以下のコマンドを実行する
 　　docker-compose build
     
+　　注)docker for Windowsを利用する場合は、FILE SHARINGの設定を行う必要がある。
+　　　　DockerのSettings画面からResources > FILE SHARINGを開き、
+    　　ホスト側のディレクトリ、ファイルパスを登録する。
+     
     
 10.Docker composeでコンテナを起動する
 　　以下のコマンドを実行する
@@ -88,15 +92,16 @@
 　　
 　
 2.pipelineの登録
-　　手順1同様に、app/es/defs/pipelineディレクトリ下の
-　　pipelineを以下のコマンドで登録する
-　　
-　　curl -s -H "Content-Type: application/json" -XPUT http://localhost:9200/_ingest/pipeline/judge-guideline-compliance -d @es/defs/pipeline/judge-guideline-compliance.json
-　　
-　　これをすべてのpipeline下のjsonファイルについて実行する
+　　例のように以下のコマンドをes/defs/pipelineディレクトリ下のすべてのpipelineファイルに対して実行する
+　　 curl -s -H "Content-Type: application/json" -XPUT http://localhost:9200/_ingest/pipeline/<拡張子を除いたpipelineファイル名> -d @es/defs/pipeline/<pipelineファイル名>
 
-    for i in  es/defs/pipeline/judge-guideline-compliance-*; do echo $i; curl -s -H "Content-Type: application/json" -XPUT http://localhost:9200/_ingest/pipeline/judge-guideline-compliance -d @$i |jq ; done
-　
+　　例）
+　　curl -s -H "Content-Type: application/json" -XPUT http://localhost:9200/_ingest/pipeline/judge-guideline-compliance -d @es/defs/pipeline/judge-guideline-compliance.json
+　  curl -s -H "Content-Type: application/json" -XPUT http://localhost:9200/_ingest/pipeline/judge-guideline-compliance-PN002 -d @es/defs/pipeline/judge-guideline-compliance-PN002.json
+    ・・・
+　　 curl -s -H "Content-Type: application/json" -XPUT http://localhost:9200/_ingest/pipeline/judge-guideline-compliance-PN051 -d @es/defs/pipeline/judge-guideline-compliance-PN051.json
+
+    
 3.スクリプトによるデータロードを行う
 　　辞書ロードスクリプトにより、タンパク質名辞書データをElasticsearchに登録する
     スクリプト実行環境にpythonモジュールが含まれない場合、以下のモジュールがインストールされている必要がある。

@@ -21,7 +21,7 @@ services:
     volumes:
       - ./esdata:/usr/share/elasticsearch/data
       - ./es/share/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
-      - ./es/share/elasticsearch.log:/usr/share/elasticsearch/logs/docker-cluster.log
+      - ./es/share/log:/usr/share/elasticsearch/logs
     ports:
       - 9200:9200
     networks:
@@ -38,9 +38,9 @@ services:
       - "ELASTICSEARCH_URL=http://elasticsearch:9200"
       - "SERVER_NAME=kibana"
       - "SERVER_HOST=0.0.0.0"
-      - "LOGGING_DEST=/usr/share/kibana/kibana.log"
+      - "LOGGING_DEST=/mnt/kibana.log"
     volumes:
-      - ./kibana/kibana.log:/usr/share/kibana/kibana.log
+      - ./kibana:/mnt
     networks:
       - esnet
     restart: always
@@ -53,12 +53,12 @@ services:
 #      args:
 #        http_proxy: http://<プロキシアドレス>
 #        https_proxy: http://<プロキシアドレス>
-    image: ta_test
+    image: ta
     container_name: ta
     environment:
       - TA_URL=${TA_URL:-http://localhost:5000}
     volumes:
-      - ./log/production.log:/opt/togoannotator/ta/WebService/log/production.log
+      - ./log:/opt/togoannotator/ta/WebService/log
       - ./dictionary:/opt/togoannotator/ta/WebService/dictionary
     ports:
       - 5100:5100
