@@ -1,5 +1,5 @@
 #!/bin/bash
-#app‹N“®
+#appèµ·å‹•
 hypnotoad /opt/togoannotator/ta/WebService/annotation2.pl
-#ƒRƒ“ƒeƒiŒp‘±‹N“®—p
+#ã‚³ãƒ³ãƒ†ãƒŠç¶™ç¶šèµ·å‹•ç”¨
 tail -f /opt/togoannotator/ta/WebService/log/production.log
