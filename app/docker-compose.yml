@@ -6,7 +6,7 @@ services:
     environment:
       - "TZ=Asia/Tokyo"
       - ELASTIC_PASSWORD=changeme
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ES_JAVA_OPTS=-Xms8192m -Xmx8192m"
       - bootstrap.memory_lock=true
       - cluster.name=docker-cluster
       - "discovery.type=single-node"
