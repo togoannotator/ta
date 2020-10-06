@@ -1,1 +1,1 @@
-../untracked/NITE/20131122_dbcls/GS4_genelist.tab_anno_eco.tab.org
+/opt/services2/yayamamo/NITE/20131122_dbcls/GS4_genelist.tab_anno_eco.tab.org
