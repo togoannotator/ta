@@ -1,0 +1,19 @@
+{
+  "description": "PN021の合致可否判定をするpipeline",
+  "processors": [
+    {
+      "script": {
+        "lang": "painless",
+        "source": "\r\n        if (ctx.name =~ /@/){\r\n          ctx.guideline_noncompliance_list.add(\"PN021\");\r\n        }\r\n        else{\r\n          ctx.guideline_PN021 = 1;\r\n          ctx.guideline_compliance_list.add(\"PN021\");\r\n          ctx.guideline_score_add  += ctx.guideline_PN021;\r\n        }\r\n      ",
+        "on_failure": [
+          {
+            "append": {
+              "field": "error_pipeline",
+              "value": "judge-guideline-compliance-PN021"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
