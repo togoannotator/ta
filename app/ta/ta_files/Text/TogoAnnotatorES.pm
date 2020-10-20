@@ -249,7 +249,7 @@ sub readDict {
 
     # Black Listのロード
     print "Prepare: Black List.\n";
-    my @black_list_array;
+    my @black_list_array = ();
     open(my $black_list_fh, $sysroot.'/'.$black_list);
     while(<$black_list_fh>){
 	chomp;
@@ -360,7 +360,7 @@ sub retrieveMulti { # $oq にクエリのリストへのポインタが入る
     my $query = my $oq = shift;
     my $md5dname = md5_hex(shift);
     my $es_opts_default = {
-	'MAX_QUERY_TERMS'=> 100,
+	'MAX_QUERY_TERMS' => 100,
 	'MINIMUM_SHOULD_MATCH' => '30',
 	'MIN_TERM_FREQ' => 0,
 	'MIN_WORD_LENGTH' => 0,
@@ -787,7 +787,7 @@ sub getAnnotations{
 	$$info .= " [Not in the white list]";
     }
     my @black_matched;
-    while((my $matched = $black_matcher{"Lee"}->first_match(' '.$oq.' ')) ne ""){
+    while((my $matched = ($black_matcher{"Lee"}->first_match(' '.$oq.' '))//"") ne ""){
 	$oq =~ s/${matched}/$black2white{$matched}/ if defined($black2white{$matched});
 	$$info .= " [Black list]";
 	push @black_matched, $matched;

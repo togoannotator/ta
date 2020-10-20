@@ -49,5 +49,16 @@
     "niteAll": "/opt/services/ta/data/Dummy.txt.gz",
     "useCurrentDict": 0,
     "port": 5005
+  },
+  "Universal": {
+    "namespace": "univ",
+    "cos_threshold": 0.6,
+    "cs_max": 5,
+    "curatedDict": "/opt/services/ta/data/Universal.txt",
+    "e_threashold": 30,
+    "n_gram": 3,
+    "niteAll": "/opt/services/ta/data/dict_universal_20201006.txt",
+    "useCurrentDict": 0,
+    "port": 5006
   }
 }

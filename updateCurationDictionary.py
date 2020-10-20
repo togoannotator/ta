@@ -1,30 +1,28 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # coding=utf-8
 
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
-scope = ['https://spreadsheets.google.com/feeds']
-creds = ServiceAccountCredentials.from_json_keyfile_name('creds.json', scope)
-client = gspread.authorize(creds)
+#scope = ['https://spreadsheets.google.com/feeds']
+#creds = ServiceAccountCredentials.from_json_keyfile_name('projectpubcasefinder-0de72011938f.json', scope)
+#creds = ServiceAccountCredentials.from_json_keyfile_name('creds.json', scope)
+#client = gspread.authorize(creds)
+
+gc = gspread.service_account()
+sh = gc.open("CurationDictionary")
 
 def getDictionary(dictionaryType):
-  f = open(dictionaryType+".txt", 'w')
-  sheet = client.open("CurationDictionary").worksheet(dictionaryType)
+  sheet = sh.worksheet(dictionaryType)
   all = sheet.get_all_values()
   firstrow = True
   for row in all:
       if firstrow:
           firstrow = False
           continue
-      if len(row[0]) == 0:
-          continue
-      print(dictionaryType + '\t' + '\t'.join(map(str, row)))
-#      f.write('\t'.join(map(str, row)) + "\n")
-#      f.write(row[0]+"\n")
-  f.close()
+      print('\t'.join(map(str, row)))
 
-getDictionary("ValidationWhiteDictionary")
-getDictionary("ValidationBlackDictionary")
+#getDictionary("ValidationWhiteDictionary")
+#getDictionary("ValidationBlackDictionary")
 getDictionary("ConvtableDictionary")
-getDictionary("product_checklist")
+#getDictionary("product_checklist")
