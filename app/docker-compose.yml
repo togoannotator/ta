@@ -49,10 +49,6 @@ services:
     build: 
       context: ./
       dockerfile: ./ta/Dockerfile
-#プロキシ環境下では53から55行目のコメントアウトを外す
-#      args:
-#        http_proxy: http://<プロキシアドレス>
-#        https_proxy: http://<プロキシアドレス>
     image: ta
     container_name: ta
     environment:

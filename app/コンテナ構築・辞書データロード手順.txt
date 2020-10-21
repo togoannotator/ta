@@ -1,6 +1,12 @@
+【TogoAnnotatorアプリ環境構築・辞書データロード手順】
+
 ※いずれも、Linux上で一般ユーザによって実施することを前提としています
 
 ■コンテナ化前のnginx, togoannotatorプロセスの停止手順
+　コンテナ化する前のnginxやTogoAnnotatorアプリがホスト上で動作している
+　場合に、停止する手順。
+　※最初からコンテナで環境構築する場合はスキップする
+
 1. nginx 停止手順
 　　サービスの停止と自動起動の無効化を行う
 　　　sudo systemctl status nginx
@@ -28,130 +34,177 @@
 　　　sudo ss -nap | grep tcp | grep LISTEN
 　　　→5100ポートでLISTENしているプロセスが無ければOK
 
-■環境クリーンアップ手順
-0.前提
-　　a.dockerコマンドによりコンテナが停止済みである
 
-1.docker コンテナの削除
-　　a.以下のコマンドでElasticsearch、Kibana、ta、nginxと名の付くコンテナを削除する
+■環境クリーンアップ手順
+　バージョンアップや環境の再構築などを行う場合は、構築前に既存環境を削除する。
+
+0. 前提
+　　a. dockerコマンドによりコンテナが停止済みである
+
+1. docker コンテナの削除
+　　a. 以下のコマンドでElasticsearch、Kibana、ta、nginxと名の付くコンテナを削除する
 　　　sudo docker rm <コンテナ名>
 　　
-　　b.コンテナ一覧を出力し、削除されたことを確認する
+　　b. コンテナ一覧を出力し、削除されたことを確認する
 　　　sudo docker ps -a
 
-2.docker イメージの削除
-　　a.以下のコマンドでElasticsearch、Kibana、ta、nginxと名の付くイメージを削除する
+2. docker イメージの削除
+　　a. 以下のコマンドでElasticsearch、Kibana、ta、nginxと名の付くイメージを削除する
 　　　docker rmi <イメージ名>:<TAG>
 　　　or
 　　　docker rmi <イメージID>
 　　
-　　b.イメージ一覧を出力し、削除されていることを確認する
+　　b. イメージ一覧を出力し、削除されていることを確認する
 　　　docker images
-　　
-3.docker ネットワークの削除
-　　a.以下のコマンドでesnetと名の付くイメージを削除する
+
+3. docker ネットワークの削除
+　　a. 以下のコマンドでesnetと名の付くイメージを削除する
 　　　docker network rm <ネットワーク名>
 　　　or
 　　　docker network rm <ネットワークID>
 　　
-　　b.ネットワーク一覧を出力し、ネットワークが削除されていることを確認する
+　　b. Dockerネットワークの一覧を出力し、削除されていることを確認する
 　　　docker network list
 
-4,ディレクトリの削除
+4, ディレクトリの削除
 　　Githubのリポジトリからコピーしてきたディレクトリを削除する
 
 
+■プロキシ環境下で実行するための準備
+　※実行するホストからインターネットへのアクセスにプロキシが不要な場合は
+　　本項目はスキップしてください。
+　※既に実施済みであればスキップしてください
+　
+1. ${HOME}/.docker ディレクトリが存在しない場合は作成する
+　※既にディレクトリがd存在する場合は 2. に進む
+　　mkdir ${HOME}/.docker
+
+2. ${HOME}/.docker/config.json を作成する
+　　vi ${HOME}/.docker/config.json
+
+　以下の内容を記述し、保存・終了する。
+　※(proxy-host), (proxy-port)は、ネットワーク管理者から指示されている
+　　プロキシサーバのホスト名とポート番号で読み替えること
+----
+{
+    "credsStore" : "desktop",
+    "proxies" : {
+        "default" : {
+            "httpProxy" : "http://(proxy-host):(proxy-port)",
+            "httpsProxy" : "http://(proxy-host):(proxy-port)"
+        }
+    },
+    "stackOrchestrator":"swarm"
+}
+----
+
+
 ■コンテナ構築手順
-1.作業用ディレクトリを作成する
+　※任意のディレクトリを起点とした相対パスでの作業手順としている
+
+1. 作業用ディレクトリを作成する
 　　mkdir togoannotator
 
-2.githubからcloneしたtaディレクトリをtogoannotatorディレクトリ下に配置する
+2. githubからcloneしたtaディレクトリをtogoannotatorディレクトリ下に配置する
 
-3.cd togoannotator/ta/app
+3. ディレクトリを移動する
+　　cd togoannotator/ta/app
 
-4.nginx起動に必要なフィルを配置する
-  mkdir nginx/logs
+4. nginx起動に必要なディレクトリを作成する
+　　mkdir nginx/logs
 
-5.TogoAnnotator起動に必要なログファイルを配置する
+5. TogoAnnotator起動に必要なディレクトリとログファイルを作成する
 　　mkdir log
 　　touch log/production.log
 
-6.Elasticsearchに必要なディレクトリを配置する
+6. Elasticsearchに必要なディレクトリを作成する
 　　mkdir esdata
 　　mkdir es/share/log
 　　chmod 777 esdata
 　　chmod 777 es/share/log
 
-7.Kibanaに必要なディレクトリを配置する
+7. Kibanaに必要なディレクトリとログファイルを作成する
 　　mkdir kibana
 　　touch kibana/kibana.log
 　　chmod 777 kibana/kibana.log
 
-8.プロキシ環境で動作する場合はdocker-compose.ymlとDockerfileを修正する
-　　修正内容は各ファイル参照
-
-9.Docker composeでTogoAnnotatorコンテナをビルドする
+8. Docker composeでTogoAnnotatorと辞書データローダーのコンテナをビルドする
 　　以下のコマンドを実行する
-　　docker-compose build
+　　　docker-compose build
 
 　　注)Windows版、macOS版のDocker Desktopを利用する場合は、FILE SHARINGの設定を行う必要がある。
 　　　　DockerのSettings画面からResources > FILE SHARINGを開き、
 　　　　ホスト側のディレクトリ、ファイルパスを登録する。
 
-10.Docker composeでコンテナを起動する
+9. Docker composeでコンテナを起動する
 　　以下のコマンドを実行する
-　　docker-compose up -d
+　　　docker-compose up -d
+
 
 ■辞書データロード手順
 
-0.前提
-　　a.docker-composeコマンドで、Elasticsearchコンテナが起動している
-　　b.localhost:9200でElasticsearchに接続できる
-　　　curl localhost:9200
+1. Docker composeのコンテナ起動時の投入
+　　辞書データローダー（load_tool）をコンテナ化したため、
+　　Docker composeの起動時に、Elasticsearchコンテナの起動を待って
+　　自動的に辞書データのロードを行う。
 
-1.templateの登録
-　　app/es/defsディレクトリ下のindex templateを以下のコマンドで登録する
-　　curl -s -H "Content-Type: application/json" -XPOST http://localhost:9200/_template/tm_dict -d @es/defs/template_tm_dict.json |jq
+2. 辞書データの再投入（ファイル名、インデックス名に変更がない場合）
+　　Docker composeで、load_tool だけを再実行して、辞書の再投入が可能。
+　　以下のコマンドを実行する。
+　　　docker-compose restart load_tool
 
-　　確認
-　　curl -s -H "Content-Type: application/json" -XGET http://localhost:9200/_template/tm_dict | jq
-　
-2.pipelineの登録
-　　例のように以下のコマンドをes/defs/pipelineディレクトリ下のすべてのpipelineファイルに対して実行する
-　　curl -s -H "Content-Type: application/json" -XPUT http://localhost:9200/_ingest/pipeline/<拡張子を除いたpipelineファイル名> -d @es/defs/pipeline/<pipelineファイル名>
+　　※注意：それまでにElasticsearchに投入している辞書データはクリアされます
 
-　　例）
-　　curl -s -H "Content-Type: application/json" -XPUT http://localhost:9200/_ingest/pipeline/judge-guideline-compliance -d @es/defs/pipeline/judge-guideline-compliance.json
-　　curl -s -H "Content-Type: application/json" -XPUT http://localhost:9200/_ingest/pipeline/judge-guideline-compliance-PN002 -d @es/defs/pipeline/judge-guideline-compliance-PN002.json
-　　・・・
-　　curl -s -H "Content-Type: application/json" -XPUT http://localhost:9200/_ingest/pipeline/judge-guideline-compliance-PN051 -d @es/defs/pipeline/judge-guideline-compliance-PN051.json
-
-　　確認
-　　curl -s -H "Content-Type: application/json" -XGET http://localhost:9200/_ingest/pipeline/ | jq
-
-3.スクリプトによるデータロードを行う
-　　辞書ロードスクリプトにより、タンパク質名辞書データをElasticsearchに登録する
-　　スクリプト実行環境にpythonモジュールが含まれない場合、以下のモジュールがインストールされている必要がある。
-
-　　pip install elasticsearch
-　　pip install regex
-　　pip install pyahocorasick
+3. 辞書データロード結果の確認
+　　起動した load_tool コンテナのコンソールログを見ることで、辞書データロード結果を確認する。
+　　　docker logs -f load_tool
 　　
-　　cd ../load_tool
-　　sudo touch FREQ.txt
-　　ls -l
+　　以下のログが出ている場合は、Elasticsearchが起動完了する前の状態
+　　------------------------------------------------------------
+　　Waiting for elasticsearch...
+　　------------------------------------------------------------
+　　※この状態が長く続いている場合は、Elasticsearchの起動に失敗している可能性があるため、
+　　　環境や設定内容の確認を行ってください
 　　
-　　# cyanobacteria
-　　python3.6  pipeline_available_load_dict4es_ta.py --file ../opt/togo_index/dict_cyanobacteria_20151120_with_cyanobase.txt --index tm_53a186f8c95c329d6bddd8bc3d3b4189
-　　
-　　# ecoli
-　　python3.6  pipeline_available_load_dict4es_ta.py --file ../opt/togo_index/dict_dfast_eco.txt --index tm_f0a37107d9735025c81673c0ad3f1109
-　　
-　　# lab
-　　python3.6  pipeline_available_load_dict4es_ta.py --file ../opt/togo_index/dict_dfast_lab.txt --index tm_e854a94641613372a4170daba28407ae
-　　
-　　# bacteria
-　　python3.6  pipeline_available_load_dict4es_ta.py --file ../opt/togo_index/UniProtLeeCurated.txt --index tm_68c008bfb37f663c81d581287b267a20
+　　辞書データロードが完了すると、Elasticsearchのインデックス状態を表示するログが出る。
+　　------------------------------------------------------------
+　　[2020-10-21 03:04:41] Elasticsearch index確認開始
+　　health status index uuid pri rep docs.count docs.deleted store.size pri.store.size
+　　：
+　　------------------------------------------------------------
+　　ここで、投入対象のインデックスが存在し、件数が正しいことを確認する。
 
-4.辞書ロードに成功したことを以下のコマンドで確認する
-　　curl -XGET "http://localhost:9200/_cat/indices?v&s=i"
+4. 投入対象辞書の追加・変更・削除
+　　投入対象辞書の追加・変更・削除があった場合は、スクリプトを修正する必要がある。
+
+　(1) 事前に用意するファイル／情報
+　　a. 投入対象辞書データ（追加・変更の場合）
+　　　→app/dictionary/es_data ディレクトリの中に置く
+
+　　b. 投入先Elasticsearchインデックス名
+　　　→TogoAnnotatorアプリがクエリを実行するインデックス名
+　　　　(tm_ で始まる名前になっている想定)
+
+　(2) スクリプトの修正
+　　ta/appディレクトリで、以下のコマンドを実行しファイルを開く。
+　　　vi load_tool/bin/data_load.sh
+
+　　以下のログ出力処理の後にあるpython3.6実行コマンドを追加・変更・削除する。
+　　75行目：
+　　------------------------------------------------------------
+　　logger "データロード処理開始" ${LOG_FILE}
+　　------------------------------------------------------------
+
+　　１つの辞書データファイルを投入するコマンドの形式は以下
+　　【～】部分を、変更内容に合わせて置換える。
+　　------------------------------------------------------------
+　　logger "--- 【辞書名】 ---" ${LOG_FILE}
+　　python3.6 -u pipeline_available_load_dict4es_ta.py --file ${ES_DATA}/【投入対象辞書データファイル名】 --index 【投入先インデックス名】 | tee -a ${LOG_FILE}
+　　------------------------------------------------------------
+
+　(3) 辞書データローダーの再実行
+　　「2.　辞書データの再投入」と同じく、load_toolコンテナを再起動することで
+　　Elasticsearchの辞書データを再ロードする。
+
+
+以上

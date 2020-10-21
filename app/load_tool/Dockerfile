@@ -18,5 +18,6 @@ RUN pip3 install \
 RUN mkdir -p /opt/load_tool
 COPY bin /opt/load_tool/bin
 COPY pipeline /opt/load_tool/pipeline
+RUN chmod a+x /opt/load_tool/bin/data_load.sh
 
-ENTRYPOINT ["/opt/load_tool/bin/data_load.sh"]
+CMD ["/opt/load_tool/bin/data_load.sh"]
