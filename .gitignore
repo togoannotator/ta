@@ -2,7 +2,7 @@
 *.swp
 *.log
 *.json
-dictionary/
+/dictionary/
 nodes/
 hmm/
 at_ep/*.gz
