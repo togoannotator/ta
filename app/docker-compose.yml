@@ -49,17 +49,13 @@ services:
     build: 
       context: ./
       dockerfile: ./ta/Dockerfile
-#プロキシ環境下では53から55行目のコメントアウトを外す
-#      args:
-#        http_proxy: http://<プロキシアドレス>
-#        https_proxy: http://<プロキシアドレス>
     image: ta
     container_name: ta
     environment:
       - TA_URL=${TA_URL:-http://localhost:5000}
     volumes:
       - ./log:/opt/togoannotator/ta/WebService/log
-      - ./dictionary:/opt/togoannotator/ta/WebService/dictionary
+      - ./dictionary/ref_data:/opt/togoannotator/ta/WebService/dictionary
     ports:
       - 5100:5100
     networks:
@@ -78,6 +74,24 @@ services:
     networks:
       - esnet
     restart: always
+
+  load_tool:
+    image: load_tool
+    build: 
+      context: load_tool
+      dockerfile: Dockerfile
+    container_name: load_tool
+    tty: true
+    environment:
+      - "TZ=Asia/Tokyo"
+    volumes:
+      - ./dictionary/es_data:/opt/load_tool/es_data
+      - ./es/defs:/opt/load_tool/defs
+      - ./load_tool/logs:/opt/load_tool/logs
+    depends_on:
+      - elasticsearch
+    networks:
+     - esnet
 
 networks:
   esnet:
