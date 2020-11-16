@@ -88,6 +88,9 @@ python3.6 -u pipeline_available_load_dict4es_ta.py --file ${ES_DATA}/dict_dfast_
 logger "--- bacteria ---" ${LOG_FILE}
 python3.6 -u pipeline_available_load_dict4es_ta.py --file ${ES_DATA}/UniProtLeeCurated.txt --index tm_68c008bfb37f663c81d581287b267a20 | tee -a ${LOG_FILE}
 
+logger "--- universal ---" ${LOG_FILE}
+python3.6 -u pipeline_available_load_dict4es_ta.py --file ${ES_DATA}/dict_universal_20201006.txt --index tm_7641e5f4e7e8517bd0477fd81e3de1b8 | tee -a ${LOG_FILE}
+
 logger "データロード処理終了" ${LOG_FILE}
 
 logger "Elasticsearch index確認開始" ${LOG_FILE}
