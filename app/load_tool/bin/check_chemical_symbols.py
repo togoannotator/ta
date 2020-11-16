@@ -2,7 +2,7 @@
 
 chemical_symbols = {}
 
-with open("ChemicalSymbols.txt","r") as file:
+with open("ChemicalSymbols.txt","r",encoding="utf-8") as file:
     for line in file:
         chemical_symbols[line.strip()] = 1
 
