@@ -1,6 +1,8 @@
 【TogoAnnotatorアプリ環境構築・辞書データロード手順】
 
 ※いずれも、Linux上で一般ユーザによって実施することを前提としています
+　docker / docker-compose コマンドの先頭に sudo を付けていますが、
+　他OS環境またはdockerコマンドが実行可能なユーザで実施の際は、sudoを外してください。
 
 ■コンテナ化前のnginx, togoannotatorプロセスの停止手順
 　コンテナ化する前のnginxやTogoAnnotatorアプリがホスト上で動作している
@@ -50,21 +52,21 @@
 
 2. docker イメージの削除
 　　a. 以下のコマンドでElasticsearch、Kibana、ta、nginxと名の付くイメージを削除する
-　　　docker rmi <イメージ名>:<TAG>
+　　　sudo docker rmi <イメージ名>:<TAG>
 　　　or
-　　　docker rmi <イメージID>
+　　　sudo docker rmi <イメージID>
 　　
 　　b. イメージ一覧を出力し、削除されていることを確認する
-　　　docker images
+　　　sudo docker images
 
 3. docker ネットワークの削除
 　　a. 以下のコマンドでesnetと名の付くイメージを削除する
-　　　docker network rm <ネットワーク名>
+　　　sudo docker network rm <ネットワーク名>
 　　　or
-　　　docker network rm <ネットワークID>
+　　　sudo docker network rm <ネットワークID>
 　　
 　　b. Dockerネットワークの一覧を出力し、削除されていることを確認する
-　　　docker network list
+　　　sudo docker network list
 
 4, ディレクトリの削除
 　　Githubのリポジトリからコピーしてきたディレクトリを削除する
@@ -130,7 +132,7 @@
 
 8. Docker composeでTogoAnnotatorと辞書データローダーのコンテナをビルドする
 　　以下のコマンドを実行する
-　　　docker-compose build
+　　　sudo docker-compose build
 
 　　注)Windows版、macOS版のDocker Desktopを利用する場合は、FILE SHARINGの設定を行う必要がある。
 　　　　DockerのSettings画面からResources > FILE SHARINGを開き、
@@ -138,7 +140,7 @@
 
 9. Docker composeでコンテナを起動する
 　　以下のコマンドを実行する
-　　　docker-compose up -d
+　　　sudo docker-compose up -d
 
 
 ■辞書データロード手順
@@ -151,13 +153,13 @@
 2. 辞書データの再投入（ファイル名、インデックス名に変更がない場合）
 　　Docker composeで、load_tool だけを再実行して、辞書の再投入が可能。
 　　以下のコマンドを実行する。
-　　　docker-compose restart load_tool
+　　　sudo docker-compose restart load_tool
 
 　　※注意：それまでにElasticsearchに投入している辞書データはクリアされます
 
 3. 辞書データロード結果の確認
 　　起動した load_tool コンテナのコンソールログを見ることで、辞書データロード結果を確認する。
-　　　docker logs -f load_tool
+　　　sudo docker logs -f load_tool
 　　
 　　以下のログが出ている場合は、Elasticsearchが起動完了する前の状態
 　　------------------------------------------------------------
@@ -202,9 +204,18 @@
 　　python3.6 -u pipeline_available_load_dict4es_ta.py --file ${ES_DATA}/【投入対象辞書データファイル名】 --index 【投入先インデックス名】 | tee -a ${LOG_FILE}
 　　------------------------------------------------------------
 
-　(3) 辞書データローダーの再実行
-　　「2.　辞書データの再投入」と同じく、load_toolコンテナを再起動することで
-　　Elasticsearchの辞書データを再ロードする。
-
+　(3) 辞書データローダーの再ビルド・実行
+　　(2)でスクリプトファイルの修正を行った場合は、辞書データローダーコンテナの再ビルドを行う。
+　　ta/appディレクトリで以下のコマンドを実行する。
+　　　sudo docker-compose build load_tool
+　　
+　　load_toolコンテナを再作成することでElasticsearchの辞書データを再ロードする。
+　　　sudo docker-compose up load_tool     # フォアグラウンド実行の場合
+　　　sudo docker-compose up -d load_tool  # バックグラウンド実行の場合
+　　
+　　※上記手順で正常に辞書データがロードされない場合は、docker-composeで全体を再起動する。
+　　　（注意：一時的にサービスが停止します）
+　　　　sudo docker-compose down
+　　　　sudo docker-compose up -d
 
 以上
