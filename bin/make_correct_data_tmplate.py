@@ -58,7 +58,7 @@ class CorrectDataTemplate(object):
 
     def name2term_after_id(self, text):
         converted_name = self.convert_full(text)
-        return self.concat_md5(converted_name, "", "term_after")
+        return self.concat_md5(converted_name, "", "mlt_after")
 
     def output2(self,data):
          #検索キーワード    辞書    結果1   結果1_ID    結果1_検索順位  結果2   結果2_ID    結果2_検索順位, ...
@@ -68,7 +68,7 @@ class CorrectDataTemplate(object):
          o = [ data['query'], self.dictionary, data['match'], str(hits)]
          for item in data['result_array']:
              o.append(item)
-             o.append(self.concat_md5(item,"", "term_after"))
+             o.append(self.concat_md5(item,"", "mlt_after"))
              o.append("")
 
          #print("\t".join(data['result_array']))
