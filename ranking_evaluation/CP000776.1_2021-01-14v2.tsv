@@ -173,7 +173,7 @@ UDP-N-acetylmuramoylalanyl-D-glutamate--2, 6-diaminopimelate ligase	univ	cs	10	U
 UvrD/REP helicase	univ	cs	10	ATP-dependent DNA helicase UvrD1	c62b8ad5679e05ebe1695a7e2da759c6mlt_after	2	ATP-dependent DNA helicase UvrD2	4f780c44058a5dd808e4b745f6e5bacbmlt_after	2	plasmid replicative DNA helicase	8ce533dd8749cd5c47e10174429bcf5emlt_after	4	Helicase	4ec80233b27005fb557af7f3f638f1d5mlt_after	1	helicase 7	4df5245d045911a8de7f600fdedab4abmlt_after	7	replicative DNA helicase	a484f6681055aa5d39ba3ada8cd4c1abmlt_after	4	DNA replication helicase	351151fa998cb43a0c174ee7424a9643mlt_after	4	helicase HelY	fe8d9cb1a01b38b8dbc7e08cf6c8f059mlt_after	7	helicase 22	fa267a435bd7cbe3415fa1a23d415e7bmlt_after	7	helicase D10	93bbd7d7fdd2469c5aad6dad6a462c8fmlt_after	7
 Xaa-Pro peptidase	univ	cs	10	Xaa-Pro aminopeptidase	fd1d5303c869fbbe20bd5d28c2564dc8mlt_after	4	Xaa-Pro aminopeptidase P	cef300fa6f8844b12e7863ad11f25960mlt_after	5	Xaa-Pro aminopeptidase 1	38c20abf4216a5be2e768523aa496760mlt_after	5	Xaa-Pro aminopeptidase 2	ff924ab39c44183be07fca7a1d65955emlt_after	5	Xaa-Pro aminopeptidase 3	1a050ffc0c1bd61eed2936ca6b6a0f45mlt_after	5	Xaa-Pro aminopeptidase PEPP	afae3b29b8bd66f08e60aa6af5650ac5mlt_after	5	Xaa-Pro dipeptidase	3bf29d31c76447d7393de47edfe17bc5mlt_after	1	Xaa-Pro aminopeptidase ApepP	a35a8d19bc20e765d3b3e980ca7586eamlt_after	5	Xaa-Pro dipeptidase 1	104e39a78174cd32445e5a7a4fa21831mlt_after	2	Xaa-Pro dipeptidase 2	82ad44ee483f3d907564276781586907mlt_after	2
 YbaK/ebsC protein	univ	cs	10	Uncharacterized protein YbaK	b2ec4fa9d50155ded7e3f1bb78b4e600mlt_after	1	Small toxic protein IbsC	aa6fde619cb934d6357375d391b2f526mlt_after	0	Alpha-ketoglutarate-dependent dioxygenase bsc9	34762722e1d61a457adf144587623b45mlt_after	0	Cys-tRNA(Pro)/Cys-tRNA(Cys) deacylase YbaK	badc2234bff36ec439ff2a8ae32e16c3mlt_after	2	Cytotoxin-like basic protein	b6aa209349e004aebdce9fe107ed9390mlt_after	0	Protein OSCP1	f50eed1341afcf81700bc1065ac079famlt_after	0	Protein SCP160	08facb482c67be37d6613d570d9f7956mlt_after	0	Cys-tRNA(Pro)/Cys-tRNA(Cys) deacylase EbsC	327bc06b2db4dd44a83888fbf8364d91mlt_after	3	Protein EBS1	0c2924d9c3c045e3d2fcbd1137c93845mlt_after	0	Protein EbsA	d11cd93d5e6b985bdd98363acbc2fca9mlt_after	0
-YfgH	univ	cs	8	Uncharacterized lipoprotein YfgH	e7500b7ced42433f43394813b75393d8mlt_after	1	Protein YfgG	43ccc40cebb476646e7f67900af413bemlt_after	0	Dystrophin, isoforms A/C/F/G/H	d5184f5336be61ec762e81189651d524mlt_after	0	UPF0070 protein YfgM	878dd3b7571d19bcd296f0ea1aa92daamlt_after	0	Uncharacterized protein YfgD	5a7661243978f3de871ebd4b1e3cf866mlt_after	0	Uncharacterized protein YfgG	a7a8b511e721a762f87b355adde69d9emlt_after	0	Uncharacterized protein YfgI	76a83cc2901e8878304b3f66588f44d7mlt_after	0	Uncharacterized protein YfgJ	9140c386b028f47b6171e7fe65b592d9mlt_after	0						
+YfgH	univ	cs	8	Uncharacterized lipoprotein YfgH	e7500b7ced42433f43394813b75393d8mlt_after	1	Protein YfgG	43ccc40cebb476646e7f67900af413bemlt_after	0	Dystrophin, isoforms A/C/F/G/H	d5184f5336be61ec762e81189651d524mlt_after	0	UPF0070 protein YfgM	878dd3b7571d19bcd296f0ea1aa92daamlt_after	0	Uncharacterized protein YfgD	5a7661243978f3de871ebd4b1e3cf866mlt_after	0	Uncharacterized protein YfgG	a7a8b511e721a762f87b355adde69d9emlt_after	0	Uncharacterized protein YfgI	76a83cc2901e8878304b3f66588f44d7mlt_after	0	Uncharacterized protein YfgJ	9140c386b028f47b6171e7fe65b592d9mlt_after	0
 YjeF-related protein	univ	cs	10	Dickkopf-related protein 1	800db786a6fcd5d04e1a6afbc9e3b0c8mlt_after	0	Dickkopf-related protein 2	8d0bea496aa28ee6ac871f053feb642cmlt_after	0	Dickkopf-related protein 3	bab0d47669c295c9b5085c40862a90b8mlt_after	0	Dickkopf-related protein 4	e2d8a31ff5e712d078401c6698245017mlt_after	0	T-related protein	be5f5153c8a834f56b7a3562288d528dmlt_after	0	Membrane frizzled-related protein	7daa7cc74fe147e28f0ffdb2c6e2f3a2mlt_after	0	Dickkopf-related protein 4 short form	dc800cf6733756ee93bc1af2ec5f86b8mlt_after	0	La-related protein 1	c4ca7dda4fe86115f9e8bae699d2a387mlt_after	0	La-related protein 4	4775f638dd11c828b488ba2628206116mlt_after	0	La-related protein 6	9c0d6658a20266aa883c531b4dc22df3mlt_after	0
 Zn-dependent protease with chaperone function	univ	cs	10	ATP-dependent chaperone ClpB	8ee239576a59065a20b9468e051b61ddmlt_after	0	Uncharacterized Zn-dependent protease MJ0611	83972447634970680b5da57eb925fbeamlt_after	1	ATP-dependent protease	5672db82fa30541171ba7f1d311f7eccmlt_after	0	ATP-dependent protease subunit HslV	d1528f21d534000517472722a9fb36cdmlt_after	0	ATP-dependent molecular chaperone HSC82	8dcaa4fc43db53df1fc5069b704f6226mlt_after	0	ATP-dependent molecular chaperone HSP82	f36fd93884eeb478969c2b8797cebf02mlt_after	0	ATP-dependent protease LonB	d0889bd36ab36c33d421e2ec3ad5a3f4mlt_after	0	Calcium-dependent protease	94174a190a8eb18c270130476eafec77mlt_after	0	ATP-independent periplasmic protein-refolding chaperone	babe91ac0746645c4391950a0cb9c610mlt_after	0	ATP-dependent protease ATPase subunit HslU	c1ed9896d0e31c80acd61ff4a62202e0mlt_after	0
 [NiFe] hydrogenase maturation protein HypF	univ	cs	10	[FeFe] hydrogenase maturase subunit HydE	45f40605488fb0b9c7c440d9e1f150bfmlt_after	3	hydrogenase maturation protease MJ0253	830c4b1a2cbe8665f1ce181a55fd65f6mlt_after	1	hydrogenase maturation protease MJ0631	bb797c9a1855cc6cce25beb90846d406mlt_after	1	formate hydrogenlyase maturation protein HycH	ba19cad3b30a89e23190cf1a67620078mlt_after	4	Hydrogenase maturation factor HypA	e51863dc5d34844be3be73fe69f6a8a1mlt_after	4	Hydrogenase maturation factor HypB	647eafac37e3ea8dcc2200938cb742e3mlt_after	4	Hydrogenase maturation factor HypC	3ff1f12e4fcf6223b2be06da453235dfmlt_after	4	Hydrogenase maturation factor HypD	ba206ff3e3876b27ff7131d74f077d72mlt_after	4	Hydrogenase maturation factor HypA 1	66c4d26d54e82186fed7b765a59256b5mlt_after	4	Hydrogenase maturation factor HypA 2	344ad1a3902aacb1c147b8bddaba999emlt_after	4
@@ -233,7 +233,7 @@ citrate (Si)-synthase	univ	cs	10	citrate synthase	e5efa18adad8e5606400021c19c1e0
 cmgB8	univ	cs	10	HMG-box protein STE11	40293d7b4a8c6664c5013db25678e58dmlt_after	0	HMG box-containing protein 1	7526544a5cbd20cebd6078e11b53ef66mlt_after	0	HMG box-containing protein 4	4912cd3d74b14cb917170e30bb002744mlt_after	0	HMG box-containing protein R545	54f9160c5653fde0e8f036ba5ec515d1mlt_after	0	HMG box transcription factor BBX	479eb7a3f599b1dc0151fa7e791b85f7mlt_after	0	HMG box-containing protein C19G7.04	4791c1e9c0755a24021c7eea2a83f542mlt_after	0	HMG box-containing protein C28F2.11	a7cb48e81e276783ca11b7901f1ac65amlt_after	0	HMG box-containing protein C10F6.08c	758ecf203c08b33abbd02eb7b11a4150mlt_after	0	WD repeat and HMG-box DNA-binding protein 1	4153edf630b1a88804e746c9f7e95730mlt_after	0	Basic helix-loop-helix and HMG box domain-containing protein 1	cb97d854d43f008ae6cb690eacd13941mlt_after	0
 cmgb10	univ	cs	10	Toxin HigB-1	18f42b429d3a011d74ddde77f457409cmlt_after	0	HMG-box protein STE11	40293d7b4a8c6664c5013db25678e58dmlt_after	0	Kalata-B10	997cd38a7b8b12969fadf79d792f58femlt_after	0	Serpin B10	88921e5ad1a984d82994bdbec3068c90mlt_after	0	Movement protein TGB1	b9e709f19e9518977b9c64227904dbf3mlt_after	0	HMG box-containing protein 1	7526544a5cbd20cebd6078e11b53ef66mlt_after	0	HMG box-containing protein 4	4912cd3d74b14cb917170e30bb002744mlt_after	0	Annexin B10	a2a9998e38038a08310c6677976eaeeamlt_after	0	Bombyxin B-10	c344fb259bb5ca6ca4684f6f4d64cde9mlt_after	0	Expansin-B10	93f540e4179fce19df3497818aaa841bmlt_after	0
 cmgb3/4	univ	cs	10	toxin HigB3	0f117e677fdbbceca841969984ea1760mlt_after	0	Movement protein TGB3	0e96dd129810ede2007ac9e46f59b0cbmlt_after	0	Protein Mb3436c	df1a494413710cb8fccf0971e0ecd03dmlt_after	0	HMG-box protein STE11	40293d7b4a8c6664c5013db25678e58dmlt_after	0	antitoxin VapB34	87a9cec57e3e51cd75bb226b36e3d272mlt_after	0	Beta-agarase AgaB34	3f067fdb2eedbc9552379e503305570emlt_after	0	Cytochrome P450 71B34	656ce038df8948961589aeeb09f7131cmlt_after	0	UPF0309 protein OB3413	7cf47bf00bd4c95279545322118193a1mlt_after	0	HMG box-containing protein 1	7526544a5cbd20cebd6078e11b53ef66mlt_after	0	HMG box-containing protein 4	4912cd3d74b14cb917170e30bb002744mlt_after	0
-cmgd4	univ	cs	4	Defensin MGD-1	6fc2a407736f9f1a1c0c20e47a095c4cmlt_after	0	Uncharacterized protein YmgD	47d556d4e7b25b341c643c2fff61fd53mlt_after	0	HMG domain-containing protein 3	22309ac496e83139b6bdbcdcebcbcb3bmlt_after	0	HMG domain-containing protein 4	3ee592a284ad48149b73eeb5f8b6fd93mlt_after	0																		
+cmgd4	univ	cs	4	Defensin MGD-1	6fc2a407736f9f1a1c0c20e47a095c4cmlt_after	0	Uncharacterized protein YmgD	47d556d4e7b25b341c643c2fff61fd53mlt_after	0	HMG domain-containing protein 3	22309ac496e83139b6bdbcdcebcbcb3bmlt_after	0	HMG domain-containing protein 4	3ee592a284ad48149b73eeb5f8b6fd93mlt_after	0
 co-chaperone GrpE	univ	cs	10	co-chaperone GroES	6c4d85c990d5715750f80306ffaba309mlt_after	0	co-chaperone HscB	daa931743397b35ad862d9bc8c345497mlt_after	0	co-chaperone DjlA	c45356399b4273eea7cb7591150aa47emlt_after	0	Copper chaperone GriE	871335bfdeda91c76d8eaa5b4dea8b8amlt_after	0	HSP70 co-chaperone SNL1	27250b01360ab1695d4156da6c661b5amlt_after	0	Hsp90 co-chaperone AHA1	4711ae15ae8dd4ff3d7a455167529f94mlt_after	0	Hsp90 co-chaperone HCH1	4d30fccc6a25767327c9f23a3d52a9c8mlt_after	0	Hsp90 co-chaperone Cdc37	827cb6afeafe797001c414de184c0b6emlt_after	0	Co-chaperone protein DjlA	bccf4c3e5994f7c769fade02e774ea4amlt_after	0	Co-chaperone protein HscB	dea815a98dee46a7251fb1cf9f92df3dmlt_after	0
 co-chaperone protein DnaJ	univ	cs	10	chaperone protein DnaJ	3f2129cba530f0b2053b0632158f2540mlt_after	1	Chaperone protein DnaJ 1	4682dfec7830863a32d6bf5668cdf3f5mlt_after	2	Chaperone protein DnaJ 2	106c0d1abadca15c70d68b9f47afcb0amlt_after	2	Chaperone protein dnaJ 3	8b269853520d64a806b75498b4696d9cmlt_after	2	Chaperone protein dnaJ 6	8dce26bb30a64a0dd789fac4712a736emlt_after	2	Chaperone protein dnaJ 10	f5144a093854183b3d09c637dfd7588fmlt_after	2	Chaperone protein dnaJ 13	92b2d807ce72b678d6739c23c95fb223mlt_after	2	Chaperone protein dnaJ 15	32467ba92b07e29bea61fadc8cbacd65mlt_after	2	Chaperone protein dnaJ 16	0f94c9fe1cb0ac217f85250a6eb9f8e9mlt_after	2	Chaperone protein dnaJ 39	f7b6f6bf4838ab52557afa9eb525e490mlt_after	2
 cold-shock protein, DNA-binding	univ	cs	10	Cold shock protein	1b29616265fc38e9e2577184e2d13fd2mlt_after	1	Cold shock protein 1	6e5a1e02890bc369af0169152c769891mlt_after	2	Cold shock protein 2	1777ac8d4d9bd6381f8b77a29ffa29dfmlt_after	2	cold shock protein A	c427d098763a4b7295971bb37002c5e0mlt_after	2	cold shock protein CspE	63fe57cb58926670edbc4466de3bfc78mlt_after	5	cold shock protein CspG	f05721a116499129abb05b1f87ea8664mlt_after	5	Cold shock protein CS66	11a214d16b766ed4c1122df93bb9bbf5mlt_after	5	Cold shock protein CSI5	4c0cb25666024ce32777fda1910b02a3mlt_after	5	Cold shock protein CapA	e07e192587e4990ac59dd306b635fa79mlt_after	5	Cold shock protein CapB	516870e3ab34d5f24193b8a2d72a05e2mlt_after	5
@@ -291,7 +291,7 @@ fumarase	univ	cs	10	Fumarase D	34ed843a22123eed32663e94e1441d2fmlt_after	2	Fumar
 fumarate reductase respiratory complex, transmembrane subunit	univ	cs	10	Respiratory nitrate reductase subunit beta	dd3b813c65c69a380b5471420f1706e9mlt_after	0	Respiratory nitrate reductase subunit alpha	e71b2b47255006c08e1411c72d2d5807mlt_after	0	respiratory nitrate reductase subunit Rieske	b9fa92866cc09e4a469d827d9fe8b5a1mlt_after	0	respiratory nitrate reductase heme subunit ORF7	bf9d89e559c5b49841c8d06ab15a126emlt_after	0	fumarate reductase subunit A	2cd768693f52f1905662d81951a1cc8emlt_after	1	fumarate reductase subunit C	d09cf83bd8c2e11e0ac38f649cf6f956mlt_after	1	Fumarate reductase subunit D	3e7de79effc6600ba13511e98df7618fmlt_after	1	fumarate reductase subunit FrdC	48f8604f0b2dcc7c14f6386710d07a23mlt_after	4	fumarate reductase subunit FrdD	780c8ac3c02659a4ef6e9152abd646b6mlt_after	4	respiratory nitrate reductase subunit cytochrome b-561	f78c40efbc8243b33ab9c4188be68e1cmlt_after	0
 galactosyltransferase	univ	cs	10	Galactosyl transferase CpsE	3afcf50b0992a05521b5d39fd3e49484mlt_after	1	Galactomannan galactosyltransferase 1	3b3323dc7b637b69c4adcb077f5d2cb0mlt_after	10	Alpha-1,2-galactosyltransferase	bf7c37354be611a71daddf71e9f50225mlt_after	2	Beta-1,3-galactosyltransferase 1	081eb35fc57aefc05d95cca604094404mlt_after	2	Beta-1,3-galactosyltransferase 2	0527a163e7bf8d2dc87984df70025c8cmlt_after	2	Beta-1,3-galactosyltransferase 4	504afb37efd0eaec809a6d0420485645mlt_after	2	Beta-1,3-galactosyltransferase 5	3902f0f63efb60e7460e07dd699a9c9fmlt_after	2	Beta-1,3-galactosyltransferase 6	28b90b59d57894d4f2e6a6c036ffac5cmlt_after	2	Beta-1,3-galactosyltransferase 7	6ef06b551f0ba8a960a672b19fca05e0mlt_after	2	Beta-1,4-galactosyltransferase 1	9f74d02322550261a30beb1ee386de05mlt_after	2
 general glycosylation pathway protein	univ	cs	10	general secretion pathway protein J	7cbed0417b593ac5a70d238baa86330bmlt_after	0	General secretion pathway protein A	7860ebe04ccca4829b637d6ab7495dbamlt_after	0	General secretion pathway protein B	a27028413f2337d228914a6c92cf1ab0mlt_after	0	General secretion pathway protein N	9435c0500f6a495a79fa560c9e0a2278mlt_after	0	general secretion pathway protein YghD	cf8683e7f10fd9c75b87f6225ab9f66emlt_after	0	Archaeal glycosylation protein Q	9ac974308bfeec94a56a49696e7eb679mlt_after	2	Archaeal glycosylation protein 16	e1f1b7e5c1d36a008f008b9d70ffc138mlt_after	2	Sigma-w pathway protein YsdB	49ff1a26cf16342ce87695daa87e4375mlt_after	0	Late secretory pathway protein AVL9	5aa2da16a5c21a3d9b94d6f8df16a5bamlt_after	0	N-glycosylation protein EOS1	10131da03415e62ade7d2c0f709b301bmlt_after	1
-general secretion pathway protein E (Type II traffic warden ATPase)(Cholera toxin secretion protein EpsE)	univ	cs	5	general secretion pathway protein J	7cbed0417b593ac5a70d238baa86330bmlt_after	1	General secretion pathway protein A	7860ebe04ccca4829b637d6ab7495dbamlt_after	3	General secretion pathway protein B	a27028413f2337d228914a6c92cf1ab0mlt_after	3	General secretion pathway protein N	9435c0500f6a495a79fa560c9e0a2278mlt_after	3	general secretion pathway protein YghD	cf8683e7f10fd9c75b87f6225ab9f66emlt_after	2															
+general secretion pathway protein E (Type II traffic warden ATPase)(Cholera toxin secretion protein EpsE)	univ	cs	5	general secretion pathway protein J	7cbed0417b593ac5a70d238baa86330bmlt_after	1	General secretion pathway protein A	7860ebe04ccca4829b637d6ab7495dbamlt_after	3	General secretion pathway protein B	a27028413f2337d228914a6c92cf1ab0mlt_after	3	General secretion pathway protein N	9435c0500f6a495a79fa560c9e0a2278mlt_after	3	general secretion pathway protein YghD	cf8683e7f10fd9c75b87f6225ab9f66emlt_after	2
 geranyltranstransferase (Farnesyl-diphosphate synthase)(FPP synthase)	univ	cs	10	Geranylfarnesyl diphosphate synthase	64b9eb1e28474dd35a5bbaa5d89c5b7amlt_after	1	Farnesyl diphosphate synthase	35ac538295a86c2217d4a48c2ecd159emlt_after	2	(2E,6E)-farnesyl diphosphate synthase	aa875a0ee599d99988318367657f817emlt_after	5	(2Z,6E)-farnesyl diphosphate synthase	e9ce03f34d9170fae31eddfec5358d9fmlt_after	5	Farnesyl diphosphate synthase 1	9ce798748c30ca8d6b40d5ed68a976f2mlt_after	3	Farnesyl diphosphate synthase 2	01a98ef404c23dc7f9d411cff1b4f5ffmlt_after	3	Geranylgeranyl diphosphate synthase	3c0f382589d3747698a6923cdc469c13mlt_after	9	Trans,polycis-polyprenyl diphosphate synthase ((2Z,6E)-farnesyl diphosphate specific)	0ca1bac29949139cc50cfe76ab8e93a3mlt_after	10	farnesyl diphosphate synthase DDB_G0268742	c1872b2d9cd6b742ca8a7697c8a2548dmlt_after	7	farnesyl diphosphate synthase DDB_G0278823	225c140d67627d5daefd01aa07643591mlt_after	7
 glutamine synthetase, type I	univ	cs	10	Type-3 glutamine synthetase	52c364e144a43937939f9c7af59148e7mlt_after	2	Type-1 glutamine synthetase 1	16ea058b1fde8a683b41b533101e907cmlt_after	2	Type-1 glutamine synthetase 2	683b9e19e1f7e0a1c54bb4a45735e336mlt_after	2	Glutamine synthetase	3fd92a05b03fafe7d63095e5d54c7b4amlt_after	1	Glutamine synthetase N-1	6caa4b0c7910c4c20f176807d4d02309mlt_after	2	Glutamine synthetase PR-1	703e550866bd64f07eba2aadc864619dmlt_after	2	Glutamine synthetase PR-2	6c1312e28e918a0d258aa4fa84356dc7mlt_after	2	Glutamine synthetase 2 isozyme	8a6fe91ad7c78ab12b275f372af62d41mlt_after	2	glutamine synthetase leaf isozyme	6a9b8b851c25a7dcaa0fb1fdf93af10dmlt_after	9	Glutamine synthetase 2 cytoplasmic	fdfb190c6a2bf90ef25d03be3fd488b4mlt_after	10
 glutamine-fructose-6-phosphate transaminase (isomerizing)	univ	cs	10	isomerizing glutamine--fructose-6-phosphate transaminase	621c9fde024b5dbf9e478e76185e282dmlt_after	4	Glutamine--fructose-6-phosphate aminotransferase [isomerizing]	0629fa527c21e6e30143ebec1c5d5201mlt_after	1	Glutamine--fructose-6-phosphate aminotransferase [isomerizing] 1	38f02a9f09f68bed78ddcdde0b620d62mlt_after	2	Glutamine--fructose-6-phosphate aminotransferase [isomerizing] 2	b9d7595f05d37efda3bec794f00518eemlt_after	2	galactosamine-6-phosphate isomerase	5ec054da3f577435eb44ca493e64d615mlt_after	0	diphosphate--fructose-6-phosphate 1-phosphotransferase	20f3af5f7cccba39684baec98ce2241bmlt_after	0	glucose-6-phosphate isomerase	19401e68a35646681111ceb21bc45809mlt_after	0	Glucosamine-6-phosphate isomerase	64960c42d0652cd965f4ee9ed18e9297mlt_after	0	pyrophosphate--fructose-6-phosphate 1-phosphotransferase	ea792abfc876ed2163fe814a80ee6867mlt_after	0	Pyrophosphate--fructose 6-phosphate 1-phosphotransferase 1	48c854b6588b328d42cd16259b8a57f4mlt_after	0
@@ -371,7 +371,7 @@ oxidoreductase, 2-nitropropane dioxygenase family	univ	cs	10	Acireductone dioxyg
 oxidoreductase, FAD-dependent	univ	cs	10	FAD-dependent oxidoreductase	22c56dc9faae10fae6ce9741973f1288mlt_after	1	FAD-dependent oxidoreductase dbaF	3376faf4b368cc09e032b210059e4467mlt_after	2	FAD-dependent oxidoreductase LodB	bb39a47bf45a9a382583196cfcc324eamlt_after	2	FAD-dependent oxidoreductase PA4991	56c304f24677ca2030c987169fe3f541mlt_after	2	FAD-dependent cmnm(5)s(2)U34 oxidoreductase	242ac69929d796ab2ada23062ad1aef3mlt_after	5	Zn-dependent oxidoreductase	3ad084152a29f8fd1b0061d3a8332418mlt_after	0	NAD(P)-dependent oxidoreductase	33ac49d39b51cc01bde5abfaa4cf73c3mlt_after	0	NADPH-dependent oxidoreductase	90c4426d515a73d239f725519c6a6ab5mlt_after	0	Uncharacterized FAD-dependent oxidoreductase MJ0033	71da90b3bcf05ac4ad87728a8c98bb22mlt_after	0	NAD(P)H-dependent oxidoreductase 1	2bd3bd9d9123e1564db54c3fd9923674mlt_after	0
 penicillin-binding protein 1A (PBP-1a) (PBP1a)	univ	cs	10	Penicillin-binding protein 1A	5db40b648872ae75045430baba451864mlt_after	1	Penicillin-binding protein 1A/1B	ffdac4c2f356a01ef145ae4239bb0a27mlt_after	2	Penicillin-binding protein PbpB	f1827576bc17d3d202e42ce98de2ec4emlt_after	4	penicillin-binding protein PbpX	3eb9f27da69eba41f85f90c30a9423a5mlt_after	4	penicillin binding protein PBP4B	986e4150ebbb62a48a37113e279c2e9cmlt_after	4	penicillin-binding protein 1C	cb168d1f7507080fcd49576cf69565b0mlt_after	4	penicillin-binding protein 1b	de94a7e28484f64668d0469d9fed0176mlt_after	4	Penicillin-binding protein 1F	0c54db5d2c755891e2b0aef0b99fd27fmlt_after	4	penicillin-binding protein	de55ae6ce2831d6caeb0012e415f444fmlt_after	3	penicillin-binding protein 2	0a43a4bed0f81a0294e5d58b853fee12mlt_after	4
 penicillin-binding protein 1A (PBP-1a) (PBP1a) (Penicillin-bindingprotein A)	univ	cs	10	Penicillin-binding protein 1A	5db40b648872ae75045430baba451864mlt_after	1	Penicillin-binding protein 1A/1B	ffdac4c2f356a01ef145ae4239bb0a27mlt_after	2	Penicillin-binding protein PbpB	f1827576bc17d3d202e42ce98de2ec4emlt_after	5	penicillin-binding protein PbpX	3eb9f27da69eba41f85f90c30a9423a5mlt_after	5	penicillin binding protein PBP4B	986e4150ebbb62a48a37113e279c2e9cmlt_after	5	Penicillin-binding protein A	2bca62e9ea591f94c59b902d7b0f79a6mlt_after	2	penicillin-binding protein 1C	cb168d1f7507080fcd49576cf69565b0mlt_after	5	penicillin-binding protein 1b	de94a7e28484f64668d0469d9fed0176mlt_after	5	Penicillin-binding protein 1F	0c54db5d2c755891e2b0aef0b99fd27fmlt_after	5	penicillin-binding protein	de55ae6ce2831d6caeb0012e415f444fmlt_after	4
-peptidase M10A and M12B, matrixin and adamalysin	univ	cs	3	Matrix metallopeptidase-21	fd5f1d869664511da82f5a3cfbc27363mlt_after	0	Matrix non-peptidase homolog 1	94664d08fa11fae323cfbab3bc436bdbmlt_after	0	A disintegrin and metallopeptidase domain 3	59cbde487c7b8de58f04b2aacc521cf5mlt_after	0																					
+peptidase M10A and M12B, matrixin and adamalysin	univ	cs	3	Matrix metallopeptidase-21	fd5f1d869664511da82f5a3cfbc27363mlt_after	0	Matrix non-peptidase homolog 1	94664d08fa11fae323cfbab3bc436bdbmlt_after	0	A disintegrin and metallopeptidase domain 3	59cbde487c7b8de58f04b2aacc521cf5mlt_after	0
 peptidase M23B	univ	cs	10	Aminopeptidase M1	148507689bfad52f49bdf67789fc3ef8mlt_after	0	Peptidase M20 domain-containing protein 2	369073f42524a579808cc26d53671e20mlt_after	0	Aminopeptidase M1-A	251feb1a6d973e8a2babf07260221c51mlt_after	0	Aminopeptidase M1-B	299d176565918b5fb8066b5e42d9b155mlt_after	0	Aminopeptidase M1-C	8ba1b3843a90f57220a6609fef34cfd1mlt_after	0	Aminopeptidase M1-D	079b3bfbac994564f834361c2ae2e980mlt_after	0	Carboxypeptidase M	43d5740852d769ba9eaca4c1b07f4e3cmlt_after	0	dipeptidase MW1694	222921bc6df2379071951340c3e0bf5cmlt_after	0	peptidase	3bad64b5b2e6fc7f47f1560ce1576b9bmlt_after	1	endopeptidase MT2245	d514f44b47ce56082b363b86370a043emlt_after	0
 peptidase M48, Ste24p	univ	cs	10	Aminopeptidase M1	148507689bfad52f49bdf67789fc3ef8mlt_after	0	Serine carboxypeptidase 24	65f061fbee00efb684575b0ebbfaeb0bmlt_after	0	Aminopeptidase M1-A	251feb1a6d973e8a2babf07260221c51mlt_after	0	Aminopeptidase M1-B	299d176565918b5fb8066b5e42d9b155mlt_after	0	Aminopeptidase M1-C	8ba1b3843a90f57220a6609fef34cfd1mlt_after	0	Aminopeptidase M1-D	079b3bfbac994564f834361c2ae2e980mlt_after	0	Carboxypeptidase M	43d5740852d769ba9eaca4c1b07f4e3cmlt_after	0	dipeptidase MW1694	222921bc6df2379071951340c3e0bf5cmlt_after	0	peptidase	3bad64b5b2e6fc7f47f1560ce1576b9bmlt_after	0	endopeptidase MT2245	d514f44b47ce56082b363b86370a043emlt_after	0
 peptidase U32	univ	cs	10	U32 family peptidase	c724d86857b3133dce7c50c2283082e2mlt_after	1	dipeptidase UREG_03382	3cece611f733ef7c704b74d6c491bf13mlt_after	7	peptidase	3bad64b5b2e6fc7f47f1560ce1576b9bmlt_after	2	peptidase T	4015cfd8b5486546c981a68daae214bemlt_after	3	Peptidase 1	83b0f932904650f221d68d430568a776mlt_after	3	Peptidase B	fcb188eaeda014cfeb8336fbf62b2885mlt_after	3	Peptidase E	fa9f4c1b63c732518b0097da0da8756amlt_after	3	dipeptidase	06b12c7ea5a88487ca6ead2030290b5cmlt_after	7	Dipeptidyl peptidase 1	8d518de1b16afd465fa2945a3b71a887mlt_after	9	Dipeptidyl peptidase 2	cd72cd96682be3f12b084de62872b48emlt_after	9
@@ -600,7 +600,7 @@ tRNA (uracil-5-)-methyltransferase	univ	cs	10	tRNA (uracil-5-)-methyltransferase
 tRNA delta(2)-isopentenylpyrophosphate transferase	univ	cs	10	type 2 isopentenyl-diphosphate Delta-isomerase	7abe3751db97b856f8e14c9004373961mlt_after	1	isopentenyl-diphosphate Delta-isomerase	ffe344368130f45474efc9e972b2052bmlt_after	2	Isopentenyl-diphosphate Delta-isomerase 1	7fc9bd1460b538bb7566136885f8a1b5mlt_after	3	Isopentenyl-diphosphate Delta-isomerase 2	e76e555dad784769906aaa9eecdd3646mlt_after	3	Isopentenyl-diphosphate Delta-isomerase I	b3f76f3c22f2f84e6ad647f4c6249468mlt_after	3	Isopentenyl-diphosphate Delta-isomerase II	db44bac8781e7fb5ba8298c8ebd889c1mlt_after	3	Isopentenyl phosphate kinase	fcc5a5aa761a1ad455e2bde1c26f165bmlt_after	0	Adenylate isopentenyltransferase	83a732d45f67d00e20bf2b2564446b0cmlt_after	0	Adenylate isopentenyltransferase 4	15ff7e9fd3d39eb9b48a002a28dfec88mlt_after	0	Isopentenyl-diphosphate Delta-isomerase I, chloroplastic	777629c80c77c62586477fa17bc295edmlt_after	0
 tRNA modification GTPase TrmE	univ	cs	10	tRNA modification GTPase MnmE	31bca595c1bd9566e05898142a294fa4mlt_after	0	tRNA modification GTPase GTPBP3, mitochondrial	c82040603f079ccd4883a1dcee709cd5mlt_after	0	tRNA modification GTPase MSS1, mitochondrial	df5542217362502b854f0704a7a7ded7mlt_after	0	tRNA:m(4)X modification enzyme TRM13	fda5a6952411993d482f65e4c16c03e7mlt_after	0	tRNA:m(4)X modification enzyme TRM13 homolog	46ae4bda11c1dbabc05b52faee5d3bdemlt_after	0	Modification methylase TaqI	f058b16ddbd0bf794177d06da7f27285mlt_after	0	Modification methylase TthHB8I	5681fe0061ed6d83453c7e58e09353eemlt_after	0	Modification methylase AbrI	2c1a49e070997596180ec813f57cc7cemlt_after	0	Modification methylase AccI	9b4c5b0be36a60d4c0d923498012632emlt_after	0	Modification methylase AgeI	291e8ea17d013b14c867904d1f9e05afmlt_after	0
 tRNA synthetase, class II	univ	cs	10	lysyl-tRNA synthetase (class II)	9cc1781f793e54873723542e7600161emlt_after	0	Sep-tRNA:Cys-tRNA synthetase	08d0c841ceea49d09bc5ed06c03acaa5mlt_after	0	pyrolysyl-tRNA synthetase	840c91526c6cf5eaf608f3f5170723e6mlt_after	0	phenylalanyl-tRNA synthetase (beta	61a0e26153d509078bc3d933fc0b5ac8mlt_after	0	GlutamylGlutaminyl-tRNA synthetase	26808ac636f6299f055c4a44e40be39amlt_after	0	phenylalanyl-tRNA synthetase (beta subunit)	80a49fe712a9f8ba0eba32b2a7a9a95bmlt_after	0	acyl-CoA synthetase	e53414e3aa1b98b2f209c3f363e82973mlt_after	0	Serine--tRNA synthetase-like protein Slimp	b6d317b4d11edc0b9b96a9f9b9a2e45bmlt_after	0	Fumarate hydratase class II	4072eb08e8bb86885bb87b8d0643198bmlt_after	0	Fumarate hydratase class II 1	2aed22ea296cd7b61a3fc7927579819dmlt_after	0
-tRNA uridine 5-carboxymethylaminomethyl modification enzyme GidA (Glucose-inhibited division protein A)	univ	cs	9	tRNA uridine 5-carboxymethylaminomethyl modification enzyme MnmG	eb5ba8eac4acabb9952e709291879339mlt_after	0	tRNA uridine 5-carboxymethylaminomethyl modification enzyme MnmG 1	d328f3a1a16a30e84b73ab77656f850fmlt_after	0	tRNA uridine 5-carboxymethylaminomethyl modification enzyme MnmG 2	1595be75d49a86c0896b1efa5149abacmlt_after	0	tRNA uridine-5-carboxymethylaminomethyl(34) synthesis enzyme MnmG	13ceb49237b9b315d0a9073597408235mlt_after	0	tRNA uridine-5-carboxymethylaminomethyl(34) synthesis GTPase MnmE	ae32857f62cd540f9c6b53f11abd9244mlt_after	0	tRNA (uridine(34)/cytosine(34)/5-carboxymethylaminomethyluridine(34)-2'-O)-methyltransferase TrmL	3649a447bc9d017893c4fb5d7cc9ac7emlt_after	0	bifunctional tRNA (5-methylaminomethyl-2-thiouridine)(34)-methyltransferase MnmD/FAD-dependent 5-carboxymethylaminomethyl-2-thiouridine(34) oxidoreductase MnmC	4d7820325a4a2a5bc9a8273a0347b8c0mlt_after	0	tRNA 5-methylaminomethyl-2-thiouridine biosynthesis bifunctional protein MnmC	5adcc8ae27f39160c39e6ab3f9eab4d8mlt_after	0	glutathione synthase/Ribosomal protein S6 modification enzyme (glutaminyl transferase)	5b3bb1e4bee686b635335de216268cfemlt_after	0			
+tRNA uridine 5-carboxymethylaminomethyl modification enzyme GidA (Glucose-inhibited division protein A)	univ	cs	9	tRNA uridine 5-carboxymethylaminomethyl modification enzyme MnmG	eb5ba8eac4acabb9952e709291879339mlt_after	0	tRNA uridine 5-carboxymethylaminomethyl modification enzyme MnmG 1	d328f3a1a16a30e84b73ab77656f850fmlt_after	0	tRNA uridine 5-carboxymethylaminomethyl modification enzyme MnmG 2	1595be75d49a86c0896b1efa5149abacmlt_after	0	tRNA uridine-5-carboxymethylaminomethyl(34) synthesis enzyme MnmG	13ceb49237b9b315d0a9073597408235mlt_after	0	tRNA uridine-5-carboxymethylaminomethyl(34) synthesis GTPase MnmE	ae32857f62cd540f9c6b53f11abd9244mlt_after	0	tRNA (uridine(34)/cytosine(34)/5-carboxymethylaminomethyluridine(34)-2'-O)-methyltransferase TrmL	3649a447bc9d017893c4fb5d7cc9ac7emlt_after	0	bifunctional tRNA (5-methylaminomethyl-2-thiouridine)(34)-methyltransferase MnmD/FAD-dependent 5-carboxymethylaminomethyl-2-thiouridine(34) oxidoreductase MnmC	4d7820325a4a2a5bc9a8273a0347b8c0mlt_after	0	tRNA 5-methylaminomethyl-2-thiouridine biosynthesis bifunctional protein MnmC	5adcc8ae27f39160c39e6ab3f9eab4d8mlt_after	0	glutathione synthase/Ribosomal protein S6 modification enzyme (glutaminyl transferase)	5b3bb1e4bee686b635335de216268cfemlt_after	0
 tRNA-Ala	univ	cs	10	Aminopeptidase NAALADL1	6746e007c3f51380a6203a7416cd1ceamlt_after	0	Alanyl-tRNA editing protein Aarsd1	21c0a87e72c9b718da2062f3a404a58amlt_after	0	Alanyl-tRNA editing protein Aarsd1-A	2ff2e902534da7bdc35971347ff95091mlt_after	0	Alanyl-tRNA editing protein Aarsd1-B	28cf02469c73a0ae212d01d5f45ce8b8mlt_after	0	aspartate--tRNA(Asn) ligase	a1a8707275528d2a310b1c6fbcc32623mlt_after	0	Aspartate--tRNA(Asp) ligase	779292508d2942bbcfd9ff9a76faee42mlt_after	0	Legumin A alpha chain	b0c2073a51990bcf5cef6adf66a61668mlt_after	0	Aspartate--tRNA(Asp/Asn) ligase	0b577567828729b0969f0bbe8770fc0amlt_after	0	tRNA acetyltransferase TAN1	d548e9f0501843070a1647263e5f9712mlt_after	0	alanine--tRNA ligase	d7884e517fc35fc5b42dea3a9ca55433mlt_after	0
 tRNA-Arg	univ	cs	10	Uncharacterized 2.5 kDa protein in tRNA-Arg-tRNA-Asn intergenic region	b65995ce356e76ba0b3112c9f485b142mlt_after	0	Alanyl-tRNA editing protein Aarsd1	21c0a87e72c9b718da2062f3a404a58amlt_after	0	Alanyl-tRNA editing protein Aarsd1-A	2ff2e902534da7bdc35971347ff95091mlt_after	0	Alanyl-tRNA editing protein Aarsd1-B	28cf02469c73a0ae212d01d5f45ce8b8mlt_after	0	Protein aardvark	106b3ddd0430bed6d433e33d9fd85abfmlt_after	0	Protein AAR2 homolog	9f7b2f2f2962b3caae9b4f03984364d0mlt_after	0	arginine--tRNA ligase	939f0c53e267d65395179852875fbd66mlt_after	0	aspartate--tRNA(Asn) ligase	a1a8707275528d2a310b1c6fbcc32623mlt_after	0	Aspartate--tRNA(Asp) ligase	779292508d2942bbcfd9ff9a76faee42mlt_after	0	Arginine--tRNA ligase 1	652fda8d824d471065b93c9b98a5f176mlt_after	0
 tRNA-Asn	univ	cs	10	aspartate--tRNA(Asn) ligase	a1a8707275528d2a310b1c6fbcc32623mlt_after	0	Aspartate--tRNA(Asp/Asn) ligase	0b577567828729b0969f0bbe8770fc0amlt_after	0	Aspartate--tRNA(Asp/Asn) ligase 1	902aecfff10766cec5d3092a4f7077a5mlt_after	0	Aspartate--tRNA(Asp/Asn) ligase 2	9d7d785ae89403d6a2a58e0d43f3e96amlt_after	0	Asp-tRNA(Asn)/Glu-tRNA(Gln) amidotransferase subunit GatA	f897d646f8ab901deb6e771a8df7ce23mlt_after	0	Asp-tRNA(Asn)/Glu-tRNA(Gln) amidotransferase subunit GatC	5f38c01c4a4559e3caf68abc0053af69mlt_after	0	Asp-tRNA(Asn)/Glu-tRNA(Gln) amidotransferase subunit GatB	85c3c8bddc59808610c21232720c01d4mlt_after	0	Asp-tRNA(Asn) amidotransferase subunit GatC	b3ed48b38af274e62e102bb1d75e6e3fmlt_after	0	Uncharacterized 2.5 kDa protein in tRNA-Arg-tRNA-Asn intergenic region	b65995ce356e76ba0b3112c9f485b142mlt_after	0	Asp-tRNA(Asn)/Glu-tRNA(Gln) amidotransferase GatCAB subunit B	7dc44e88e7a95ab1801bdf99e061adbdmlt_after	0
@@ -661,7 +661,7 @@ transporter, NadC family	univ	cs	10	ABC transporter C family MRP4	316ce60ac1b8e3
 transporter, Ni2 -Co2  transporter	univ	cs	10	Niacin transporter NiaX	7e6fad67d286f8b01e02ce4da9bbd164mlt_after	0	Nickel transporter NixA	0aa45bb2d33d6a80995c9f7b5c22fd45mlt_after	1	nitrite transporter NirC	15773eaebc7496a864ca9d1f53e7adc8mlt_after	0	Magnesium transporter NIPA1	1d92aa44f8e39dd7168dd18a641b582emlt_after	0	Magnesium transporter NIPA2	a24d396a9bb8ec2b1609901c93c95ff3mlt_after	0	Magnesium transporter NIPA3	15b1e5035fe5e11b03f23c857ff3c096mlt_after	0	Magnesium transporter NIPA4	c69e6d6d519793ce00dafa40060301b3mlt_after	0	magnesium transporter NIPA5	c09e19712437928de6728a2638897a9dmlt_after	0	magnesium transporter NIPA6	964edeb91122460efe85612a27dfe5a5mlt_after	0	magnesium transporter NIPA7	7b546e1bbca19004b5146d32306585a3mlt_after	0
 transporter, auxin efflux carrier (AEC) family	univ	cs	10	Auxin efflux carrier component 1	20f5b079e3f873477620b7831d8bdb14mlt_after	1	Auxin efflux carrier component 2	38efaacbd578afbdb83b5a55ac9f2a05mlt_after	1	Auxin efflux carrier component 3	4ee38c426c08dbbbca474e2b59e33f59mlt_after	1	Auxin efflux carrier component 4	5e07d876f3551f2ce60f3f330f2f909fmlt_after	1	Auxin efflux carrier component 5	3b5a9b8a6b8d1410f1ac472c8161d469mlt_after	1	Auxin efflux carrier component 6	555aa314d0a7959164acb782657542bfmlt_after	1	Auxin efflux carrier component 7	47f62030ec86ba17df5fda420fbace4amlt_after	1	Auxin efflux carrier component 8	5d8d069037844f6427079296c2b6ef54mlt_after	1	auxin efflux carrier component 9	bb46f7869ad52185948974109834d71emlt_after	1	Auxin efflux carrier component 1a	c14008c2a76a06429df37d1ab2fc8c44mlt_after	1
 trap dicarboxylate transporter, dctm subunit	univ	cs	10	C4-dicarboxylate transporter DctA	2063fa76206cc7e9a32c366d80d2356emlt_after	2	dicarboxylate transporter subunit	6130ed5f05153333c75e104b39957cd6mlt_after	0	cryptic C4-dicarboxylate transporter DcuD	0a9b0bd2ca18d2d9d346d61aa2da5579mlt_after	0	anaerobic C4-dicarboxylate transporter DcuC	ead7a54bb6410b960d46d197e51677camlt_after	0	Anaerobic C4-dicarboxylate transporter DcuA	c4670348b31a38e50477905a3f5fe855mlt_after	0	Anaerobic C4-dicarboxylate transporter DcuB	8e5bf13ea76032fb1242012af005bc6amlt_after	0	Mitochondrial dicarboxylate/tricarboxylate transporter DTC	38e69d3cffb1a1b5df3195252bd0faf6mlt_after	0	C4-dicarboxylate TRAP transporter large permease protein DctM	05b681667c6e1edb7b7026ea23fb86e3mlt_after	1	Tonoplast dicarboxylate transporter	840b0520729447895066c945c4598419mlt_after	0	anaerobic C4-dicarboxylate transporter	fcc1702de45edc648642e39bb27a2f51mlt_after	0
-trap-type mannitol/chloroaromatic compound transport system, periplasmic component	univ	cs	8	hypotheticalABC transport system, periplasmic component	34b3519f7d98ca7c24eef2ca31cbc9c1mlt_after	0	Mercuric transport protein periplasmic component	accb12646fcbdf6b8302f0abcb5758b7mlt_after	0	TRAP-type transport system, small permease component, predicted N-acetylneuraminate transporter	6cc4197efe65d2bc90022c213079ec4dmlt_after	0	PTS system mannitol-specific cryptic EIICB component	e09102d856e6f68000494ba601723ecemlt_after	0	Kef-type K+ transport systems, predicted NAD-binding component	5aee34af0c29a94a435cfb39537225b3mlt_after	0	multidrug efflux RND transporter periplasmic adaptor subunit OqxA	2066d1ee8098c75814ed9a993e65ecb4mlt_after	0	ABC-type cobalamin/Fe3+-siderophores transport systems, ATPase components	bedda97b66594ba7d9f3f01f2af9ac2emlt_after	0	MexC family multidrug efflux RND transporter periplasmic adaptor subunit	b045b5c5eac22b7c854a0385f2b3e9bamlt_after	0						
+trap-type mannitol/chloroaromatic compound transport system, periplasmic component	univ	cs	8	hypotheticalABC transport system, periplasmic component	34b3519f7d98ca7c24eef2ca31cbc9c1mlt_after	0	Mercuric transport protein periplasmic component	accb12646fcbdf6b8302f0abcb5758b7mlt_after	0	TRAP-type transport system, small permease component, predicted N-acetylneuraminate transporter	6cc4197efe65d2bc90022c213079ec4dmlt_after	0	PTS system mannitol-specific cryptic EIICB component	e09102d856e6f68000494ba601723ecemlt_after	0	Kef-type K+ transport systems, predicted NAD-binding component	5aee34af0c29a94a435cfb39537225b3mlt_after	0	multidrug efflux RND transporter periplasmic adaptor subunit OqxA	2066d1ee8098c75814ed9a993e65ecb4mlt_after	0	ABC-type cobalamin/Fe3+-siderophores transport systems, ATPase components	bedda97b66594ba7d9f3f01f2af9ac2emlt_after	0	MexC family multidrug efflux RND transporter periplasmic adaptor subunit	b045b5c5eac22b7c854a0385f2b3e9bamlt_after	0
 trimethylamiNe-n-oxide reductase 2 (tmaoreductase 2) (trimethylamine oxidase 2)	univ	cs	10	Trimethylamine-N-oxide reductase 2	cacc2f6c246a46d0654cd422ab4ffa01mlt_after	1	Trimethylamine-N-oxide reductase	f11bde835fca9c272d5806732ec38a87mlt_after	2	Trimethylamine-N-oxide reductase 1	643125b159310854dbcbbadbc3dc4aa9mlt_after	3	trimethylamine-N-oxide reductase TorA	6d9095213c00633f7eb1da7876f07780mlt_after	4	Dimethyl sulfoxide/trimethylamine N-oxide reductase	21cea4b910e79632b933fda62d8ce897mlt_after	5	Hydroxylamine oxidoreductase	d7e67aff6f5dcd4b902ea5569536d374mlt_after	0	Copper methylamine oxidase	cded2dc50821d5cb7686cc6bfd26e81bmlt_after	0	Dimethyl sulfoxide reductase DmsA	bdb869ce4206fa286984c66211dfa05dmlt_after	0	Phenylethylamine oxidase	cc0d54f9a455bf949dd7f96ccd7324d9mlt_after	0	dimethylsulfoxide reductase subunit A	c0ae38e38460a7cfad5407a04b3cb32emlt_after	0
 tripartite ATP-independent periplasmic transporter, DctQ component	univ	cs	10	ATP-independent periplasmic protein-refolding chaperone	babe91ac0746645c4391950a0cb9c610mlt_after	9	Mercuric transport protein periplasmic component	accb12646fcbdf6b8302f0abcb5758b7mlt_after	10	hypotheticalABC transport system, periplasmic component	34b3519f7d98ca7c24eef2ca31cbc9c1mlt_after	8	ABC transporter periplasmic-binding protein	b803388e28a419d81bbec9d82bbd87f6mlt_after	1	ABC transporter periplasmic-binding protein YphF	72078454cbefc9e6e4f261fb3b42893bmlt_after	2	ABC transporter periplasmic-binding protein YtfQ	161869e5201a3078116fe95f2e471254mlt_after	2	ABC transporter periplasmic-binding protein SapA	e8be13471ea1bde9461ad889fa769c0fmlt_after	2	ABC transporter periplasmic-binding protein y4fP	ac3e260ce2c4d6d1e405a394e886d71cmlt_after	2	ABC transporter periplasmic-binding protein y4mI	b63a362d2b1311e17f2db85f4f2178eemlt_after	2	ABC transporter periplasmic-binding protein YcjN	8d758daf04a830342db021f9ee271a1amlt_after	2
 tryptophan synthase, alpha subunit	univ	cs	10	tryptophan synthase subunit alpha	c2fda1c4a35b2b996bec00e1527c2148mlt_after	1	Tryptophan synthase alpha chain	14a27ee38df64051c216a2ef4e9ea498mlt_after	3	Tryptophan synthase	0adbb975124b898240a2fd5e5c22e2bbmlt_after	2	Tryptophan synthase alpha chain, chloroplastic	eda559b109089e07ec24e4d0b2e878abmlt_after	0	Tryptophan synthase beta chain	3aaf58af17a0e10e6460d9059bebc6c8mlt_after	0	Tryptophan synthase beta chain 1	571f1146fe042e8ad5a6ae9ff0b6d55emlt_after	0	Tryptophan synthase beta chain 2	f2bbf4d5db3c0a28226b381d8add7ae7mlt_after	0	7-dimethylallyltryptophan synthase	fb4fe208aa950950bbbc878a30b10b53mlt_after	0	bifunctional indole-3-glycerol phosphate synthase/tryptophan synthase subunit beta	5da5e95ae5553ec2a7853638367238femlt_after	0	Fatty acid synthase alpha subunit aflA	0a84b088028c09fd84a449e558314bafmlt_after	0
@@ -689,311 +689,4 @@ valyl-tRNA synthetase	univ	cs	10	pyrolysyl-tRNA synthetase	840c91526c6cf5eaf608f
 virulence factor mvin superfamily	univ	cs	10	Virulence factor MDV010	b69d8d5c1b81765fb8e9ee46f5519e38mlt_after	1	Virulence factor PIT1	7d91acc357329fd9784490116b175241mlt_after	1	Virulence factor PGA16	a10add0443203f69af9b3ac8bd755fb8mlt_after	1	Conserved virulence factor B	85a6c782c090089fd529e9beff57e903mlt_after	4	Conserved virulence factor C	c4ce74e72207b32b402bda3838dfbba5mlt_after	4	Virulence factor CaO19.6688	971132894d7de8316cbf3e08b1c76065mlt_after	6	Neurovirulence factor ICP34.5	970300ee04f62a6b0224a665e571d882mlt_after	10	Virulence factor-related M protein	335439fcaba63ea168de939af400d295mlt_after	9	virulence protein SpvA	e27b2f806bd495fa4f0b57644c701aaamlt_after	7	Virulence protein SSD1	a9a090b0c3a551be5d47c3f1b80ca6a0mlt_after	7
 yggt family protein	univ	cs	10	YggU family protein	2b9fb7b44b063f7188f32ed3e0a06baemlt_after	0	SprT family protein	0fb1483a99dd8d97644ae851b5a7b334mlt_after	0	Hit family protein 1	771f1dea2ce72596683cb03de4930d31mlt_after	0	FIT family protein SCS3	72f8f1b1fbfebcf37966f1a99d1031eemlt_after	0	FIT family protein YFT2	91adecc14310e901cb35bdc6b0f69155mlt_after	0	FIT family protein fitm-2	a17bb5d90c5ee92357a64ea50e16df05mlt_after	0	VOC family protein	cde9b5664c06f5ea04252d2dd23abe17mlt_after	0	BTG family protein	71ac3b4d376e431d687cd8f6cfca1a3amlt_after	0	PAP2 family protein	d841228929d0996b73d80c99af827392mlt_after	0	BrxE family protein	934e0100a78bcbdb0cbce0948404ac8bmlt_after	0
 zeta toxin superfamily	univ	cs	10	Immunoglobulin superfamily member 1	c12f8d47c8c8b1af0a59bf035a5fa6a5mlt_after	0	Immunoglobulin superfamily member 2	4a5b5c0761f73b04ad3d4390c9214e86mlt_after	0	Immunoglobulin superfamily member 3	9e9f008958eb719328e4ff7c3f09812emlt_after	0	Immunoglobulin superfamily member 5	295dd7fd28a1c10b15ff8a1851bf9eaemlt_after	0	Immunoglobulin superfamily member 6	393194f60d9da762695c7594a19e4d73mlt_after	0	Immunoglobulin superfamily member 8	3aaa5cefc74b88543835fda271c0446emlt_after	0	Immunoglobulin superfamily member 10	1ceb40d56ba8866028f22415e28a2500mlt_after	0	Immunoglobulin superfamily member 11	36b2369e6a78d4669603744ec1d7c743mlt_after	0	Immunoglobulin superfamily member 21	a52e19c41a3ccc9686777b702b612acamlt_after	0	Immunoglobulin superfamily member 22	c293940a80f9cf8989183642ea99c6cbmlt_after	0
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
-																																	
+
