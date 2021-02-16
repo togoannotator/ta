@@ -328,7 +328,7 @@
   },
   "servers": [
     {
-      "url": "https://togoannotator.dbcls.jp/v2/"
+      "url": "https://ta.ddbj.nig.ac.jp/v2/"
     }
   ],
   "components": {
