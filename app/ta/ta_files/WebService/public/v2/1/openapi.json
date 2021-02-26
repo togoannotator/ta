@@ -354,7 +354,7 @@
             "cyanobacteria",
             "ecoli",
             "lab",
-            "ddbj"
+            "univ"
           ],
           "example": "ecoli",
           "default": "ddbj"
