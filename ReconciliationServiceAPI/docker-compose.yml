@@ -1,0 +1,14 @@
+version: '3'
+services:
+  reconciliation-api-server:
+    build:
+      context: .
+      args:
+        host: "localhost"
+        port: "9200"
+        index_pattern: "tm_7641e5f4e7e8517bd0477fd81e3de1b8"
+    image: reconciliation-api-server:reconciliation-api-server
+    container_name: reconciliation-api-server
+    ports:
+      - 8000:8000
+    restart: always
