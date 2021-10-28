@@ -76,6 +76,9 @@ logger "データロード処理開始" ${LOG_FILE}
 
 cd ${BIN_DIR}
 
+logger "--- univ --- " ${LOG_FILE}
+python3.6 -u pipeline_available_load_dict4es_ta.py --file ${ES_DATA}/dict_universal_20201006.txt --index tm_6d165fee8194a3077493ee30ed0c6a8e |tee -a {$LOG_FILE}
+
 logger "--- cyanobacteria ---" ${LOG_FILE}
 python3.6 -u pipeline_available_load_dict4es_ta.py --file ${ES_DATA}/dict_cyanobacteria_20151120_with_cyanobase.txt --index tm_53a186f8c95c329d6bddd8bc3d3b4189 | tee -a ${LOG_FILE}
 
