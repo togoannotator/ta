@@ -1,0 +1,112 @@
+version: '3'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.7.1
+    container_name: elasticsearch771
+    environment:
+      - "TZ=Asia/Tokyo"
+      - ELASTIC_PASSWORD=changeme
+      - "ES_JAVA_OPTS=-Xms8192m -Xmx8192m"
+      - bootstrap.memory_lock=true
+      - cluster.name=docker-cluster
+      - "discovery.type=single-node"
+      - "http.max_content_length=200m"
+      - "network.host=_local_,_site_"
+      - "script.painless.regex.enabled=true"
+      - "xpack.monitoring.collection.enabled=true"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./esdata:/usr/share/elasticsearch/data
+      - ./es/share/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
+      - ./es/share/log:/usr/share/elasticsearch/logs
+    ports:
+      - 9200:9200
+    networks:
+      - esnet
+    restart: always
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.7.1
+    container_name: kibana771
+    ports:
+      - 5601:5601
+    environment:
+      - "TZ=Asia/Tokyo"
+      - "ELASTICSEARCH_URL=http://elasticsearch:9200"
+      - "SERVER_NAME=kibana"
+      - "SERVER_HOST=0.0.0.0"
+      - "LOGGING_DEST=/mnt/kibana.log"
+    volumes:
+      - ./kibana:/mnt
+    networks:
+      - esnet
+    restart: always
+    
+  togoannotator:
+    build: 
+      context: ./
+      dockerfile: ./ta/Dockerfile
+    image: ta
+    container_name: ta
+    environment:
+      - TA_URL=${TA_URL:-http://localhost:5000}
+    volumes:
+      - ./log:/opt/togoannotator/ta/WebService/log
+      - ./dictionary/ref_data:/opt/togoannotator/ta/WebService/dictionary
+    ports:
+      - 5100:5100
+    networks:
+     - esnet
+    restart: always
+
+  nginx:
+    image: nginx:1.17.9
+    container_name: nginx
+    volumes:
+      - ./nginx:/etc/nginx
+    ports:
+      - 5000:5000
+    depends_on:
+      - togoannotator
+    networks:
+      - esnet
+    restart: always
+
+  load_tool:
+    image: load_tool
+    build: 
+      context: load_tool
+      dockerfile: Dockerfile
+    container_name: load_tool
+    tty: true
+    environment:
+      - "TZ=Asia/Tokyo"
+    volumes:
+      - ./dictionary/es_data:/opt/load_tool/es_data
+      - ./es/defs:/opt/load_tool/defs
+      - ./load_tool/logs:/opt/load_tool/logs
+    depends_on:
+      - elasticsearch
+    networks:
+     - esnet
+
+  reconciliation-api-server:
+    build:
+      context: ../ReconciliationServiceAPI
+      args:
+        host: "elasticsearch771"
+        port: "9200"
+        index_pattern: "tm_7641e5f4e7e8517bd0477fd81e3de1b8"
+    image: reconciliation-api-server:reconciliation-api-server
+    container_name: reconciliation-api-server
+    ports:
+      - 8000:8000
+    networks:
+      - esnet
+    restart: always
+
+networks:
+  esnet:
