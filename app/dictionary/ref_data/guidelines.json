@@ -1,0 +1,410 @@
+{
+  "PN001": {
+    "id": "PN001",
+    "code": "2-A",
+    "message": "Use American spelling, not British spelling",
+    "bad example": "uncharacterised protein catalyse",
+    "good example": "characterise",
+    "implementation": "TRUE"
+  },
+  "PN002": {
+    "id": "PN002",
+    "code": "2-A",
+    "message": "Use protein names ending in 'in' (not 'ine')",
+    "bad example": "maurocalcine",
+    "good example": "maurocalcin",
+    "implementation": "TRUE"
+  },
+  "PN003": {
+    "id": "PN003",
+    "code": "2-A",
+    "message": "Avoid diacritics such as accents, umlauts etc.",
+    "bad example": "protein spätzle 5",
+    "good example": "protein spaetzle 5",
+    "implementation": "TRUE"
+  },
+  "PN004": {
+    "id": "PN004",
+    "code": "2-A",
+    "message": "Avoid pluralization for names based on domain and repeat content",
+    "bad example": "ankyrin repeats-containing protein",
+    "good example": "ankyrin repeat-containing protein",
+    "implementation": "TRUE"
+  },
+  "PN005": {
+    "id": "PN005",
+    "code": "2-A",
+    "message": "Avoid common words",
+    "bad example": "protein IMPACT",
+    "good example": "",
+    "implementation": "TRUE"
+  },
+  "PN006": {
+    "id": "PN006",
+    "code": "2-A",
+    "message": "Avoid duplication",
+    "bad example": "",
+    "good example": "",
+    "implementation": "FALSE"
+  },
+  "PN007": {
+    "id": "PN007",
+    "code": "2-B",
+    "message": "Avoid using an abbreviation as the complete name",
+    "bad example": "ACP",
+    "good example": "acyl carrier protein",
+    "implementation": "TRUE"
+  },
+  "PN008": {
+    "id": "PN008",
+    "code": "2-B",
+    "message": "An abbreviation may be part of a protein name",
+    "bad example": "(3R)-hydroxymyristoyl-ACP dehydratase",
+    "good example": "(3R)-hydroxymyristoyl-ACP dehydratase",
+    "implementation": "FALSE"
+  },
+  "PN009": {
+    "id": "PN009",
+    "code": "2-B",
+    "message": "Protein name based on a protein symbol (PS) or gene symbol (GS): Prokaryote symbol guidelines",
+    "bad example": "",
+    "good example": "",
+    "implementation": "FALSE"
+  },
+  "PN010": {
+    "id": "PN010",
+    "code": "2-B",
+    "message": "Protein name based on a protein symbol (PS) or gene symbol (GS): Eukaryote symbol guidelines",
+    "bad example": "",
+    "good example": "",
+    "implementation": "FALSE"
+  },
+  "PN011": {
+    "id": "PN011",
+    "code": "2-B",
+    "message": "Prime symbol (')",
+    "bad example": "5-prime-nucleotidase",
+    "good example": "H(+)-transporting V0 sector ATPase subunit c'",
+    "implementation": "TRUE"
+  },
+  "PN012": {
+    "id": "PN012",
+    "code": "2-B",
+    "message": "Chemical symbols may be part of a protein name",
+    "bad example": "Na(+)/Li(+)-exporting P-type ATPase",
+    "good example": "sodium/lithium-exporting P-type ATPase",
+    "implementation": "TRUE"
+  },
+  "PN013": {
+    "id": "PN013",
+    "code": "2-B",
+    "message": "Standard scientific abbreviations may be part of a protein name",
+    "bad example": "ribosomal RNA methyltransferase",
+    "good example": "ABC transporter",
+    "implementation": "TRUE"
+  },
+  "PN014": {
+    "id": "PN014",
+    "code": "2-C",
+    "message": "Do not use a back slash: ‘\\’.",
+    "bad example": "adenylyltransferase\\ADP-heptose synthase cyclohydrolase",
+    "good example": "adenylyltransferase/ADP-heptose synthase cyclohydrolase",
+    "implementation": "TRUE"
+  },
+  "PN015": {
+    "id": "PN015",
+    "code": "2-C",
+    "message": "For separating multiple domains or functions, the forward slash ‘/’ or the word ‘and’ may be used.",
+    "bad example": "adenylyltransferase\\ADP-heptose synthase cyclohydrolase",
+    "good example": "WD repeat and FYVE domain-containing protein 3",
+    "implementation": "FALSE"
+  },
+  "PN016": {
+    "id": "PN016",
+    "code": "2-C",
+    "message": "Compound adjective: a hyphen should be used to form compound modifiers (i.e. two or more words that are acting as a single modifier for a noun)",
+    "bad example": "Ras GTPase activating protein",
+    "good example": "Ras GTPase activating protein",
+    "implementation": "TRUE"
+  },
+  "PN017": {
+    "id": "PN017",
+    "code": "2-C",
+    "message": "Remove trailing periods from names.",
+    "bad example": "hypotheical protein.",
+    "good example": "hypothetical protein",
+    "implementation": "TRUE"
+  },
+  "PN018": {
+    "id": "PN018",
+    "code": "2-C",
+    "message": "Avoid use of commas except when their usage is part of accepted chemical names.",
+    "bad example": "Phycobilisome 27.9 kDa linker polypeptide, phycoerythrin-associated, rod",
+    "good example": "SGT2 family TPR domain-containing protein",
+    "implementation": "TRUE"
+  },
+  "PN019": {
+    "id": "PN019",
+    "code": "2-C",
+    "message": "Avoid the semi-colon \";\" or colon “:” except when it is part of an enzyme name.",
+    "bad example": "Nucleosome assembly protein 1;1",
+    "good example": "Nucleosome assembly protein 1",
+    "implementation": "TRUE"
+  },
+  "PN020": {
+    "id": "PN020",
+    "code": "2-C",
+    "message": "Avoid the percentage sign ‘%’",
+    "bad example": "",
+    "good example": "",
+    "implementation": "TRUE"
+  },
+  "PN021": {
+    "id": "PN021",
+    "code": "2-C",
+    "message": "Avoid the at sign '@’",
+    "bad example": "",
+    "good example": "",
+    "implementation": "TRUE"
+  },
+  "PN022": {
+    "id": "PN022",
+    "code": "2-C",
+    "message": "Avoid the equal sign ‘=’",
+    "bad example": "gustducin:SUBUNIT=alpha",
+    "good example": "guanine nucleotide-binding protein G(t) subunit alpha-3",
+    "implementation": "TRUE"
+  },
+  "PN023": {
+    "id": "PN023",
+    "code": "2-C",
+    "message": "Data submitters should not let Microsoft Excel, Word, Outlook, or any other utility with format interpolation and spelling autocorrection touch any protein names, especially those with quotes and double-hyphens.",
+    "bad example": "Phospholipase A2 \"basic\"",
+    "good example": "basic phospholipase A2",
+    "implementation": "FALSE"
+  },
+  "PN024": {
+    "id": "PN024",
+    "code": "2-D",
+    "message": "Use Arabic rather than Roman numerals",
+    "bad example": "caveolin-II",
+    "good example": "caveolin-2",
+    "implementation": "TRUE"
+  },
+  "PN025": {
+    "id": "PN025",
+    "code": "2-D",
+    "message": "Specifying different members encoded by a multigene family",
+    "bad example": "",
+    "good example": "",
+    "implementation": "FALSE"
+  },
+  "PN026": {
+    "id": "PN026",
+    "code": "2-E",
+    "message": "Capitalization",
+    "bad example": "Proteasome CORE PARTICLE subunit BETA 5",
+    "good example": "proteasome core particle subunit beta 5",
+    "implementation": "TRUE"
+  },
+  "PN027": {
+    "id": "PN027",
+    "code": "2-E",
+    "message": "Greek letters should be written in full and entirely in lower case when indicating one of a series of proteins e.g. \"alpha\", \"beta\", “gamma”.",
+    "bad example": "Mating-type protein ALPHA1",
+    "good example": "Mating-type protein alpha 1",
+    "implementation": "TRUE"
+  },
+  "PN028": {
+    "id": "PN028",
+    "code": "2-E",
+    "message": "In the context of steroid/fatty acid metabolism nomenclature, “Delta” should start with an upper case letter.",
+    "bad example": "3beta-hydroxy-delta5-steroid",
+    "good example": "3beta-hydroxy-Delta5-steroid",
+    "implementation": "TRUE"
+  },
+  "PN029": {
+    "id": "PN029",
+    "code": "2-E",
+    "message": "Usage of the term 'protein' in a name",
+    "bad example": "Accessory gene regulator protein A",
+    "good example": "Accessory gene regulator A",
+    "implementation": "TRUE"
+  },
+  "PN030": {
+    "id": "PN030",
+    "code": "2-E",
+    "message": "Usage of the term ‘enzyme’ in a name",
+    "bad example": "Phosphotransferase enzyme IIA component",
+    "good example": "Phosphotransferase IIA component",
+    "implementation": "TRUE"
+  },
+  "PN031": {
+    "id": "PN031",
+    "code": "2-E",
+    "message": "Use this format: \" synthesis protein \"",
+    "bad example": "",
+    "good example": "thiamine synthesis protein ThiC",
+    "implementation": "FALSE"
+  },
+  "PN032": {
+    "id": "PN032",
+    "code": "2-E",
+    "message": "Transfer enzymes",
+    "bad example": "",
+    "good example": "formylmethanofuran--tetrahydromethanopterin formyltransferase",
+    "implementation": "FALSE"
+  },
+  "PN033": {
+    "id": "PN033",
+    "code": "2-E",
+    "message": "Use this format: --tRNA (tRNA type using the three-letter amino acid code with the first letter capitalized) ligase",
+    "bad example": "",
+    "good example": "tyrosine--tRNA (Tyr) ligase",
+    "implementation": "FALSE"
+  },
+  "PN034": {
+    "id": "PN034",
+    "code": "2-E",
+    "message": "Identifier types to avoid",
+    "bad example": "5-formyltetrahydrofolate cyclo-ligase-like protein COG0212",
+    "good example": "5-formyltetrahydrofolate cyclo-ligase-like protein",
+    "implementation": "TRUE"
+  },
+  "PN035": {
+    "id": "PN035",
+    "code": "2-E",
+    "message": "Avoid kingdom, genus or species-specific characteristics in a name",
+    "bad example": "",
+    "good example": "",
+    "implementation": "FALSE"
+  },
+  "PN036": {
+    "id": "PN036",
+    "code": "2-F",
+    "message": "Avoid linking words and phrases",
+    "bad example": "histidine kinase sensor of two component system",
+    "good example": "two-component system sensor histidine kinase",
+    "implementation": "TRUE"
+  },
+  "PN037": {
+    "id": "PN037",
+    "code": "2-F",
+    "message": "Other phrases to avoid",
+    "bad example": "ATPase involved in chromosome partitioning",
+    "good example": "chromosome-partitioning ATPase",
+    "implementation": "TRUE"
+  },
+  "PN038": {
+    "id": "PN038",
+    "code": "2-F",
+    "message": "Terms to avoid",
+    "bad example": "Ephrin-B1 C-terminal fragment",
+    "good example": "Ephrin-B1",
+    "implementation": "TRUE"
+  },
+  "PN039": {
+    "id": "PN039",
+    "code": "3-A",
+    "message": "Established and maintained database authorities such as species-specific nomenclature bodies (some are listed here: http://www.uniprot.org/docs/nomlist).",
+    "bad example": "",
+    "good example": "",
+    "implementation": "FALSE"
+  },
+  "PN040": {
+    "id": "PN040",
+    "code": "3-A",
+    "message": "Avoid names from species-specific authorities that relate to phenotype, anatomical features or any taxon-specific characteristics. In these cases, use the widely recognized gene symbol in combination with a functional name rather than a phenotypical name. For example, ‘minichromosome maintenance complex component 7’ is not applicable to organisms which do not have minichromosomes so to avoid transferring such a protein name, use the gene symbol MCM7 combined with a functional name instead.",
+    "bad example": "",
+    "good example": "",
+    "implementation": "FALSE"
+  },
+  "PN041": {
+    "id": "PN041",
+    "code": "3-A",
+    "message": "a) Expert sources of specific and definitive names may include: Enzyme names from Enzyme Commission (EC)",
+    "bad example": "",
+    "good example": "",
+    "implementation": "TRUE"
+  },
+  "PN042": {
+    "id": "PN042",
+    "code": "3-A",
+    "message": "Expert sources of specific and definitive names may include: NCBIfam",
+    "bad example": "",
+    "good example": "",
+    "implementation": "TRUE"
+  },
+  "PN043": {
+    "id": "PN043",
+    "code": "3-A",
+    "message": "a) Expert sources of specific and definitive names may include: UniProtKB/Swiss-Prot",
+    "bad example": "",
+    "good example": "",
+    "implementation": "TRUE"
+  },
+  "PN044": {
+    "id": "PN044",
+    "code": "3-A",
+    "message": "Individual scientists who specialize in a protein family.",
+    "bad example": "",
+    "good example": "",
+    "implementation": "FALSE"
+  },
+  "PN045": {
+    "id": "PN045",
+    "code": "3-A",
+    "message": "A recent literature-supported name from a paper that characterized the protein function is likely the most specific and definitive name to apply (with format refinement as needed). The literature may provide a history of names over time.",
+    "bad example": "",
+    "good example": "",
+    "implementation": "FALSE"
+  },
+  "PN046": {
+    "id": "PN046",
+    "code": "3-A",
+    "message": "Expert sources of specific and definitive names may include: TIGRFam",
+    "bad example": "",
+    "good example": "",
+    "implementation": "FALSE"
+  },
+  "PN047": {
+    "id": "PN047",
+    "code": "3-A",
+    "message": "Expert sources of specific and definitive names may include: Pfam",
+    "bad example": "",
+    "good example": "",
+    "implementation": "TRUE"
+  },
+  "PN048": {
+    "id": "PN048",
+    "code": "3-B",
+    "message": "If no other name is applicable, the words bifunctional or multifunctional may be used in combination with the functional names.",
+    "bad example": "Bifunctional protein",
+    "good example": "Peroxisomal multifunctional enzyme",
+    "implementation": "TRUE"
+  },
+  "PN049": {
+    "id": "PN049",
+    "code": "3-B",
+    "message": "Use 'subunit', not 'chain' or 'component', for members of protein complexes. The exception is historical cases where ‘chain’ is exclusively used e.g. myosins, clathrins, dyneins.",
+    "bad example": "Sarcosine reductase complex component B alpha chain",
+    "good example": "Ammonia monooxygenase gamma subunit",
+    "implementation": "TRUE"
+  },
+  "PN050": {
+    "id": "PN050",
+    "code": "3-B",
+    "message": "Inactive proteins do not refer to pseudogenes. Inactive versions of proteins refer to proteins with altered catalytic residues or inability to undergo autocatalytic cleavage, resulting in loss of expected activity. Reserve the usage of “inactive” in a protein name for such cases.",
+    "bad example": "inactive glutathione hydrolase 2",
+    "good example": "inactive glutathione hydrolase 2",
+    "implementation": "TRUE"
+  },
+  "PN051": {
+    "id": "PN051",
+    "code": "3-B",
+    "message": "use the default name ‘hypothetical protein’ or ‘uncharacterized protein’ (all lowercase) with no further specifications.",
+    "bad example": "hypothetical protein, conserved",
+    "good example": "hypothetical protein",
+    "implementation": "TRUE"
+  }
+}
