@@ -1,7 +1,7 @@
 *.pid
 *.swp
 *.log
-*.json
+#*.json
 /dictionary/
 nodes/
 hmm/
