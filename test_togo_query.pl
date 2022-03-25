@@ -15,7 +15,8 @@ my $INDEX_NAME = "tm_68c008bfb37f663c81d581287b267a20";
 #my $INDEX_NAME = "tm_f0a37107d9735025c81673c0ad3f1109";
 #my $INDEX_NAME = "tm_53a186f8c95c329d6bddd8bc3d3b4189";
 #my $INDEX_NAME = "tm_dd2f74a1041db59c64a665b356c9d1b3";
-$curl->setopt(CURLOPT_URL, "http://172.18.8.190:19200/${INDEX_NAME}/_search");
+$curl->setopt(CURLOPT_URL, "http://localhost:9200/${INDEX_NAME}/_search");
+#$curl->setopt(CURLOPT_URL, "http://172.18.8.190:19200/${INDEX_NAME}/_search");
 $curl->setopt(CURLOPT_POST, 1);
 $curl->setopt(CURLOPT_HTTPHEADER, [
 	"Content-Type: application/json",
@@ -155,12 +156,13 @@ if ($retcode == 0) {
 #        print("Received response: $response_body\n");
 #        print $response_body, "\n";
 	my $result = decode_json $response_body;
-	print dump($result), "\n";
-	print "-----\n";
-	print "Time-Out:", $result->{"timed_out"}, "\n";
-	print "Query:$lcquery\n";
+	print $response_body, "\n";
+#	print dump($result), "\n";
+	print "\n\n\n";
+	print '{"Time-Out":"', $result->{"timed_out"}, '"', "}\n";
+	print '{"Query":"', $lcquery, '"', "}\n";
 	my $array_ptr = $result->{"aggregations"}->{"tags"}->{"buckets"};
-	print "====\n";
+	print "\n\n\n";
 	my %group_by_key;
 	for ( @$array_ptr ){
 	    $group_by_key{$_->{"key"}}->{"doc_count"} = $_->{"doc_count"};
@@ -182,7 +184,7 @@ if ($retcode == 0) {
 		print $group_by_key{$_key}->{"top_tag_hits"}->{"hits"}->{"hits"}->[0]->{"_source"}->{"name"}, "\n";
 	    }
 	}
-	print "-----\n";
+#	print "-----\n";
 } else {
         warn("An error happened: ".$curl->strerror($retcode)." ($retcode)\n");
 }
