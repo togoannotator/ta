@@ -69,10 +69,11 @@ use Digest::MD5 qw/md5_hex/;
 use Encode;
 use WWW::Curl::Easy;
 use JSON::XS;
-use Data::Dumper;
+use File::Slurp;
+#use Data::Dumper;
 
 my ($sysroot, $enzymeDict, $locustag_prefix_name, $embl_locustag_name, $gene_symbol_name, $family_name, $esearch);
-my ($white_list, $black_list);
+my ($white_list, $black_list, $guideline_file);
 my $ignore_chars;
 my ($locustag_prefix_matcher, $embl_locustag_matcher, $gene_symbol_matcher, $family_name_matcher);
 # my ($niteAll, $curatedDict);
@@ -92,7 +93,8 @@ my (
     %enzymeHash,          # 酵素辞書のエントリ（小文字化する）
     %black2white,         # ブラックリストで書き換え対象が記載されている場合の書き換え用ハッシュ（のハッシュ）
     %white_matcher,
-    %black_matcher
+    %black_matcher,
+    $guidelines           # NCBIで公開されているアノテーションガイドラインに基づいて構築したガイドラインIDとメッセージの対応ハッシュへのポインタ
     );
 my ($minfreq, $minword, $ifhit, $cosdist);
 
@@ -118,8 +120,9 @@ sub init {
     $embl_locustag_name = "dictionary/Embl2LocusTag.txt";
     $gene_symbol_name = "dictionary/UniProtPrefGeneSymbols.txt";
     $family_name = "dictionary/pfam-ac.txt";
-    $white_list = 'dictionary/ValidationWhiteDictionary.txt';
-    $black_list = 'dictionary/ValidationBlackDictionary.txt';
+    $white_list = "dictionary/ValidationWhiteDictionary.txt";
+    $black_list = "dictionary/ValidationBlackDictionary.txt";
+    $guideline_file = "dictionary/guidelines.json";
 
     @sp_words = qw/putative probable possible/;
     @avoid_cs_terms = (
@@ -265,7 +268,10 @@ sub readDict {
     # $black_matcher{"Lee"} = Text::Match::FastAlternatives->new( @black_list_array );
     $black_matcher{"Lee"}= Algorithm::AhoCorasick::XS->new( \@black_list_array );
 
-
+    # ガイドラインデータの取り込み
+    print "Prepare: Guideline data.\n";
+    $guidelines = decode_json read_file($sysroot.'/'.$guideline_file);
+    $guidelines->{""} = "None";
     print "Prepare: Done.\n";
 }
 
@@ -358,7 +364,13 @@ sub retrieveMulti { # $oq にクエリのリストへのポインタが入る
     shift;
 #    ($minfreq, $minword, $ifhit, $cosdist) = undef;
     my $query = my $oq = shift;
-    my $md5dname = md5_hex(shift);
+    my $md5dname =shift;
+    my $md5dname_direct = shift;
+    if( defined($md5dname_direct) ){
+        $md5dname = $md5dname_direct;
+    }else{
+        $md5dname = md5_hex($md5dname);
+    }
     my $es_opts_default = {
 	'MAX_QUERY_TERMS' => 100,
 	'MINIMUM_SHOULD_MATCH' => '30',
@@ -407,7 +419,7 @@ sub retrieveMulti { # $oq にクエリのリストへのポインタが入る
     my $issue_query = join("\n", @q4msearch). "\n";
     my $curl = WWW::Curl::Easy->new();
     my $response_body;
-    print Dumper "http://elasticsearch:9200/_msearch";
+    #print Dumper "http://elasticsearch:9200/_msearch";
     $curl->setopt(CURLOPT_URL, "http://elasticsearch:9200/_msearch");
     $curl->setopt(CURLOPT_POST, 1);
     $curl->setopt(CURLOPT_HTTPHEADER, [
@@ -438,7 +450,7 @@ sub retrieveMulti { # $oq にクエリのリストへのポインタが入る
 	# print Dumper $response_json, "\n";
 	for ( my $idx = 0; $idx < @$response_json; $idx++ ){
 	    my ($match, $result, $info) = ('') x 3;
-	    my @results;
+	    my (@results, @noncompliance);
 	    my $array_ptr = $response_json->[$idx]->{"aggregations"}->{"tags"}->{"buckets"};
 	    my %group_by_key;
 	    for ( @$array_ptr ){
@@ -462,9 +474,12 @@ sub retrieveMulti { # $oq にクエリのリストへのポインタが入る
 		    if ($_key =~ /^term_/){
 			$result = join(" @@ ", map {$prfx_list[$idx]. ($_->{"_source"}->{"name"}) } @_results);
 			$results[0] = $result;
+			my $noncomp = join(" @@ ", map { join(",", @{ $_->{"_source"}->{"guideline_noncompliance_list"} } ) } @_results);
+			$noncompliance[0] = [ $noncomp ];
 		    } else {
 			$result = $prfx_list[$idx]. $_results[0]->{"_source"}->{"name"};
 			@results = map { $prfx_list[$idx].$_->{"_source"}->{"name"} } @_results;
+			@noncompliance = map { $_->{"_source"}->{"guideline_noncompliance_list"} } @_results;
 		    }
 		    $match = $matchtype_map{$_key};
 		    $info = $info_map{$_key};
@@ -491,7 +506,8 @@ sub retrieveMulti { # $oq にクエリのリストへのポインタが入る
 		'match' => $match,
 		'info' => $info,
 		'result_array' => \@results,
-		'annotation' => \%annotations};
+		'annotation' => \%annotations,
+		'non_compliance' => \@noncompliance};
 	}
     } else {
 	warn("An error happened: ".$curl->strerror($retcode)." ($retcode)\n");
@@ -509,7 +525,13 @@ sub retrieve {
     shift;
 #    ($minfreq, $minword, $ifhit, $cosdist) = undef;
     my $query = my $oq = shift;
-    my $md5dname = md5_hex(shift);
+    my $md5dname = shift;
+    my $md5dname_direct = shift;
+    if( defined($md5dname_direct) ){
+        $md5dname = $md5dname_direct;
+    }else{
+        $md5dname = md5_hex($md5dname);
+    }
     my $es_opts_default = {
 	'MAX_QUERY_TERMS' => 100,
 	'MINIMUM_SHOULD_MATCH' => '30',
@@ -540,7 +562,7 @@ sub retrieve {
 
     my $prfx = '';
     my ($match, $result, $info) = ('') x 3;
-    my @results;
+    my (@results, @noncompliance);
     for ( @sp_words ){
 	if(index($lcquery, $_) == 0){
 	    $lcquery =~ s/^$_\s+//;
@@ -552,7 +574,7 @@ sub retrieve {
     my $curl = WWW::Curl::Easy->new();
     my $response_body;
     my $INDEX_NAME = "tm_".$md5dname;
-    print Dumper "http://elasticsearch:9200/${INDEX_NAME}/_search";
+    #print Dumper "http://elasticsearch:9200/${INDEX_NAME}/_search";
     $curl->setopt(CURLOPT_URL, "http://elasticsearch:9200/${INDEX_NAME}/_search");
     $curl->setopt(CURLOPT_POST, 1);
     $curl->setopt(CURLOPT_HTTPHEADER, [
@@ -712,9 +734,12 @@ QUERY
 		if ($_key =~ /^term_/){
 		    $result = join(" @@ ", map {$prfx. ($_->{"_source"}->{"name"}) } @_results);
 		    $results[0] = $result;
+		    my $noncomp = [ map { [ map { $guidelines->{$_} } @{ $_->{"_source"}->{"guideline_noncompliance_list"} } ] } @_results ];
+		    $noncompliance[0] = $noncomp->[0];
 		} else {
 		    $result = $prfx. $_results[0]->{"_source"}->{"name"};
 		    @results = map { $prfx.$_->{"_source"}->{"name"} } @_results;
+		    @noncompliance = map { [ map { $guidelines->{$_} } @{ $_->{"_source"}->{"guideline_noncompliance_list"} } ] } @_results;
 		}
 		$match = $matchtype_map{$_key};
 		$info = $info_map{$_key};
@@ -740,7 +765,7 @@ QUERY
     $result = b2a($result);
     my %annotations;
     getAnnotations($oq, \$info, \%annotations);
-    return({'query'=> $oq, 'result' => $result, 'match' => $match, 'info' => $info, 'result_array' => \@results, 'annotation' => \%annotations});
+    return({'query'=> $oq, 'result' => $result, 'match' => $match, 'info' => $info, 'result_array' => \@results, 'annotation' => \%annotations, 'non_compliance' => \@noncompliance});
 }
 
 sub getAnnotations{
