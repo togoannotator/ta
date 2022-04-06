@@ -12,6 +12,6 @@ def root():
    return {"Hello":"こんにちは"}
 
 @app.get("/text/{name}")
-def create_user(name: str):
+def check_guideline(name: str):
    result = jsonable_encoder(chk.eval_guidelines(name))
    return JSONResponse(content=result)
