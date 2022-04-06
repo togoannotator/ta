@@ -358,4 +358,4 @@ if __name__ == "__main__":
     chk = TsvElasticsearchConnector()
     for line in sys.stdin:
         result = chk.eval_guidelines(line.strip())
-        print(json.dumps(result))
+        print(json.dump(result))
