@@ -365,12 +365,12 @@ sub retrieveMulti { # $oq にクエリのリストへのポインタが入る
 #    ($minfreq, $minword, $ifhit, $cosdist) = undef;
     my $query = my $oq = shift;
     my $md5dname =shift;
-    my $md5dname_direct = shift;
-    if( defined($md5dname_direct) ){
-        $md5dname = $md5dname_direct;
-    }else{
+    #my $md5dname_direct = shift;
+    #if( defined($md5dname_direct) ){
+    #    $md5dname = $md5dname_direct;
+    #}else{
         $md5dname = md5_hex($md5dname);
-    }
+    #}
     my $es_opts_default = {
 	'MAX_QUERY_TERMS' => 100,
 	'MINIMUM_SHOULD_MATCH' => '30',
@@ -527,11 +527,11 @@ sub retrieve {
     my $query = my $oq = shift;
     my $md5dname = shift;
     my $md5dname_direct = shift;
-    if( defined($md5dname_direct) ){
-        $md5dname = $md5dname_direct;
-    }else{
+    #if( defined($md5dname_direct) ){
+    #    $md5dname = $md5dname_direct;
+    #}else{
         $md5dname = md5_hex($md5dname);
-    }
+    #}
     my $es_opts_default = {
 	'MAX_QUERY_TERMS' => 100,
 	'MINIMUM_SHOULD_MATCH' => '30',
