@@ -53,6 +53,7 @@ services:
     container_name: ta
     environment:
       - TA_URL=${TA_URL:-http://localhost:5000}
+      - TA_ENV=${TA_ENV:-}
     volumes:
       - ./log:/opt/togoannotator/ta/WebService/log
       - ./dictionary/ref_data:/opt/togoannotator/ta/WebService/dictionary
