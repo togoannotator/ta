@@ -242,7 +242,7 @@ __DATA__
         //url: "/v1/2/swagger.json",
         //url: "/v2/1/openapi.json",
         //url: "<%= $ENV{TA_URL} %>/v2/1/openapi.json",
-        url: "/v2/1/openapi<%= $ENV{TA_ENV} %>.json",
+        url: "/v2/1/openapi<%= $ENV{TA_SERVER} %>.json",
         dom_id: '#swagger-ui',
         deepLinking: true,
         presets: [
