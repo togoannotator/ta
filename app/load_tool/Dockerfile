@@ -11,7 +11,7 @@ RUN yum install -y \
   python36-devel
 
 RUN pip3 install \
-  elasticsearch \
+  elasticsearch==7.7.1 \
   pyahocorasick \
   regex
 

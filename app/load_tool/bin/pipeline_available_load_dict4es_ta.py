@@ -244,7 +244,7 @@ if __name__ == "__main__":
     parser.add_argument("--index", type=str)
     args = parser.parse_args()
 
-    connector = TsvElasticsearchConnector("localhost:9200", args.index)
+    connector = TsvElasticsearchConnector('http://elasticsearch:9200', args.index)
     # 引数として渡されたインデックスをElasticsearch上から削除する
     connector.es_client.indices.delete(index=args.index, ignore=[400, 404])
     # データを新規登録／再登録する
