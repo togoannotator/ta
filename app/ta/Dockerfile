@@ -14,13 +14,18 @@ RUN yum install -y \
   gcc-c++ \
   perl \
   perl-App-cpanminus \
-  zlib-devel
+  zlib-devel \
+  python3 \
+  python3-devel
+RUN pip3 install regex pyahocorasick uvicorn==0.16.0
 COPY ./ta/modules.txt /opt/togoannotator/perl_modules/modules.txt
 RUN cpanm < /opt/togoannotator/perl_modules/modules.txt
 
 #アプリ媒体を取得する
 COPY ./ta/ta_files /opt/togoannotator/ta
 COPY ./ta/start.sh /opt/togoannotator/start.sh
+# chk-compliance 用のファイルのコピー
+COPY ./load_tool/bin /opt/togoannotator/load_tool_bin
 
 #アプリ起動準備
 RUN mkdir /opt/togoannotator/ta/WebService/log && \

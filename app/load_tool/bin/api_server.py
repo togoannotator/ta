@@ -11,7 +11,7 @@ chk = used_by_perl.TsvElasticsearchConnector()
 def root():
    return {"Hello":"こんにちは"}
 
-@app.get("/text/{name}")
+@app.get("/check-compliance/{name}")
 def check_guideline(name: str):
    result = jsonable_encoder(chk.eval_guidelines(name))
    return JSONResponse(content=result)
