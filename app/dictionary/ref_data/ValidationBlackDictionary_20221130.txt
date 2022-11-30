@@ -1,0 +1,116 @@
+3-deoxy-D-manno-octulosonate 8-phosphate phosphatase (KDO 8-P phosphatase)	(KDO 8-P phosphatase)
+5-methyltetrahydropteroyltriglutamate-- homocystei ne methyltransferase	homocystei ne
+50S ribosomal protein L5 (BL6)	(BL6)
+ABC-type Co2 transport system, periplasmic component	ABC-type Co2 transport system
+ATP synthase C chain (Lipid-binding protein)(Dicyclohexylcarbodiimide-binding protein)	(Lipid-binding protein)(Dicyclohexylcarbodiimide-binding protein)
+ApxIVA Var3
+Cb-type cytochrome c oxidase subunit iii	subunit iii
+D-alanine--D-alanine ligase (D-alanylalanine synthetase)(D-Ala-D-Ala ligase)	(D-alanylalanine synthetase)(D-Ala-D-Ala ligase)
+DNA ligase (Polydeoxyribonucleotide synthase [ATP])	(Polydeoxyribonucleotide synthase [ATP])
+DNA polymerase I (POL I)	(POL I)
+DNA-binding response regulator	(DNA-binding protein II) (HB)
+ExbB\TolQ family transport protein	ExbB\TolQ
+GMP synthase [glutamine-hydrolyzing] (Glutamineamidotransferase) (GMP synthetase)	(Glutamineamidotransferase) (GMP synthetase)
+GTP pyrophosphokinase (ATP:GTP 3'-pyrophosphotransferase)(ppGpp synthetase I) ((P)ppGpp synthetase)	(ATP:GTP 3'-pyrophosphotransferase)(ppGpp synthetase I) ((P)ppGpp synthetase)
+Ham1 family
+N- methylation
+NAD-dependent deacetylase (Regulatory protein SIR2-like protein)	(Regulatory protein SIR2-like protein)
+NADH-quinone oxidoreductase chain m (nadh dehydrogenasei, chain m) (ndh-1, chain m)	(nadh dehydrogenasei, chain m) (ndh-1, chain m)
+NADH-quinone oxidoreductase subunit h (nadhdehydrogenase i subunit h) (ndh-1 subunit h)	(nadhdehydrogenase i subunit h) (ndh-1 subunit h)
+NADH-quinone oxidoreductase subunit i (nadhdehydrogenase i subunit i) (ndh-1 subunit i)	(nadhdehydrogenase i subunit i) (ndh-1 subunit i)
+NADP-dependent malic enzyme (nadp-me)	(nadp-me)
+Na /H antiporter family	Na /H antiporter
+Na /Pi-cotransporter	Na/Pi-cotransporter
+O-sialoglycoprotein endopeptidase (Glycoprotease)	(Glycoprotease)
+OorA subunit of 2-oxoglutarate:acceptor oxidoreductase	OorA subunit of
+RNA polymerase sigma factor RpoD (Sigma-A) (Major vegetative sigmafactor)	(Sigma-A) (Major vegetative sigmafactor)
+RTX toxins and related Ca2 -binding protein	Ca2 -binding
+acetylornithine aminotransferase (acoat)	(acoat)
+adenylate kinase (ATP-AMP transphosphorylase)	(ATP-AMP transphosphorylase)
+alpha-2-macroglobulin family N- region	N- region
+amino acid
+anaeroBic dimethyl sulfoxide reductase chain b (dmso reductase iron-sulfur subunit)	(dmso reductase iron-sulfur subunit)
+aspartate aminotransferase (transaminase a) (aspat)	(transaminase a) (aspat)
+aspartate ammonia-lyase (Aspartase)	(Aspartase)
+aspartyl/glutamyl-tRNA(Asn/Gln) amidotransferase subunit B (Asp/Glu-ADT subunit B)	(Asp/Glu-ADT subunit B)
+bacterial Peptidase A24 N- domain family	black
+beta-lactamase HcpA (Cysteine-rich 28 kDaprotein)	(Cysteine-rich 28 kDaprotein)
+biotin carboxylase (Acetyl-CoA carboxylase subunit A) (ACC)	(Acetyl-CoA carboxylase subunit A) (ACC)
+carboxy--processing protease (C-terminal-processing protease)	(C-terminal-processing protease)
+cation ABC transporter, permease protein	permease protein
+crispr-associated protein Cas2	crispr-
+crispr-associated protein Cas4	crispr-
+crispr-associated protein Cas6	crispr-
+cytochrome c551 peroxidase (Cytochrome cperoxidase) (CCP)	(Cytochrome cperoxidase) (CCP)
+cytosol aminopeptidase (Leucine aminopeptidase) (LAP)(Leucyl aminopeptidase)	(Leucine aminopeptidase) (LAP)(Leucyl aminopeptidase)
+dihydroorotase (DHOase)	(DHOase)
+dna translocase ftsk (dna translocase spoiiie)	(dna translocase spoiiie)
+endonuclease 4 (Endonuclease IV) (EndodeoxyribonucleaseIV)	(Endonuclease IV) (EndodeoxyribonucleaseIV)
+enoyl-[acyl-carrier-protein] reductase [NADH] (nadh-dependent enoyl-acp reductase)	(nadh-dependent enoyl-acp reductase)
+exbd\tolr family transport protein	exbd\tolr
+ferric uptake regulation protein (Ferric uptake regulator)	(Ferric uptake regulator)
+fkbp-type peptidyl-prolyl cis-trans isomerase slyd (ppiase) (rotamase)	(ppiase) (rotamase)
+general secretion pathway protein E (Type II traffic warden ATPase)(Cholera toxin secretion protein EpsE)	(Type II traffic warden ATPase)(Cholera toxin secretion protein EpsE)
+geranyltranstransferase (Farnesyl-diphosphate synthase)(FPP synthase)	(Farnesyl-diphosphate synthase)(FPP synthase)
+glutamyl-tRNA(Gln) amidotransferase subunit A (Glu-ADTsubunit A)	(Glu-ADTsubunit A)
+gmp synthase [glutamine-hydrolyzing] (glutamineamidotransferase) (gmp synthetase) (gmps)	(glutamineamidotransferase) (gmp synthetase) (gmps)
+helix-turn-helix domain of resolvase protein	helix-turn-helix domain of
+histidine triad nucleotide-binding protein 2 (hint-2)(hint-3)	(hint-2)(hint-3)
+homoserine dehydrogenase (HDH)	(HDH)
+malate:quinone oxidoreductase (Malate dehydrogenase[acceptor]) (MQO)	(Malate dehydrogenase[acceptor]) (MQO)
+modification methylase CcrMI (Adenine-specificmethyltransferase CcrMI) (M.CcrMI)	(Adenine-specificmethyltransferase CcrMI) (M.CcrMI)
+modification methylase EcoRI (Adenine-specificmethyltransferase EcoRI) (M.EcoRI)	(Adenine-specificmethyltransferase EcoRI) (M.EcoRI)
+modification methylase StsI (Adenine-specificmethyltransferase StsI) (M.StsI)	(Adenine-specificmethyltransferase StsI) (M.StsI)
+nitrite reductase (cytochrome; ammonia-forming)	(cytochrome; ammonia-forming)
+nodulation efficiency protein D (NfeD)	(NfeD)
+nucleoside diphosphate kinase (NDK) (NDP kinase)(Nucleoside-2-P kinase)	(NDK) (NDP kinase)(Nucleoside-2-P kinase)
+penicillin-binding protein 1A (PBP-1a) (PBP1a)	(PBP-1a) (PBP1a)
+penicillin-binding protein 1A (PBP-1a) (PBP1a) (Penicillin-bindingprotein A)	(PBP-1a) (PBP1a) (Penicillin-bindingprotein A)
+peptidase M10A and M12B, matrixin and adamalysin
+peptidase M48, Ste24p
+peptidyl-prolyl cis-trans isomerase B (PPIase B)(Rotamase B)	(PPIase B)(Rotamase B)
+periplasmic protein-probably involved in high-affinity fe2 transport	protein-probably
+periplasmic solute binding protein family	binding protein family
+phenylacrylic acid decarboxylase (PAD)	(PAD)
+phosphate acetyltransferase (Phosphotransacetylase)	(Phosphotransacetylase)
+phosphomannomutase/phosphoglucomutase (PMM/PGM)	(PMM/PGM)
+polyribonucleotide nucleotidyltransferase (Polynucleotidephosphorylase) (PNPase)	(Polynucleotidephosphorylase) (PNPase)
+probable UDP-N-acetyl-D-mannosaminuronic acid transferase (UDP-ManNAcA transferase)	(UDP-ManNAcA transferase)
+probable inorganic polyphosphate/ATP-NAD kinase (Poly(P)/ATP NAD kinase)	(Poly(P)/ATP NAD kinase)
+processing protease
+prokaryotic N- methylation motif domain protein	N- methylation
+protease do
+putative 6-pyruvoyl tetrahydrobiopterin synthase (ptps)(ptp synthase)	(ptps)(ptp synthase)
+putative D-glucuronyl C5-epimerase (Heparin/heparansulfate:glucuronic acid C5 epimerase)	(Heparin/heparansulfate:glucuronic acid C5 epimerase)
+putative TPR Domain containing protein	Domain containing
+putative TonB family C- domain protein	C- domain
+putative adenylate kinase (ATP-AMP transphosphorylase)	(ATP-AMP transphosphorylase)
+putative beta-lactamase HcpC (Cysteine-richprotein C)	(Cysteine-richprotein C)
+putative cysteine repeat modular protein 1 PbCRM1	PbCRM1
+putative domain of unknown function	domain of unknown function
+putative helix-turn-helix containsing protein	containsing
+putative phosphoglycerol transferase I (Phosphatidylglycerol--membrane-oligosaccharide glycerophosphotransferase)	(Phosphatidylglycerol--membrane-oligosaccharide glycerophosphotransferase)
+putative prepilin-type N- cleavage/methylation domain protein	N- cleavage
+putative tmRNA
+redoxin superfamily
+regulatory protein dnir	dnir
+relaxase/Mobilization nuclease domain protein	domain protein
+restriction endonuclease R.IB	R.IB
+ribonuclease P protein component (RNaseP protein) (RNaseP protein) (Protein C5)	(RNaseP protein) (RNaseP protein) (Protein C5)
+seryl-tRNA synthetase (Serine--tRNA ligase) (SerRS)	(Serine--tRNA ligase) (SerRS)
+single-stranded DNA-binding protein (SSB) (Helix-destabilizingprotein)	(SSB) (Helix-destabilizingprotein)
+spfh domain
+succinate-semialdehyde dehydrogenase [NADP ] (ssdh)	(ssdh)
+succinyl-CoA synthetase beta chain (SCS-alpha)(Vegetative protein 63) (VEG63)	(SCS-alpha)(Vegetative protein 63) (VEG63)
+sulfate/thiosulfate import ATP-binding protein CysA (Sulfate-transporting ATPase)	(Sulfate-transporting ATPase)
+tRNA (guanine-N(7)-)-methyltransferase (tRNA(m7G46)-methyltransferase)	(tRNA(m7G46)-methyltransferase)
+tRNA uridine 5-carboxymethylaminomethyl modification enzyme GidA (Glucose-inhibited division protein A)	(Glucose-inhibited division protein A)
+thiamine biosynthesis protein:ExsB	:ExsB
+thiamine-monophosphate kinase (Thiamine-phosphatekinase)	(Thiamine-phosphatekinase)
+thiol peroxidase (Scavengase P20)	(Scavengase P20)
+thiol:disulfide interchange protein DsbD (Protein-disulfide reductase) (Disulfide reductase)	(Protein-disulfide reductase) (Disulfide reductase)
+thiredoxin
+threonine dehydratase catabolic (Threonine deaminase)	(Threonine deaminase)
+transporter, Ni2 -Co2 transporter	Ni2 -Co2
+trimethylamiNe-n-oxide reductase 2 (tmaoreductase 2) (trimethylamine oxidase 2)	(tmaoreductase 2) (trimethylamine oxidase 2)
+type III pantothenate kinase (Pantothenic acid kinase)(PanK-III)	(Pantothenic acid kinase)(PanK-III)
