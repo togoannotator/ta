@@ -18,6 +18,7 @@ RUN yum install -y \
   python3 \
   python3-devel
 RUN pip3 install regex pyahocorasick uvicorn==0.16.0
+RUN pip3 install fastapi
 COPY ./ta/modules.txt /opt/togoannotator/perl_modules/modules.txt
 RUN cpanm < /opt/togoannotator/perl_modules/modules.txt
 

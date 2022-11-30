@@ -55,11 +55,13 @@ services:
       - TA_URL=${TA_URL:-http://localhost:5000}
       - TA_ENV=${TA_ENV:-production}
       - TA_SERVER=${TA_SERVER:-}
+      - LANG=ja_JP.UTF-8
     volumes:
       - ./log:/opt/togoannotator/ta/WebService/log
       - ./dictionary/ref_data:/opt/togoannotator/ta/WebService/dictionary
     ports:
       - 5100:5100
+      - 8000:8000
     networks:
      - esnet
     restart: always
