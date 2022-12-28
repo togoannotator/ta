@@ -1,1 +1,1 @@
-../dict_cyanobacteria_curated.txt
+../app/dictionary/es_data/dict_cyanobacteria_curated.txt
