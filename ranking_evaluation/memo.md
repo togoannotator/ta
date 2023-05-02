@@ -55,12 +55,29 @@ transcriptional regulator family	univ	cs	15	LysR family transcriptional regulato
 ### 正解データ変換
 Google spreadsheetの作業シートからcs行のみフィルターしてコピー＆ペースト、ファイル出力後に変換
 
+[正解データ/"CP000776.1評価用"シート](https://docs.google.com/spreadsheets/d/1L7GPPxeBRCFoGc_Tjgolk95XO6XgdclEKEGMYdD8zFs/edit#gid=781252134)
+
 ```
 pbpaste >x
 ruby convert.rb > CP000776.1_2021-01-14.tsv
+ruby convert.rb > CP000776.1_2021-01-14v2.tsv
 ```
 
+
 * [2022-05-02] convert.rb内でxファイル指定されていたので、yファイルに変更
+
 ```
 egrep "  cs      " CP000776.1.raw-20230501  > y
 ruby convert.rb  > CP000776.1_2023-05-02.tsv
+```
+
+TODO: CP000776.1_2023-05-02.tsvを作成したが、[正解データ/"CP000776.1評価用"シート] のLeeさんが記載した期待される結果を含めて再作成する必要がありそう。検索精度評価の実行や入力の確認と合わせて実施する。
+
+### 検索精度評価の実行
+
+ゴールは、以下に配置されたスクリプトを実行して、[正解データ/"20210129_CP000776.1_2021-01-14v2.xlsx"](https://docs.google.com/spreadsheets/d/1L7GPPxeBRCFoGc_Tjgolk95XO6XgdclEKEGMYdD8zFs/edit#gid=1002851630&fvid=1670323391)相当のクエリ文字列	Precision	Recall	DCGの結果を得ること
+
+* https://github.com/togoannotator/ta/tree/elasticsearch/検索精度評価
+
+TODO: スクリプト実行手順が不明
+
