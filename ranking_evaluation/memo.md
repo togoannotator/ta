@@ -25,7 +25,7 @@ bin/make_correct_data_tmplate.pyを繰り返し呼び出す、t.shスクリプ�
 bash t.sh |tee CP000776.1.raw
 ```
 
-TogoAnnotatorのat097環境に対して実行する場合、make_correct_data_tmplate.py内のアクセスURLを変更した
+* [2022-05-01] TogoAnnotatorのat097環境に対して実行する場合、make_correct_data_tmplate.py内のアクセスURLを変更した
 
 ```
 bash t.sh |tee CP000776.1.raw-20230501
@@ -59,3 +59,8 @@ Google spreadsheetの作業シートからcs行のみフィルターしてコピ
 pbpaste >x
 ruby convert.rb > CP000776.1_2021-01-14.tsv
 ```
+
+* [2022-05-02] convert.rb内でxファイル指定されていたので、yファイルに変更
+```
+egrep "  cs      " CP000776.1.raw-20230501  > y
+ruby convert.rb  > CP000776.1_2023-05-02.tsv
