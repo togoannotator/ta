@@ -77,7 +77,6 @@ TODO: CP000776.1_2023-05-02.tsvを作成したが、[正解データ/"CP000776.1
 
 ゴールは、以下に配置されたスクリプトを実行して、[正解データ/"20210129_CP000776.1_2021-01-14v2.xlsx"](https://docs.google.com/spreadsheets/d/1L7GPPxeBRCFoGc_Tjgolk95XO6XgdclEKEGMYdD8zFs/edit#gid=1002851630&fvid=1670323391)相当のクエリ文字列	Precision	Recall	DCGの結果を得ること
 
-* https://github.com/togoannotator/ta/tree/elasticsearch/検索精度評価
-
-TODO: スクリプト実行手順が不明
+実行手順
+* https://github.com/togoannotator/ta/blob/elasticsearch/ranking_evaluation/検索精度評価/README_modify.md
 
