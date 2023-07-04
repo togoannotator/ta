@@ -1,0 +1,89 @@
+【コンテナ操作手順】
+
+・docker-compose.yml を用いて、TogoAnnotatorが動作するコンテナを
+　ビルド・起動・停止する手順を示します。
+
+・以降の説明は、/opt/ta/ta に GitHub から取得した
+　ファイルが展開され、必要なディレクトリ等が作成されていることを
+　前提としています。
+
+・初回は、「コンテナ構築・辞書データロード手順.txt」を参照して
+　必要なディレクトリの作成等を行ってください。
+
+・コマンドライン操作は、一般ユーザ（sudo権限あり）で実施することを
+　想定しています。
+
+
+＜全コンテナ一括操作＞
+
+1. コンテナのビルド
+
+　・次のコマンドで、TogoAnnotatorコンテナのビルドを行います。
+　　(その他：nginx, elasticsearch, kibana についてはビルド不要のため行いません)
+　
+　　sudo docker-compse build
+
+　・ビルドに成功すると、イメージが作成されます。
+　　次のコマンドで確認できます。
+　　
+　　sudo docker images
+　　
+　　→以下のように ta:latest のコンテナが存在すれば成功しています。
+　　
+　　REPOSITORY      TAG         IMAGE ID        CREATED         SIZE
+　　ta              latest      2e8bde033966    2 weeks ago     618MB
+　
+　・再ビルドを行った場合、「<none>」となったイメージが
+　　残りますので、適宜削除してください。
+　
+　　sudo docker rmi ＜イメージID＞
+
+
+2. コンテナの起動
+
+　・次のコマンドを実行することで、taコンテナを含む全てのコンテナが
+　　起動します。
+　　
+　　sudo docker-compose up -d
+
+　・コンテナの起動状態は、次のコマンドで確認できます。
+　　
+　　sudo docker-compose ps
+
+　・コンテナの状態が「Up」になっていれば、起動に成功しています。
+　　コンテナが「Restarting」のようになっている場合は、起動に失敗
+　　している可能性が高いため、確認してください。
+
+
+3. コンテナの停止
+
+　・次のコマンドを実行することで、taコンテナを含む全てのコンテナが
+　　終了します。
+　　
+　　sudo docker-compose down
+
+　・次のコマンドで、コンテナの一覧が表示され無くなれば終了しています。
+　　
+　　sudo docker-compose ps
+
+
+＜コンテナ個別操作＞
+
+4. コンテナの起動／再起動
+
+　・taコンテナ個別に起動する場合は、次のコマンドを実行します。
+　　
+　　sudo docker-compose up -d ta
+
+　・再起動する場合は、次のコマンドを実行します。
+　　
+　　sudo docker-compose restart ta
+
+5. コンテナの停止
+
+　・taコンテナ個別に停止する場合は、次のコマンドを実行します。
+　　
+　　sudo docker-compose down ta
+
+
+以上

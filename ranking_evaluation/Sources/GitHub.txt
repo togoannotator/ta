@@ -1,0 +1,10 @@
+辞書データローダーの成果物は、GitHub上に登録済みです。
+
+プロジェクトURL
+https://github.com/togoannotator/ta
+
+ブランチ名
+elasticsearch
+
+※変更ファイル詳細は、機能設計書を参照願います。
+
