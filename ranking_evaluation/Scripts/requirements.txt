@@ -5,5 +5,5 @@ elasticsearch==7.7.1
 idna==2.10
 loguru==0.5.2
 requests==2.24.0
-urllib3==1.25.10
+urllib3==1.26.5
 win32-setctime==1.0.2
