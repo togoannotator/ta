@@ -1,29 +1,26 @@
 # Ranking Evaluationによるクエリ評価
 ## 1. 概要
-Elasticsearch インデックスに対して Ranking Evaluation APIリクエストを発行し、評価値をファイル出力・Kibanaによる可視化をおこなう。
-
-各種設定値を `docker/.env` ファイルに記述し、docker-composeで実行する。
+Elasticsearch インデックスに対して Ranking Evaluation APIリクエストを発行し、評価値をファイル出力・Kibanaによる可視化をおこなう。各種設定値を `docker/.env` ファイルに記述し、docker-composeで実行する。
 
 なお、ダッシュボード作成は docker-composeとは別途、shellスクリプトもしくはbatスクリプトを実行する構成となっている。
 
 ### モジュール構成
 #### (1) evaluator
-`input` フォルダ（`.env`で指定可能）にあるクエリおよび正解データを読み込み、`output` フォルダ（`.env`で指定可能）に結果を出力する。正解データの形式は ndjson, csv, tsvをサポートしている。
+`.env`で指定されたパスの`input` フォルダにあるクエリデータ`query.json`および正解データ`docs.ndjson`を読み込み、`.env`で指定されたパスの`output` フォルダに結果を出力する。正解データの形式は ndjson, csv, tsvをサポートしている。
 
 出力結果はAPIレスポンスのJSONと、サマリ結果のCSVファイルが出力される。
 
 #### (2) indexer
-evaluatorが出力したサマリ結果のCSVを読み込み、Elasticsearchにインデキシングする。
+evaluatorが出力したサマリ結果のCSVを読み込み、Elasticsearchにインデキシングする。このとき、index templateが事前に読み込まれる。
 
-このとき、index templateが事前に読み込まれる。
 
-## 2. 事前準備
-### クエリと正解データの準備
-#### (1) 概要
-- inputフォルダ配下に、任意の名前のフォルダを作成し、その直下に次のファイルを作成する
-    1. `query.json` ← 評価したいクエリをjsonで記述する
-    2. `docs.ndjson` ← 正解ドキュメントのIDおよびrateを記述する
-- 詳細は `sample/input` 配下を参照
+## 2. クエリデータと正解データの事前準備
+inputフォルダ配下に、任意の名前のフォルダを作成し、その直下に次のファイルを作成する。詳細は `sample/input` 配下を参照。
+### (1) クエリデータ
+`query.json`として評価したいクエリを記述する
+
+### (2) 正解データ
+`docs.ndjson`として正解ドキュメントのIDおよびrateを記述する
 
 docs.ndjsonのフォーマットは下記の通り    
 ```
@@ -31,14 +28,17 @@ docs.ndjsonのフォーマットは下記の通り
 {"_id": "2", "rating":2}
 {"_id": "3", "rating":3}
 ```
-#### (2) 簡易ツール
-`mkdocs.py` を利用して、inputディレクトリ配下にクエリと正解データを生成することができる。
-（ツールは、Python3で動作する）
 
+
+inputディレクトリ配下にクエリと正解データは、簡易ツール`mkdocs.py` を利用して、生成することができる。ツールは、Python3で動作する。
+
+### mkdocs.pyによるクエリデータと正解データの生成
 あらかじめ、同ディレクトリにquery.templateファイルを置き、以下のコマンドを実行する。
+
 ```
 python3 mkdocs.py <input-file.tsv>
 ```
+
 `input-file.tsv` は、TSV形式で以下の列を持つファイルに対応する。
 1. 検索キーワード
 1. 辞書（Elasticsearchに登録されている辞書の呼称（以下のいずれかのみ対応））
@@ -59,8 +59,10 @@ python3 mkdocs.py <input-file.tsv>
 
 ※すでに出力されているデータは削除しない。同じ名前ならば上書きするが、変更されなかったファイルはそのまま残るので注意。
 
-## 3. DockerComposeを使用してクエリ評価を実施する
-### 3-1. .envの設定
+## 3. クエリ評価を実施する
+### 3-1. DockerComposeを使用してクエリ評価を実施する
+
+#### 3-1-1. .envの設定
 `docker/.env`に対象インデックスやホストを記述する。
 
 `.env`の設定例（`example/docker/.env`参照）
@@ -85,7 +87,7 @@ INDEXER_PASSWORD=changeme
 (以下省略)
 ```
 
-#### (1) 環境に合わせて変更する必要があるもの：
+##### 環境に合わせて変更する必要があるもの：
 - TARGET_INDEX
     - Evaluatorがクエリ検証を行う対象となるインデックス名
 - ES_HOST
@@ -103,7 +105,7 @@ INDEXER_PASSWORD=changeme
 - INDEXER_PASSWORD
     - (※Security機能を有効にしている場合のみ)IndexerがElasticsearchにログインするためのパスワード
 
-#### (2) 通常は変更しなくてよいもの：
+##### 通常は変更しなくてよいもの：
 - FILE_TYPE
     - 正解データのファイル形式
 - TEMPLATE_NAME
@@ -113,7 +115,7 @@ INDEXER_PASSWORD=changeme
 - RESULT_INDEX
     - Indexerが結果を投入するインデックス名
 
-### 3-2. コンテナをビルドする
+#### 3-1-2. コンテナをビルドする
 ```
 docker-compose build
 ```
@@ -123,12 +125,12 @@ docker-compose build
 docker-compose build --build-arg http_proxy=192.168.1.250:8080 --build-arg https_proxy=192.168.1.250:8080
 ```
 
-### 3-3. コンテナを立ち上げる
+#### 3-1-3. コンテナを立ち上げる
 ```
 docker-compose up
 ```
 
-### 3-4. 出力された結果を確認する
+#### 3-1-4. 出力された結果を確認する
 出力はデフォルトで、`output`フォルダに出力される (`.env`で指定可能)
 
 出力されるファイルは2種類ある。(YYYYMMDDは、出力した日付)
@@ -137,23 +139,25 @@ docker-compose up
 - result-YYYYMMDD.json
     - RankingEvaluation APIの出力結果
 
-## 4. コマンドラインからクエリ評価を実施する
+
+## 3-2. コマンドラインからクエリ評価を実施する
 ※DockerComposeを使用しないで、クエリ評価を実施する場合の手順
 
 `src/evaluator`、`src/indexer` 配下からコマンドで実行が可能
-### 4-1. コマンド例
+
+### 3-2-1. コマンド例
 （`sample/docker/.env` に記述された、`EVALUATOR_CMD` などを参考にすると良い）  
 ※ `.env` は不要。全て起動引数に含むため。
 ```
 python evaluation.py ${TARGET_INDEX} --host ${ES_HOST} -u ${ES_USER} -i ${INPUT_DIR} --http_proxy ${HTTP_PROXY} --https_proxy ${HTTPS_PROXY} -p ${ES_PASSWORD}
 ```
 
-## 5. ダッシュボードのインポート
+## 4. ダッシュボードのインポート
 `templates/kibana/import.bat` もしくは `templates/kibana/import.sh` を実行する。
 
 この時、環境変数 `KIBANA_HOST` にKibanaのIPアドレスとポート番号を登録する必要がある。
 
-### 5-1. 設定例
+### 4-1. 設定例
 #### (1) Windows
 `templates/kibana/import.bat` を実行する前に、コマンドラインで以下を実行する。
 ```
@@ -166,7 +170,7 @@ set KIBANA_HOST=127.0.0.1:5601
 KIBANA_HOST=127.0.0.1:5601
 ```
 
-## 6. CSVデータ出力
+## 5. CSVデータ出力
 `get-result.sh` を実行することで、Elasticsearchに投入した結果からCSVデータを作ることができる。
 
 ファイル中、ElasticsearchのIPアドレス（以下の127.0.0.1部分）を設定する。
