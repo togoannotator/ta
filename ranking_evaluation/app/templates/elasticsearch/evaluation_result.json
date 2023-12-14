@@ -1,0 +1,35 @@
+{
+  "index_patterns": [
+    "evaluation_result"
+  ],
+  "settings": {
+    "number_of_shards": "1",
+    "number_of_replicas": "0"
+  },
+  "mappings": {
+    "properties": {
+      "query_name": {
+        "type": "keyword"
+      },
+      "precision": {
+        "type": "float"
+      },
+      "recall": {
+        "type": "float"
+      },
+      "mean_reciprocal_rank": {
+        "type": "float"
+      },
+      "dcg": {
+        "type": "float"
+      },
+      "expected_reciprocal_rank": {
+        "type": "float"
+      },
+      "date": {
+        "type": "date",
+        "format": "yyyyMMdd-HHmm"
+      }
+    }
+  }
+}

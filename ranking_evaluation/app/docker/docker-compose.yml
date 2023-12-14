@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  evaluation:
+    build:
+      context: ../
+      dockerfile: docker/evaluation/Dockerfile
+    command: ${EVALUATOR_CMD}
+    volumes:
+      - ../input:/work/input
+      - ../output:/work/output
+  indexer:
+    build:
+      context: ../
+      dockerfile: docker/indexer/Dockerfile
+    command: ${INDEXER_CMD}
+    volumes:
+      - ../templates:/work/templates
+      - ../output:/work/output
+
+#volumes:
+#  input:
+#    driver: local
+#  output:
+#    driver: local
